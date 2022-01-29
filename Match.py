@@ -3,12 +3,15 @@ from datetime import datetime
 from typing import List, Optional
 import aiohttp
 import re
+import json
+
 from cevTypes.playByPlay import PlayByPlay
-
 from cevTypes.results import SetResult
+from cevTypes.stats import TeamStatistics
+from cevTypes.team import Team
 
 
-class MatchCentre:
+class Match:
     def __init__(self, html: str) -> None:
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
@@ -18,9 +21,12 @@ class MatchCentre:
     def _getParameter(self, link: str, parameter: str) -> str:
         return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
 
-    def _getLink(self, contains: str) -> str:
+    def _getLink(self, contains: str, index: int = 0) -> str:
         for umbracoLink in self._umbracoLinks:
             if contains in umbracoLink:
+                if not index == 0:
+                    index -= 1
+                    continue
                 return "https://" + umbracoLink.replace("amp;", "")
 
     async def init(self) -> None:
@@ -51,6 +57,7 @@ class MatchCentre:
 
     async def currentScore(self) -> str:
         match = await self._requestLiveScoresJsonByMatchId(False)
+        assert match is not None # not in live scores anymore (finished some time ago) -> find other way
         return SetResult.ParseList(match["setResults"])
 
     async def startTime(self) -> datetime:
@@ -67,8 +74,33 @@ class MatchCentre:
                 jdata = await resp.json(content_type=None)
                 return PlayByPlay(jdata)
 
+    async def homeTeam(self) -> Team:
+        async with aiohttp.ClientSession() as client:
+            playerStatsData = { }
+            teamData = { }
+            async with client.get(self._getLink("GetStartingTeamComponent", 0)) as resp:
+                teamData = await resp.json(content_type=None)
+            async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
+                playerStatsData = json.loads(await resp.json(content_type=None))
+            async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
+                teamStatsData = json.loads(await resp.json(content_type=None))
+            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, True))
+
+    async def awayTeam(self) -> Team:
+        async with aiohttp.ClientSession() as client:
+            playerStatsData = { }
+            teamData = { }
+            teamStatsData = { }
+            async with client.get(self._getLink("GetStartingTeamComponent", 1)) as resp:
+                teamData = await resp.json(content_type=None)
+            async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
+                playerStatsData = json.loads(await resp.json(content_type=None))
+            async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
+                teamStatsData = json.loads(await resp.json(content_type=None))
+            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, False))
+
     @staticmethod
-    async def ByUrl(url: str) -> MatchCentre:
+    async def ByUrl(url: str) -> Match:
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as resp:
-                return MatchCentre(await resp.text())
+                return Match(await resp.text())
