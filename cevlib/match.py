@@ -30,6 +30,7 @@ class Match:
                 return "https://" + umbracoLink.replace("amp;", "")
 
     async def init(self) -> None:
+        """caches the match id, required for almost all requests"""
         self._matchId = await self._getMatchId()
 
     async def _getMatchId(self) -> str:

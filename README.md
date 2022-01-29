@@ -18,3 +18,22 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - test golden set
 - provide examples
 - competitions
+
+## Quick Start
+
+```python
+import asyncio
+
+from cevlib.match import Match
+
+async def main():
+    match = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
+    await match.init()
+    print(await match.currentScore())
+    print(await match.startTime())
+    print(await match.venue())
+    print(await match.playByPlay())
+    print(await match.homeTeam())
+
+asyncio.run(main())
+```
