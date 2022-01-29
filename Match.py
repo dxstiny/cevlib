@@ -75,29 +75,23 @@ class Match:
                 return PlayByPlay(jdata)
 
     async def homeTeam(self) -> Team:
-        async with aiohttp.ClientSession() as client:
-            playerStatsData = { }
-            teamData = { }
-            async with client.get(self._getLink("GetStartingTeamComponent", 0)) as resp:
-                teamData = await resp.json(content_type=None)
-            async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
-                playerStatsData = json.loads(await resp.json(content_type=None))
-            async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
-                teamStatsData = json.loads(await resp.json(content_type=None))
-            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, True))
+        return await self._getTeam(0, True)
 
     async def awayTeam(self) -> Team:
+        return await self._getTeam(1, False)
+
+    async def _getTeam(self, index: int, home: bool) -> Team:
         async with aiohttp.ClientSession() as client:
             playerStatsData = { }
             teamData = { }
             teamStatsData = { }
-            async with client.get(self._getLink("GetStartingTeamComponent", 1)) as resp:
+            async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
                 teamData = await resp.json(content_type=None)
             async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
                 playerStatsData = json.loads(await resp.json(content_type=None))
             async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
                 teamStatsData = json.loads(await resp.json(content_type=None))
-            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, False))
+            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home))
 
     @staticmethod
     async def ByUrl(url: str) -> Match:

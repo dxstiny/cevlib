@@ -13,6 +13,7 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - cleanup
 - improve rrror handling
 - read scores of finished games (that finished "long" ago)
+- progress (in minutes, now - started)
 - tests :)
 - test golden set
 - provide examples
