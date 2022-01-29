@@ -56,7 +56,7 @@ class Match:
                 if match["matchId"] == self._matchId:
                     return match
 
-    async def currentScore(self) -> str:
+    async def currentScore(self) -> List[SetResult]:
         match = await self._requestLiveScoresJsonByMatchId(False)
         assert match is not None # not in live scores anymore (finished some time ago) -> find other way
         return SetResult.ParseList(match["setResults"])
