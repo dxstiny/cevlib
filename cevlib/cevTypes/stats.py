@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import List
-from cevTypes.iType import IType
+from cevlib.cevTypes.iType import IType
 
 
 class TeamStatisticType(Enum):

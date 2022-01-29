@@ -1,8 +1,8 @@
 from __future__ import annotations
 from enum import Enum
 from typing import List, Optional
-from cevTypes.iType import IType
-from cevTypes.stats import PlayerStatistic, TeamStatistics
+from cevlib.cevTypes.iType import IType
+from cevlib.cevTypes.stats import PlayerStatistic, TeamStatistics
 
 
 class PlayerPosition(Enum):

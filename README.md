@@ -17,3 +17,4 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - tests :)
 - test golden set
 - provide examples
+- competitions

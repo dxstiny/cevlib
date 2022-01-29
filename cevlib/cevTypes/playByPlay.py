@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from cevTypes.results import SetResult
+from cevlib.cevTypes.results import SetResult
 
 
 class PlayType(Enum):

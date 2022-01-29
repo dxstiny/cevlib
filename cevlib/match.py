@@ -5,10 +5,10 @@ import aiohttp
 import re
 import json
 
-from cevTypes.playByPlay import PlayByPlay
-from cevTypes.results import SetResult
-from cevTypes.stats import TeamStatistics
-from cevTypes.team import Team
+from cevlib.cevTypes.playByPlay import PlayByPlay
+from cevlib.cevTypes.results import SetResult
+from cevlib.cevTypes.stats import TeamStatistics
+from cevlib.cevTypes.team import Team
 
 
 class Match:

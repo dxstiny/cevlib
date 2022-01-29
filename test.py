@@ -1,6 +1,6 @@
 import asyncio
 
-from Match import Match
+from cevlib.match import Match
 
 async def main():
     x = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
