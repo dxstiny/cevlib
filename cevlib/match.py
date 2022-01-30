@@ -16,6 +16,7 @@ from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 class Match:
     def __init__(self, html: str) -> None:
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
+        self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload/Photo/[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
         self._matchId: Optional[int] = None
         self._liveScoresCache: Optional[dict] = None
@@ -136,6 +137,10 @@ class Match:
     def finished(self) -> bool:
         return self._finished
 
+    @property
+    def gallery(self) -> List[str]:
+        return self._gallery
+ 
     async def duration(self) -> timedelta:
         if not self._finished:
             return datetime.utcnow() - await self.startTime()

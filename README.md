@@ -16,7 +16,6 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - test golden set
 - provide examples
 - Top Stats
-- Gallery
 - info (attendance, quotes, officials, etc.)
 - form
 - report
@@ -41,6 +40,9 @@ async def main():
     print(await match.matchCentreLink())
     print(await match.watchLink())
     print(await match.highlightsLink())
+    print(await match.topPlayers())
+    print(match.gallery)
+    print(match.finished)
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 asyncio.run(main())
