@@ -73,7 +73,10 @@ class Match:
                 playerStatsData = json.loads(await resp.json(content_type=None))
             async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
                 teamStatsData = json.loads(await resp.json(content_type=None))
-            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home))
+            liveScore = await self._requestLiveScoresJsonByMatchId()
+            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home),
+                liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
+                liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
 
 
     # GET
@@ -115,6 +118,18 @@ class Match:
             async with client.get(self._getLink("getlivescorehero")) as resp:
                 jdata = await resp.json(content_type=None)
                 return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
+
+    async def matchCentreLink(self) -> str:
+        jdata = await self._requestLiveScoresJsonByMatchId()
+        return jdata.get("matchCentreLink")
+
+    async def watchLink(self) -> str:
+        jdata = await self._requestLiveScoresJsonByMatchId()
+        return jdata.get("watchLink")
+
+    async def highlightsLink(self) -> str:
+        jdata = await self._requestLiveScoresJsonByMatchId()
+        return jdata.get("highlightsLink")
 
 
     # CREATE

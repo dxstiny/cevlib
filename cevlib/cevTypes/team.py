@@ -111,16 +111,22 @@ class Player(IType):
 
 
 class Team(IType):
-    def __init__(self, data: dict, playerStatsData: dict, stats: TeamStatistics) -> None:
+    def __init__(self,
+            data: dict,
+            playerStatsData: dict,
+            stats: TeamStatistics,
+            icon: Optional[str] = None,
+            nickname: Optional[str] = None) -> None:
         self._stats = stats
         playerStatsList: List[PlayerStatistic] = [ ]
         for team in playerStatsData.get("Teams"):
             playerStatsList.extend(team.get("Players"))
 
         teamLogo = data.get("TeamLogo") or { }
-        self._name = teamLogo.get("AltText")
-        self._logo = teamLogo.get("Url")
-        self._id = data.get("TeamId")
+        self._nickname: Optional[str] = nickname
+        self._name: Optional[str] = teamLogo.get("AltText")
+        self._logo: Optional[str] = icon or teamLogo.get("Url")
+        self._id: Optional[int] = data.get("TeamId")
         self._players: List[Player] = [ ]
         self._players.append(Player(data.get("TopLeftPlayer"), playerStatsList))
         self._players.append(Player(data.get("TopMidPlayer"), playerStatsList))
@@ -137,7 +143,23 @@ class Team(IType):
         return None not in (self._name, self._id, self._stats)
 
     def __repr__(self) -> str:
-        return f"(cevTypes.team.Team) {self._name} ({self._id}) {self._players}"
+        return f"(cevTypes.team.Team) {self._name} ({self._nickname}/{self._id}) {self._players}"
+
+    @property
+    def name(self) -> Optional[str]:
+        return self._name
+
+    @property
+    def nickname(self) -> Optional[str]:
+        return self._nickname
+
+    @property
+    def logo(self) -> Optional[str]:
+        return self._logo
+
+    @property
+    def id(self) -> Optional[int]:
+        return self._id
 
     @property
     def stats(self) -> TeamStatistics:
