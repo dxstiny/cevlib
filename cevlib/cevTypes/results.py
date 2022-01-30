@@ -15,7 +15,8 @@ class SetResult(IType):
 
     @property
     def valid(self) -> bool:
-        return None not in (self._homeScore, self._awayScore, self._setNumber, self._isInPlay)
+        return None not in (self._homeScore, self._awayScore, self._setNumber, self._isInPlay) \
+            and 0 not in (self._homeScore, self._awayScore)
 
     @property
     def homeScore(self) -> int:
@@ -60,9 +61,19 @@ class SetResult(IType):
         })
 
 
-class Result:
-    def __init__(self) -> None:
-        self._sets: List[SetResult] = []
-        self._goldenSet: Optional[SetResult] = None
-        self._homeScore: Optional[int] = 0
-        self._awayScore: Optional[int] = 0
+class Result(IType):
+    def __init__(self, data: dict) -> None:
+        self._sets: List[SetResult] = SetResult.ParseList(data.get("setResults") or [ ])
+        currentSet = SetResult(data.get("currentSetScore"))
+        if currentSet:
+            self._sets.append(currentSet)
+        self._goldenSet: Optional[SetResult] = data.get("hasGoldenSet") # TODO (wait for some match to include a golden set :) )
+        self._homeScore: Optional[int] = data.get("homeSetsWon") or 0
+        self._awayScore: Optional[int] = data.get("awaySetsWon") or 0
+
+    @property
+    def valid(self) -> bool:
+        return None not in (self._sets, self._homeScore, self._awayScore)
+
+    def __repr__(self) -> str:
+        return f"(cevTypes.results.Result) {self._homeScore}:{self._awayScore} (Golden Set: {self._goldenSet}) {self._sets}"

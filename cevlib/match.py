@@ -1,12 +1,12 @@
 from __future__ import annotations
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 import aiohttp
 import re
 import json
 
 from cevlib.cevTypes.playByPlay import PlayByPlay
-from cevlib.cevTypes.results import SetResult
+from cevlib.cevTypes.results import Result, SetResult
 from cevlib.cevTypes.stats import TeamStatistics
 from cevlib.cevTypes.team import Team
 
@@ -17,6 +17,15 @@ class Match:
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
         self._matchId: Optional[int] = None
         self._liveScoresCache: Optional[dict] = None
+        self._finished = False
+
+    async def init(self) -> None:
+        """caches the match id, required for almost all requests"""
+        self._matchId = await self._getMatchId()
+
+
+    # HELPERS
+
 
     def _getParameter(self, link: str, parameter: str) -> str:
         return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
@@ -28,10 +37,6 @@ class Match:
                     index -= 1
                     continue
                 return "https://" + umbracoLink.replace("amp;", "")
-
-    async def init(self) -> None:
-        """caches the match id, required for almost all requests"""
-        self._matchId = await self._getMatchId()
 
     async def _getMatchId(self) -> str:
         async with aiohttp.ClientSession() as client:
@@ -54,12 +59,30 @@ class Match:
         for competition in jdata["competitions"]:
             for match in competition["matches"]:
                 if match["matchId"] == self._matchId:
+                    self._finished = match.get("matchState_String") == "FINISHED"
                     return match
 
+    async def _getTeam(self, index: int, home: bool) -> Team:
+        async with aiohttp.ClientSession() as client:
+            playerStatsData = { }
+            teamData = { }
+            teamStatsData = { }
+            async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
+                teamData = await resp.json(content_type=None)
+            async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
+                playerStatsData = json.loads(await resp.json(content_type=None))
+            async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
+                teamStatsData = json.loads(await resp.json(content_type=None))
+            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home))
+
+
+    # GET
+
+
     async def currentScore(self) -> List[SetResult]:
-        match = await self._requestLiveScoresJsonByMatchId(False)
+        match = await self._requestLiveScoresJsonByMatchId(self._finished)
         assert match is not None # not in live scores anymore (finished some time ago) -> find other way
-        return SetResult.ParseList(match["setResults"])
+        return Result(match)
 
     async def startTime(self) -> datetime:
         match = await self._requestLiveScoresJsonByMatchId()
@@ -81,18 +104,21 @@ class Match:
     async def awayTeam(self) -> Team:
         return await self._getTeam(1, False)
 
-    async def _getTeam(self, index: int, home: bool) -> Team:
+    @property
+    def finished(self) -> bool:
+        return self._finished
+
+    async def duration(self) -> timedelta:
+        if not self._finished:
+            return datetime.utcnow() - await self.startTime()
         async with aiohttp.ClientSession() as client:
-            playerStatsData = { }
-            teamData = { }
-            teamStatsData = { }
-            async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
-                teamData = await resp.json(content_type=None)
-            async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
-                playerStatsData = json.loads(await resp.json(content_type=None))
-            async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
-                teamStatsData = json.loads(await resp.json(content_type=None))
-            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home))
+            async with client.get(self._getLink("getlivescorehero")) as resp:
+                jdata = await resp.json(content_type=None)
+                return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
+
+
+    # CREATE
+
 
     @staticmethod
     async def ByUrl(url: str) -> Match:

@@ -11,9 +11,8 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - observe scores (polling & subscription)
 - read calendar (e.g. get matches)
 - cleanup
-- improve rrror handling
+- improve error handling
 - read scores of finished games (that finished "long" ago)
-- progress (in minutes, now - started)
 - tests :)
 - test golden set
 - provide examples
