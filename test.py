@@ -15,6 +15,7 @@ async def main():
     print(await match.matchCentreLink())
     print(await match.watchLink())
     print(await match.highlightsLink())
+    print(await match.topPlayers())
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 asyncio.run(main())

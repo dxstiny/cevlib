@@ -1,4 +1,4 @@
-from cevlib.cevTypes.iType import IType
+from cevlib.types.iType import IType
 
 class TeamPoll(IType):
     def __init__(self, data: dict) -> None:

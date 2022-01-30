@@ -1,19 +1,7 @@
 from __future__ import annotations
-from enum import Enum
-from cevlib.cevTypes.iType import IType
+from cevlib.types.iType import IType
+from cevlib.types.types import CompetitionGender
 
-
-class CompetitionGender(Enum):
-    Women = "Women"
-    Men = "Men"
-    Unknown = "Unknown"
-
-    def Parse(value: str) -> CompetitionGender:
-        if value == "Women":
-            return CompetitionGender.Women
-        if value == "Men":
-            return CompetitionGender.Men
-        return CompetitionGender.Unknown
 
 class Competition(IType):
     def __init__(self, data: dict) -> None:

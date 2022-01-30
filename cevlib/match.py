@@ -4,12 +4,12 @@ from typing import List, Optional
 import aiohttp
 import re
 import json
-from cevlib.cevTypes.competition import Competition
+from cevlib.types.competition import Competition
 
-from cevlib.cevTypes.playByPlay import PlayByPlay
-from cevlib.cevTypes.results import Result, SetResult
-from cevlib.cevTypes.stats import TeamStatistics
-from cevlib.cevTypes.team import Team
+from cevlib.types.playByPlay import PlayByPlay
+from cevlib.types.results import Result, SetResult
+from cevlib.types.stats import TeamStatistics, TopPlayer, TopPlayers
+from cevlib.types.team import Team
 from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 
 
@@ -32,13 +32,15 @@ class Match:
     def _getParameter(self, link: str, parameter: str) -> str:
         return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
 
-    def _getLink(self, contains: str, index: int = 0) -> str:
+    def _getLinks(self, contains: str) -> str:
+        eligibleLinks = [ ]
         for umbracoLink in self._umbracoLinks:
             if contains in umbracoLink:
-                if not index == 0:
-                    index -= 1
-                    continue
-                return "https://" + umbracoLink.replace("amp;", "")
+                eligibleLinks.append("https://" + umbracoLink.replace("amp;", ""))
+        return eligibleLinks
+
+    def _getLink(self, contains: str, index: int = 0) -> str:
+        return self._getLinks(contains)[index]
 
     async def _getMatchId(self) -> str:
         async with aiohttp.ClientSession() as client:
@@ -159,6 +161,16 @@ class Match:
             async with client.get(self._getLink("getlivescorehero")) as resp:
                 jdata = await resp.json(content_type=None)
                 return Competition(jdata)
+
+    async def topPlayers(self) -> TopPlayers:
+        topPlayers = TopPlayers()
+        links = self._getLinks("GetTopStatisticsComponent")
+        for link in links:
+            async with aiohttp.ClientSession() as client:
+                async with client.get(link) as resp:
+                    jdata = await resp.json(content_type=None)
+                    topPlayers.append(TopPlayer(jdata))
+        return topPlayers
 
 
     # CREATE

@@ -1,31 +1,7 @@
 from __future__ import annotations
-
-from enum import Enum
 from typing import List
-from cevlib.cevTypes.iType import IType
-
-
-class TeamStatisticType(Enum):
-    WinningSpikes = "winningSpikes"
-    KillBlocks = "killBlocks"
-    Aces = "aces"
-    OpponentErrors = "oppnentErrors"
-    Points = "points"
-    Unknown = "unknown"
-
-    @staticmethod
-    def Parse(value: str) -> TeamStatisticType:
-        if value == "Winning Spikes":
-            return TeamStatisticType.WinningSpikes
-        if value == "Kill Blocks":
-            return TeamStatisticType.KillBlocks
-        if value == "Aces":
-            return TeamStatisticType.Aces
-        if value == "Opponent Errors":
-            return TeamStatisticType.OpponentErrors
-        if value == "Points":
-            return TeamStatisticType.Points
-        return TeamStatisticType.Unknown
+from cevlib.types.iType import IType
+from cevlib.types.types import Position, TeamStatisticType, TopPlayerType
 
 
 class TeamStatistic(IType):
@@ -132,3 +108,89 @@ class PlayerStatistic(IType):
 
     def __repr__(self) -> str:
         return f"(cevTypes.stats.PlayerStatistic) Spikes: {self._spikes} Blocks: {self._blocks} Points: {self._points} Serves: {self._serves} Receptions: {self._receptions}"
+
+
+class TopPlayerPlayer(IType):
+    def __init__(self, data: dict) -> None:
+        self._number: int = data.get("Number")
+        self._name: str = data.get("Name")
+        self._position = Position.Parse(data.get("Position"))
+        self._score: int = data.get("Score")
+        self._nationality: str = data.get("Team")
+        self._image: str = data.get("Image")
+
+    @property
+    def valid(self) -> bool:
+        return None not in (self._number, self._name, self._position, self._score)
+
+    @property
+    def number(self) -> int:
+        return self._number
+
+    @property
+    def score(self) -> int:
+        return self._score
+
+    @property
+    def position(self) -> Position:
+        return self._position
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def nationality(self) -> str:
+        return self._nationality
+
+    @property
+    def image(self) -> str:
+        return self._image
+
+    def __repr__(self) -> str:
+        return f"(cevTypes.stats.TopPlayerPlayer) {self._name} ({self._number}) Score: {self._score} as {self._position}"
+
+
+class TopPlayer(IType):
+    def __init__(self, data: dict) -> None:
+        self._type = TopPlayerType.Parse(data.get("Type"))
+        self._players = [ ]
+        for player in data["Match"]["Players"]:
+            self._players.append(TopPlayerPlayer(player))
+
+    @property
+    def valid(self) -> bool:
+        return len(self._players)
+
+    @property
+    def type(self) -> TopPlayerType:
+        return self._type
+
+    @property
+    def players(self) -> List[TopPlayerPlayer]:
+        return self._players
+
+    @property
+    def topPlayer(self) -> TopPlayerPlayer:
+        return self._players[0]
+
+    def __repr__(self) -> str:
+        return f"(cevTypes.stats.TopPlayer) {self._type} {self._players}"
+
+
+class TopPlayers(IType):
+    def __init__(self) -> None:
+        self._topPlayers: List[TopPlayer] = [ ]
+
+    def append(self, topPlayer: TopPlayer) -> None:
+        for player in self._topPlayers:
+            if player.type == topPlayer.type:
+                return
+        self._topPlayers.append(topPlayer)
+
+    @property
+    def valid(self) -> bool:
+        return True
+
+    def __repr__(self) -> str:
+        return f"(cevTypes.stats.TopPlayers) {self._topPlayers}"

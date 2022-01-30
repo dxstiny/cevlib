@@ -1,74 +1,16 @@
 from __future__ import annotations
-from enum import Enum
 from typing import List, Optional
-from cevlib.cevTypes.iType import IType
-from cevlib.cevTypes.matchPoll import TeamPoll
-from cevlib.cevTypes.stats import PlayerStatistic, TeamStatistics
-
-
-class PlayerPosition(Enum):
-    Setter = "setter"
-    MiddleBlocker = "middleBlocker"
-    OutsideSpiker = "outsideSpiker"
-    Opposite = "opposite"
-    Libero = "libero"
-    HeadCoach = "headCoach"
-    Unknown = "unknown"
-
-    @staticmethod
-    def Parse(value: str) -> PlayerPosition:
-        if value == "Setter":
-            return PlayerPosition.Setter
-        if value == "Middle blocker":
-            return PlayerPosition.MiddleBlocker
-        if value == "Outside spiker":
-            return PlayerPosition.OutsideSpiker
-        if value == "Opposite":
-            return PlayerPosition.Opposite
-        if value == "Libero":
-            return PlayerPosition.Libero
-        if value == "Head Coach":
-            return PlayerPosition.HeadCoach
-        return PlayerPosition.Unknown
-
-
-class Zone(Enum):
-    One = 1
-    Two = 2
-    Three = 3
-    Four = 4
-    Five = 5
-    Six = 6
-    Sub = 0
-    Featured = 7
-    Unknown = -1
-
-    @staticmethod
-    def Parse(value: int) -> Zone:
-        if value == 1:
-            return Zone.One
-        if value == 2:
-            return Zone.Two
-        if value == 3:
-            return Zone.Three
-        if value == 4:
-            return Zone.Four
-        if value == 5:
-            return Zone.Five
-        if value == 6:
-            return Zone.Six
-        if value in (7, 8):
-            return Zone.Featured
-        if value == 0:
-            return Zone.Sub
-        return Zone.Unknown
+from cevlib.types.iType import IType
+from cevlib.types.matchPoll import TeamPoll
+from cevlib.types.stats import PlayerStatistic, TeamStatistics
+from cevlib.types.types import Position, Zone
 
 
 class Player(IType):
     def __init__(self, data: dict, playerStatsData: list) -> None:
         self._number = data.get("Number")
         self._name = data.get("Name").title()
-        self._position = PlayerPosition.Parse(data.get("Position"))
+        self._position = Position.Parse(data.get("Position"))
         self._image = data.get("Image")
         self._isCaptain = data.get("isCaptain") or False
         self._zone = Zone.Parse(data.get("PositionNumber"))
@@ -88,7 +30,7 @@ class Player(IType):
         return self._zone
     
     @property
-    def position(self) -> PlayerPosition:
+    def position(self) -> Position:
         return self._position
 
     @property
@@ -174,7 +116,7 @@ class Team(IType):
 
     def getFirstPlayer(self,
                   zone: Optional[Zone] = None,
-                  position: Optional[PlayerPosition] = None,
+                  position: Optional[Position] = None,
                   id_: Optional[int] = None,
                   number: Optional[int] = None) -> Optional[Player]:
         players = self.getPlayers(zone, position, id_, number)
@@ -184,7 +126,7 @@ class Team(IType):
 
     def getPlayers(self,
                   zone: Optional[Zone] = None,
-                  position: Optional[PlayerPosition] = None,
+                  position: Optional[Position] = None,
                   id_: Optional[int] = None,
                   number: Optional[int] = None) -> List[Player]:
         eligiblePlayers = self._players

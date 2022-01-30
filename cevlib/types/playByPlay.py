@@ -1,28 +1,7 @@
 from __future__ import annotations
 
-from enum import Enum
-
-from cevlib.cevTypes.results import SetResult
-
-
-class PlayType(Enum):
-    Spike = "spike"
-    Serve = "serve"
-    Block = "block"
-    FirstServe = "firstServe"
-    Unknown = "unknown"
-
-    @staticmethod
-    def Parse(typeName) -> PlayType:
-        if typeName == "Spike":
-            return PlayType.Spike
-        if typeName == "Serve":
-            return PlayType.Serve
-        if typeName == "Block":
-            return PlayType.Block
-        if typeName == "First Serve":
-            return PlayType.FirstServe
-        return PlayType.Unknown
+from cevlib.types.results import SetResult
+from cevlib.types.types import PlayType
 
 
 class Play:

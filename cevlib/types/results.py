@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from cevlib.cevTypes.iType import IType
+from cevlib.types.iType import IType
 
 
 class SetResult(IType):
