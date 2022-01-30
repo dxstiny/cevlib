@@ -4,6 +4,7 @@ from typing import List, Optional
 import aiohttp
 import re
 import json
+from cevlib.cevTypes.competition import Competition
 
 from cevlib.cevTypes.playByPlay import PlayByPlay
 from cevlib.cevTypes.results import Result, SetResult
@@ -152,6 +153,12 @@ class Match:
     async def highlightsLink(self) -> str:
         jdata = await self._requestLiveScoresJsonByMatchId()
         return jdata.get("highlightsLink")
+
+    async def competition(self) -> Competition:
+        async with aiohttp.ClientSession() as client:
+            async with client.get(self._getLink("getlivescorehero")) as resp:
+                jdata = await resp.json(content_type=None)
+                return Competition(jdata)
 
 
     # CREATE
