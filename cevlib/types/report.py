@@ -8,14 +8,20 @@ from cevlib.types.iType import IType
 class MatchReport(IType):
     def __init__(self, html: str) -> None:
         soup = BeautifulSoup(html, "html.parser")
-        matchReport = soup.find("div", class_="match-report")
-        self._headline = matchReport.h2.get_text(strip=True)
-        self._body = matchReport.find("div", class_="match-report__summary-container").p.text
+        try:
+            matchReport = soup.find("div", class_="match-report")
+            self._headline = matchReport.h2.get_text(strip=True)
+            self._body = matchReport.find("div", class_="match-report__summary-container").p.text
 
-        matchReport.decompose()
-        matchReport = soup.find("div", class_="match-report")
-        self._quotes = MatchQuote.Parse(soup)
-        self._inNumbers = MatchInNumber.Parse(matchReport)
+            matchReport.decompose()
+            matchReport = soup.find("div", class_="match-report")
+            self._quotes = MatchQuote.Parse(soup)
+            self._inNumbers = MatchInNumber.Parse(matchReport)
+        except AttributeError:
+            self._headline = None
+            self._body = None
+            self._quotes = [ ]
+            self._inNumbers = [ ]
 
     @property
     def valid(self) -> bool:

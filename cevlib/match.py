@@ -104,26 +104,29 @@ class Match:
                 matchpolldata = await resp.json(content_type=None)
             return ScoreHeroToJson.convert(livescorehero, matchpolldata)
 
-    async def _getTeam(self, index: int, home: bool) -> Team:
-        async with aiohttp.ClientSession() as client:
-            playerStatsData = { }
-            teamData = { }
-            teamStatsData = { }
-            matchPoll = [ ]
-            async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
-                teamData = await resp.json(content_type=None)
-            async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
-                playerStatsData = json.loads(await resp.json(content_type=None))
-            async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
-                teamStatsData = json.loads(await resp.json(content_type=None))
-            async with client.get(self._getLink("GetMatchPoll")) as resp:
-                matchPoll = await resp.json(content_type=None)
-            liveScore = await self._requestLiveScoresJsonByMatchId()
-            form = await self._getForm()
-            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
-                form["HomeTeam"] if home else form["AwayTeam"],
-                liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
-                liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
+    async def _getTeam(self, index: int, home: bool) -> Optional[Team]:
+        try:
+            async with aiohttp.ClientSession() as client:
+                playerStatsData = { }
+                teamData = { }
+                teamStatsData = { }
+                matchPoll = [ ]
+                async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
+                    teamData = await resp.json(content_type=None)
+                async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
+                    playerStatsData = json.loads(await resp.json(content_type=None))
+                async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
+                    teamStatsData = json.loads(await resp.json(content_type=None))
+                async with client.get(self._getLink("GetMatchPoll")) as resp:
+                    matchPoll = await resp.json(content_type=None)
+                liveScore = await self._requestLiveScoresJsonByMatchId()
+                form = await self._getForm()
+                return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
+                    form["HomeTeam"] if home else form["AwayTeam"],
+                    liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
+                    liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
+        except IndexError:
+            return None
 
 
     # GET
@@ -142,11 +145,14 @@ class Match:
         match = await self._requestLiveScoresJsonByMatchId()
         return match["matchLocation"]
 
-    async def playByPlay(self) -> PlayByPlay:
-        async with aiohttp.ClientSession() as client:
-            async with client.get(self._getLink("GetPlayByPlayComponent")) as resp:
-                jdata = await resp.json(content_type=None)
-                return PlayByPlay(jdata)
+    async def playByPlay(self) -> Optional[PlayByPlay]:
+        try:
+            async with aiohttp.ClientSession() as client:
+                async with client.get(self._getLink("GetPlayByPlayComponent")) as resp:
+                    jdata = await resp.json(content_type=None)
+                    return PlayByPlay(jdata)
+        except IndexError:
+            return None
 
     async def matchPoll(self) -> PlayByPlay:
         async with aiohttp.ClientSession() as client:
@@ -154,10 +160,10 @@ class Match:
                 jdata = await resp.json(content_type=None)
                 return PlayByPlay(jdata)
 
-    async def homeTeam(self) -> Team:
+    async def homeTeam(self) -> Optional[Team]:
         return await self._getTeam(0, True)
 
-    async def awayTeam(self) -> Team:
+    async def awayTeam(self) -> Optional[Team]:
         return await self._getTeam(1, False)
 
     @property
@@ -175,7 +181,10 @@ class Match:
 
     async def duration(self) -> timedelta:
         if not self._finished:
-            return datetime.utcnow() - await self.startTime()
+            startTime = await self.startTime()
+            if datetime.utcnow() < startTime:
+                return timedelta()
+            return datetime.utcnow() - startTime
         async with aiohttp.ClientSession() as client:
             async with client.get(self._getLink("getlivescorehero")) as resp:
                 jdata = await resp.json(content_type=None)
