@@ -66,24 +66,31 @@ class Match:
 
     async def _tryGetFinishedGameData(self) -> Optional[dict]:
         async with aiohttp.ClientSession() as client:
+            self._finished = True
+            livescorehero = { }
+            matchpolldata = [ ]
             async with client.get(self._getLink("getlivescorehero")) as resp:
-                jdata = await resp.json(content_type=None)
-                self._finished = True
-                return ScoreHeroToJson.convert(jdata)
+                livescorehero = await resp.json(content_type=None)
+            async with client.get(self._getLink("GetMatchPoll")) as resp:
+                matchpolldata = await resp.json(content_type=None)
+            return ScoreHeroToJson.convert(livescorehero, matchpolldata)
 
     async def _getTeam(self, index: int, home: bool) -> Team:
         async with aiohttp.ClientSession() as client:
             playerStatsData = { }
             teamData = { }
             teamStatsData = { }
+            matchPoll = [ ]
             async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
                 teamData = await resp.json(content_type=None)
             async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
                 playerStatsData = json.loads(await resp.json(content_type=None))
             async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
                 teamStatsData = json.loads(await resp.json(content_type=None))
+            async with client.get(self._getLink("GetMatchPoll")) as resp:
+                matchPoll = await resp.json(content_type=None)
             liveScore = await self._requestLiveScoresJsonByMatchId()
-            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home),
+            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
                 liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
                 liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
 
@@ -107,6 +114,12 @@ class Match:
     async def playByPlay(self) -> PlayByPlay:
         async with aiohttp.ClientSession() as client:
             async with client.get(self._getLink("GetPlayByPlayComponent")) as resp:
+                jdata = await resp.json(content_type=None)
+                return PlayByPlay(jdata)
+
+    async def matchPoll(self) -> PlayByPlay:
+        async with aiohttp.ClientSession() as client:
+            async with client.get(self._getLink("GetMatchPoll")) as resp:
                 jdata = await resp.json(content_type=None)
                 return PlayByPlay(jdata)
 

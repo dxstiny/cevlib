@@ -1,6 +1,9 @@
+from typing import List
+
+
 class ScoreHeroToJson:
     @staticmethod
-    def convert(data: dict) -> dict:
+    def convert(data: dict, matchPollData: List[dict]) -> dict:
         return {
             "matchLocation": data["StadiumInformation"],
             "utcStartDate": data["MatchStartDateTimeUTC"],
@@ -16,7 +19,11 @@ class ScoreHeroToJson:
                 "awayScore": 0,
                 "setNumber": 0,
                 "isInPlay": False
-            }
+            },
+            "homeTeamNickname": matchPollData[0]["Value"],
+            "awayTeamNickname": matchPollData[1]["Value"],
+            "homeTeamId": matchPollData[0]["Id"],
+            "awayTeamId": matchPollData[1]["Id"]
         }
 
     @staticmethod

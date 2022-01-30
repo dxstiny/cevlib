@@ -2,6 +2,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import List, Optional
 from cevlib.cevTypes.iType import IType
+from cevlib.cevTypes.matchPoll import TeamPoll
 from cevlib.cevTypes.stats import PlayerStatistic, TeamStatistics
 
 
@@ -115,6 +116,7 @@ class Team(IType):
             data: dict,
             playerStatsData: dict,
             stats: TeamStatistics,
+            matchPollData: List[dict],
             icon: Optional[str] = None,
             nickname: Optional[str] = None) -> None:
         self._stats = stats
@@ -126,7 +128,8 @@ class Team(IType):
         self._nickname: Optional[str] = nickname
         self._name: Optional[str] = teamLogo.get("AltText")
         self._logo: Optional[str] = icon or teamLogo.get("Url")
-        self._id: Optional[int] = data.get("TeamId")
+        self._id: Optional[int] = int(data.get("TeamId") or "0")
+        self._poll = TeamPoll(matchPollData[0] if matchPollData[0]["Id"] == self._id else matchPollData[1])
         self._players: List[Player] = [ ]
         self._players.append(Player(data.get("TopLeftPlayer"), playerStatsList))
         self._players.append(Player(data.get("TopMidPlayer"), playerStatsList))
@@ -164,6 +167,10 @@ class Team(IType):
     @property
     def stats(self) -> TeamStatistics:
         return self._stats
+
+    @property
+    def poll(self) -> TeamPoll:
+        return self._poll
 
     def getFirstPlayer(self,
                   zone: Optional[Zone] = None,
