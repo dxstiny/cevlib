@@ -9,6 +9,7 @@ from cevlib.cevTypes.playByPlay import PlayByPlay
 from cevlib.cevTypes.results import Result, SetResult
 from cevlib.cevTypes.stats import TeamStatistics
 from cevlib.cevTypes.team import Team
+from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 
 
 class Match:
@@ -53,7 +54,7 @@ class Match:
                 self._liveScoresCache = jdata
                 return jdata
 
-    async def _requestLiveScoresJsonByMatchId(self, useCache = True) -> dict:
+    async def _requestLiveScoresJsonByMatchId(self, useCache = True) -> Optional[dict]:
         assert self._matchId
         jdata = await self._requestLiveScoresJson(useCache)
         for competition in jdata["competitions"]:
@@ -61,6 +62,14 @@ class Match:
                 if match["matchId"] == self._matchId:
                     self._finished = match.get("matchState_String") == "FINISHED"
                     return match
+        return await self._tryGetFinishedGameData()
+
+    async def _tryGetFinishedGameData(self) -> Optional[dict]:
+        async with aiohttp.ClientSession() as client:
+            async with client.get(self._getLink("getlivescorehero")) as resp:
+                jdata = await resp.json(content_type=None)
+                self._finished = True
+                return ScoreHeroToJson.convert(jdata)
 
     async def _getTeam(self, index: int, home: bool) -> Team:
         async with aiohttp.ClientSession() as client:

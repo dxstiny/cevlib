@@ -12,7 +12,6 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - read calendar (e.g. get matches)
 - cleanup
 - improve error handling
-- read scores of finished games (that finished "long" ago)
 - tests :)
 - test golden set
 - provide examples
