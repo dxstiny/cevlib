@@ -4,9 +4,11 @@ from typing import List, Optional
 import aiohttp
 import re
 import json
+from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
 from cevlib.types.competition import Competition
 
 from cevlib.types.playByPlay import PlayByPlay
+from cevlib.types.report import MatchReport
 from cevlib.types.results import Result, SetResult
 from cevlib.types.stats import TeamStatistics, TopPlayer, TopPlayers
 from cevlib.types.team import Team
@@ -18,13 +20,26 @@ class Match:
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload/Photo/[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
+        self._html = html
+        self._report: Optional[MatchReport] = None
         self._matchId: Optional[int] = None
         self._liveScoresCache: Optional[dict] = None
         self._finished = False
 
     async def init(self) -> None:
-        """caches the match id, required for almost all requests"""
+        """
+        caches the match id, required for:
+        - homeTeam/awayTeam
+        - currentScore
+        - startTime
+        - duration
+        - finished
+        - venue
+        - *Link
+        - report
+        """
         self._matchId = await self._getMatchId()
+        self._report = await asyncRunInThreadWithReturn(MatchReport, self._html)
 
 
     # HELPERS
@@ -140,7 +155,12 @@ class Match:
     @property
     def gallery(self) -> List[str]:
         return self._gallery
- 
+
+    @property
+    def report(self) -> MatchReport:
+        assert self._report
+        return self._report
+
     async def duration(self) -> timedelta:
         if not self._finished:
             return datetime.utcnow() - await self.startTime()
