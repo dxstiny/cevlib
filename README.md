@@ -15,6 +15,11 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - tests :)
 - test golden set
 - provide examples
+- Top Stats
+- Gallery
+- info (attendance, quotes, officials, etc.)
+- form
+- report
 
 ## Quick Start
 

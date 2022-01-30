@@ -24,6 +24,7 @@ class Competition(IType):
         self._phase = data.get("Phase")
         self._season = data.get("Season")
         self._matchNumber = data.get("MatchNumber")
+        self._logo = data.get("CompetitionLogo")
 
     @property
     def competition(self) -> str:
@@ -56,6 +57,10 @@ class Competition(IType):
     @property
     def matchNumber(self) -> str:
         return self._matchNumber
+
+    @property
+    def logo(self) -> str:
+        return self._logo
 
     def __repr__(self) -> str:
         return f"(cevTypes.competition.Competition) {self.competitionDisplayName} ({self._matchNumber}) {self._season} > {self._phase} > {self._groupPool} ({self._leg})"
