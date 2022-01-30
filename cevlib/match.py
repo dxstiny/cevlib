@@ -4,6 +4,7 @@ from typing import List, Optional
 import aiohttp
 import re
 import json
+from cevlib.exceptions import NotInitialisedException
 from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
 from cevlib.types.competition import Competition
 
@@ -27,6 +28,7 @@ class Match:
         self._formCache: Optional[dict] = None
         self._finished = False
         self._matchCentreLink = url
+        self._initialised = False
 
     async def init(self) -> None:
         """
@@ -43,6 +45,7 @@ class Match:
         """
         self._matchId = await self._getMatchId()
         self._report = await asyncRunInThreadWithReturn(MatchReport, self._html)
+        self._initialised = True
 
 
     # HELPERS
@@ -133,15 +136,21 @@ class Match:
 
 
     async def currentScore(self) -> List[SetResult]:
+        if not self._initialised:
+            raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchId(self._finished)
         assert match is not None # not in live scores anymore (finished some time ago) -> find other way
         return Result(match)
 
     async def startTime(self) -> datetime:
+        if not self._initialised:
+            raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchId()
         return datetime.strptime(match["utcStartDate"], "%Y-%m-%dT%H:%M:%SZ")
 
     async def venue(self) -> str:
+        if not self._initialised:
+            raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchId()
         return match["matchLocation"]
 
@@ -161,13 +170,19 @@ class Match:
                 return PlayByPlay(jdata)
 
     async def homeTeam(self) -> Optional[Team]:
+        if not self._initialised:
+            raise NotInitialisedException
         return await self._getTeam(0, True)
 
     async def awayTeam(self) -> Optional[Team]:
+        if not self._initialised:
+            raise NotInitialisedException
         return await self._getTeam(1, False)
 
     @property
     def finished(self) -> bool:
+        if not self._initialised:
+            raise NotInitialisedException
         return self._finished
 
     @property
@@ -176,10 +191,14 @@ class Match:
 
     @property
     def report(self) -> MatchReport:
+        if not self._initialised:
+            raise NotInitialisedException
         assert self._report
         return self._report
 
     async def duration(self) -> timedelta:
+        if not self._initialised:
+            raise NotInitialisedException
         if not self._finished:
             startTime = await self.startTime()
             if datetime.utcnow() < startTime:
@@ -195,10 +214,14 @@ class Match:
         return self._matchCentreLink
 
     async def watchLink(self) -> str:
+        if not self._initialised:
+            raise NotInitialisedException
         jdata = await self._requestLiveScoresJsonByMatchId()
         return jdata.get("watchLink")
 
     async def highlightsLink(self) -> str:
+        if not self._initialised:
+            raise NotInitialisedException
         jdata = await self._requestLiveScoresJsonByMatchId()
         return jdata.get("highlightsLink")
 
