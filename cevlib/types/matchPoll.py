@@ -6,7 +6,7 @@ class TeamPoll(IType):
         self._count = data.get("VoteCount")
 
     def __repr__(self) -> str:
-        return f"(cevTypes.matchPoll.TeamPoll) {self._count} ({self._percent})"
+        return f"(cevlib.types.matchPoll.TeamPoll) {self._count} ({self._percent})"
 
     @property
     def percent(self) -> float:

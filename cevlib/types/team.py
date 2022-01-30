@@ -50,7 +50,27 @@ class Player(IType):
         return self._stats
 
     def __repr__(self) -> str:
-        return f"(cevTypes.team.Player) {self._name} ({self._number}/{self._id}) {self._position} ({self._zone})"
+        return f"(cevlib.types.team.Player) {self._name} ({self._number}/{self._id}) {self._position} ({self._zone})"
+
+
+class FormMatch(IType):
+    def __init__(self, won: bool, link: str) -> None:
+        self._won = won
+        self._link = link
+
+    @staticmethod
+    def Parse(data: dict) -> List[FormMatch]:
+        matches: List[FormMatch] = [ ]
+        for (index, match) in enumerate(data.get("Matches") or [ ]):
+            matches.append(FormMatch(data["RecentForm"][index], match["MatchCentreUrl"]))
+        return matches
+
+    @property
+    def valid(self) -> bool:
+        return True
+    
+    def __repr__(self) -> str:
+        return f"(cevlib.types.team.FormMatch) {self._won} ({self._link})"
 
 
 class Team(IType):
@@ -59,6 +79,7 @@ class Team(IType):
             playerStatsData: dict,
             stats: TeamStatistics,
             matchPollData: List[dict],
+            form: dict,
             icon: Optional[str] = None,
             nickname: Optional[str] = None) -> None:
         self._stats = stats
@@ -67,6 +88,7 @@ class Team(IType):
             playerStatsList.extend(team.get("Players"))
 
         teamLogo = data.get("TeamLogo") or { }
+        self._form = FormMatch.Parse(form)
         self._nickname: Optional[str] = nickname
         self._name: Optional[str] = teamLogo.get("AltText")
         self._logo: Optional[str] = icon or teamLogo.get("Url")
@@ -87,8 +109,12 @@ class Team(IType):
     def valid(self) -> bool:
         return None not in (self._name, self._id, self._stats)
 
+    @property
+    def form(self) -> List[FormMatch]:
+        return self._form
+
     def __repr__(self) -> str:
-        return f"(cevTypes.team.Team) {self._name} ({self._nickname}/{self._id}) {self._players}"
+        return f"(cevlib.types.team.Team) {self._name} ({self._nickname}/{self._id}) {self._players}\n{self._form}"
 
     @property
     def name(self) -> Optional[str]:

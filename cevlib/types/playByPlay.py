@@ -11,7 +11,7 @@ class Play:
         self._playerName: str = data.get("PlayerName").title() # TODO player type
 
     def __repr__(self) -> str:
-        return f"(cevTypes.playByPlay.Play) {self._type} {self._currentScore} by {self._playerName}"
+        return f"(cevlib.types.playByPlay.Play) {self._type} {self._currentScore} by {self._playerName}"
 
 
 class Set:
@@ -20,7 +20,7 @@ class Set:
         self._setNumber = int(data.get("TabName").split(" ")[1])
 
     def __repr__(self) -> str:
-        return f"(cevTypes.playByPlay.Set) Set {self._setNumber} {self._plays}"
+        return f"(cevlib.types.playByPlay.Set) Set {self._setNumber} {self._plays}"
 
 
 class PlayByPlay:
@@ -28,4 +28,4 @@ class PlayByPlay:
         self._sets = [ Set(playEvent) for playEvent in data.get("PlayEvents") ]
 
     def __repr__(self) -> str:
-        return f"(cevTypes.playByPlay.PlayByPlay) {self._sets}"
+        return f"(cevlib.types.playByPlay.PlayByPlay) {self._sets}"

@@ -15,7 +15,7 @@ class TeamStatistic(IType):
         return None in (self._type, self._value)
 
     def __repr__(self) -> str:
-        return f"(cevTypes.stats.TeamStatistic) {self._type} {self._value} ({self._percent}%)"
+        return f"(cevlib.types.stats.TeamStatistic) {self._type} {self._value} ({self._percent}%)"
 
 
 class TeamStatisticSet(IType):
@@ -33,7 +33,7 @@ class TeamStatisticSet(IType):
                 return stat
 
     def __repr__(self) -> str:
-        return f"(cevTypes.stats.TeamStatisticSet) {self._name} {self._stats}"
+        return f"(cevlib.types.stats.TeamStatisticSet) {self._name} {self._stats}"
 
 
 class TeamStatistics(IType):
@@ -52,7 +52,7 @@ class TeamStatistics(IType):
         return True
 
     def __repr__(self) -> str:
-        return f"(cevTypes.stats.TeamStatistics) {self._setStats}"
+        return f"(cevlib.types.stats.TeamStatistics) {self._setStats}"
 
 
 class PlayerStatistic(IType):
@@ -107,7 +107,7 @@ class PlayerStatistic(IType):
         return self._receptionPerc
 
     def __repr__(self) -> str:
-        return f"(cevTypes.stats.PlayerStatistic) Spikes: {self._spikes} Blocks: {self._blocks} Points: {self._points} Serves: {self._serves} Receptions: {self._receptions}"
+        return f"(cevlib.types.stats.PlayerStatistic) Spikes: {self._spikes} Blocks: {self._blocks} Points: {self._points} Serves: {self._serves} Receptions: {self._receptions}"
 
 
 class TopPlayerPlayer(IType):
@@ -148,7 +148,7 @@ class TopPlayerPlayer(IType):
         return self._image
 
     def __repr__(self) -> str:
-        return f"(cevTypes.stats.TopPlayerPlayer) {self._name} ({self._number}) Score: {self._score} as {self._position}"
+        return f"(cevlib.types.stats.TopPlayerPlayer) {self._name} ({self._number}) Score: {self._score} as {self._position}"
 
 
 class TopPlayer(IType):
@@ -175,7 +175,7 @@ class TopPlayer(IType):
         return self._players[0]
 
     def __repr__(self) -> str:
-        return f"(cevTypes.stats.TopPlayer) {self._type} {self._players}"
+        return f"(cevlib.types.stats.TopPlayer) {self._type} {self._players}"
 
 
 class TopPlayers(IType):
@@ -193,4 +193,4 @@ class TopPlayers(IType):
         return True
 
     def __repr__(self) -> str:
-        return f"(cevTypes.stats.TopPlayers) {self._topPlayers}"
+        return f"(cevlib.types.stats.TopPlayers) {self._topPlayers}"

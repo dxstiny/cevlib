@@ -22,7 +22,7 @@ class MatchReport(IType):
         return True
 
     def __repr__(self) -> str:
-        return f"(cevTypes.report.MatchQuote) {self._headline} ({self._body})\n{self._quotes}\n{self._inNumbers}"
+        return f"(cevlib.types.report.MatchQuote) {self._headline} ({self._body})\n{self._quotes}\n{self._inNumbers}"
 
 
 class MatchInNumber(IType):
@@ -36,7 +36,7 @@ class MatchInNumber(IType):
         return True
 
     def __repr__(self) -> str:
-        return f"(cevTypes.report.MatchInNumber) {self._title}: {self._value} ({self._description})"
+        return f"(cevlib.types.report.MatchInNumber) {self._title}: {self._value} ({self._description})"
 
     @staticmethod
     def Parse(soup: Union[Tag, NavigableString]) -> List[MatchInNumber]:
@@ -58,7 +58,7 @@ class MatchQuote(IType):
         return True
 
     def __repr__(self) -> str:
-        return f"(cevTypes.report.MatchQuote) {self._cite} ({self._citeDescription}): '{self._quote}'"
+        return f"(cevlib.types.report.MatchQuote) {self._cite} ({self._citeDescription}): '{self._quote}'"
 
     @staticmethod
     def Parse(soup: BeautifulSoup) -> List[MatchQuote]:

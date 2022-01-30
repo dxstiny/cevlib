@@ -9,6 +9,7 @@ async def main():
     print(await match.competition())
     print(await match.topPlayers())
     print(match.gallery) # Disclaimer: Photos featured on the CEV Photo Galleries are downloadable copyright free for media purposes only and only if CEV is credited as the source material. They are protected by copyright for all other commercial purposes. Those wishing to use CEV Photo Gallery photos for other commercial purposes should contact press@cev.eu
+    print(match.matchCentreLink)
 
     await match.init()
 
@@ -17,7 +18,6 @@ async def main():
     print(await match.startTime())
     print(await match.venue())
     print(await match.homeTeam())
-    print(await match.matchCentreLink())
     print(await match.watchLink())
     print(await match.highlightsLink())
     print(match.finished)

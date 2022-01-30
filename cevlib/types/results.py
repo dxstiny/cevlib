@@ -39,7 +39,7 @@ class SetResult(IType):
         return self._isInPlay
 
     def __repr__(self) -> str:
-        return f"(cevTypes.results.setResult) {self._homeScore} - {self._awayScore} ({'ongoing' if self._isInPlay else 'finished'})"
+        return f"(cevlib.types.results.setResult) {self._homeScore} - {self._awayScore} ({'ongoing' if self._isInPlay else 'finished'})"
 
     @staticmethod
     def ParseList(setResults: List[dict]) -> List[SetResult]:
@@ -76,4 +76,4 @@ class Result(IType):
         return None not in (self._sets, self._homeScore, self._awayScore)
 
     def __repr__(self) -> str:
-        return f"(cevTypes.results.Result) {self._homeScore}:{self._awayScore} (Golden Set: {self._goldenSet}) {self._sets}"
+        return f"(cevlib.types.results.Result) {self._homeScore}:{self._awayScore} (Golden Set: {self._goldenSet}) {self._sets}"

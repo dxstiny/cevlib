@@ -16,7 +16,7 @@ from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 
 
 class Match:
-    def __init__(self, html: str) -> None:
+    def __init__(self, html: str, url: str) -> None:
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload/Photo/[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
@@ -24,7 +24,9 @@ class Match:
         self._report: Optional[MatchReport] = None
         self._matchId: Optional[int] = None
         self._liveScoresCache: Optional[dict] = None
+        self._formCache: Optional[dict] = None
         self._finished = False
+        self._matchCentreLink = url
 
     async def init(self) -> None:
         """
@@ -35,7 +37,8 @@ class Match:
         - duration
         - finished
         - venue
-        - *Link
+        - watchLink
+        - highlightsLink
         - report
         """
         self._matchId = await self._getMatchId()
@@ -57,6 +60,13 @@ class Match:
 
     def _getLink(self, contains: str, index: int = 0) -> str:
         return self._getLinks(contains)[index]
+
+    async def _getForm(self) -> dict:
+        if not self._formCache:
+            async with aiohttp.ClientSession() as client:
+                async with client.get(self._getLink("GetFormComponent")) as resp:
+                    self._formCache = json.loads(await resp.json(content_type=None))
+        return self._formCache
 
     async def _getMatchId(self) -> str:
         async with aiohttp.ClientSession() as client:
@@ -109,7 +119,9 @@ class Match:
             async with client.get(self._getLink("GetMatchPoll")) as resp:
                 matchPoll = await resp.json(content_type=None)
             liveScore = await self._requestLiveScoresJsonByMatchId()
+            form = await self._getForm()
             return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
+                form["HomeTeam"] if home else form["AwayTeam"],
                 liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
                 liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
 
@@ -169,9 +181,9 @@ class Match:
                 jdata = await resp.json(content_type=None)
                 return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
 
-    async def matchCentreLink(self) -> str:
-        jdata = await self._requestLiveScoresJsonByMatchId()
-        return jdata.get("matchCentreLink")
+    @property
+    def matchCentreLink(self) -> str:
+        return self._matchCentreLink
 
     async def watchLink(self) -> str:
         jdata = await self._requestLiveScoresJsonByMatchId()
@@ -205,4 +217,4 @@ class Match:
     async def ByUrl(url: str) -> Match:
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as resp:
-                return Match(await resp.text())
+                return Match(await resp.text(), url)

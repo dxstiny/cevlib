@@ -51,7 +51,7 @@ class Competition(IType):
         return self._logo
 
     def __repr__(self) -> str:
-        return f"(cevTypes.competition.Competition) {self.competitionDisplayName} ({self._matchNumber}) {self._season} > {self._phase} > {self._groupPool} ({self._leg})"
+        return f"(cevlib.types.competition.Competition) {self.competitionDisplayName} ({self._matchNumber}) {self._season} > {self._phase} > {self._groupPool} ({self._leg})"
 
     @property
     def valid(self) -> bool:
