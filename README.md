@@ -41,7 +41,7 @@ async def main():
     print(await match.watchLink())
     print(await match.highlightsLink())
     print(await match.topPlayers())
-    print(match.gallery)
+    print(match.gallery) # Disclaimer: Photos featured on the CEV Photo Galleries are downloadable copyright free for media purposes only and only if CEV is credited as the source material. They are protected by copyright for all other commercial purposes. Those wishing to use CEV Photo Gallery photos for other commercial purposes should contact press@cev.eu
     print(match.finished)
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
