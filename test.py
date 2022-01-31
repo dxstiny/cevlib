@@ -1,12 +1,12 @@
 import asyncio
 
-from cevlib.match import Match
+from cevlib.match import Match, MatchCache
 
 from time import time
 
 async def main():
     match = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
-    cache = await match.cache()
+    cache = await MatchCache.FromMatch(match)
 
     print(cache.playByPlay)
     print(cache.competition)

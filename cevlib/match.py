@@ -111,6 +111,10 @@ class MatchCache:
     def report(self) -> MatchReport:
         return self._report
 
+    @staticmethod
+    async def FromMatch(match: Match) -> MatchCache:
+        return await match.cache()
+
 
 class Match:
     def __init__(self, html: str, url: str) -> None:
