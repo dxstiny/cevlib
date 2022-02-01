@@ -13,29 +13,33 @@ class SetResult(IType):
         self._setNumber: Optional[int] = data.get("setNumber")
         self._isInPlay: Optional[bool] = data.get("isInPlay")
 
+    def toJson(self) -> dict:
+        return {
+            "homeScore": self.homeScore,
+            "awayScore": self.awayScore,
+            "setNumber": self.setNumber,
+            "isInPlay": self.isInPlay
+        }
+
     @property
     def valid(self) -> bool:
-        return None not in (self._homeScore, self._awayScore, self._setNumber, self._isInPlay) \
+        return None not in (self._homeScore, self._awayScore, self._setNumber, self._isInPlay)\
             and 0 not in (self._homeScore, self._awayScore)
 
     @property
     def homeScore(self) -> int:
-        assert self
         return self._homeScore
 
     @property
     def awayScore(self) -> int:
-        assert self
         return self._awayScore
 
     @property
     def setNumber(self) -> int:
-        assert self
         return self._setNumber
 
     @property
     def isInPlay(self) -> bool:
-        assert self
         return self._isInPlay
 
     def __repr__(self) -> str:
@@ -67,13 +71,42 @@ class Result(IType):
         currentSet = SetResult(data.get("currentSetScore"))
         if currentSet:
             self._sets.append(currentSet)
-        self._goldenSet: Optional[SetResult] = data.get("hasGoldenSet") # TODO (wait for some match to include a golden set :) )
-        self._homeScore: Optional[int] = data.get("homeSetsWon") or 0
-        self._awayScore: Optional[int] = data.get("awaySetsWon") or 0
+        self._hasGoldenSet: bool = data.get("hasGoldenSet") # TODO (wait for some match to include a golden set :) )
+        self._homeScore: int = data.get("homeSetsWon") or 0
+        self._awayScore: int = data.get("awaySetsWon") or 0
+
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, Result):
+            return False
+        return self.toJson() == __o.toJson()
+
+    def toJson(self) -> dict:
+        return {
+            "hasGoldenSet": self.hasGoldenSet,
+            "sets": [ set_.toJson() for set_ in self.sets ],
+            "homeScore": self.homeScore,
+            "awayScore": self.awayScore
+        }
+
+    @property
+    def hasGoldenSet(self) -> bool:
+        return self._hasGoldenSet
+
+    @property
+    def sets(self) -> List[SetResult]:
+        return self._sets
+
+    @property
+    def homeScore(self) -> int:
+        return self._homeScore
+
+    @property
+    def awayScore(self) -> int:
+        return self._awayScore
 
     @property
     def valid(self) -> bool:
         return None not in (self._sets, self._homeScore, self._awayScore)
 
     def __repr__(self) -> str:
-        return f"(cevlib.types.results.Result) {self._homeScore}:{self._awayScore} (Golden Set: {self._goldenSet}) {self._sets}"
+        return f"(cevlib.types.results.Result) {self._homeScore}:{self._awayScore} (Golden Set: {self._hasGoldenSet}) {self._sets}"

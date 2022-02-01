@@ -8,7 +8,6 @@ The Owner undertakes its utmost effort to ensure that the content provided in th
 In such cases, without prejudice to any legal prerogatives of Users to enforce their rights, Users are kindly asked to preferably report related complaints by opening an issue.
 
 ## TODOs
-- observe scores (polling & subscription)
 - read calendar (e.g. get matches)
 - cleanup
 - improve error handling

@@ -2,13 +2,14 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime, timedelta
 from time import time
-from typing import List, Optional
+from typing import Callable, Coroutine, List, Optional
 import aiohttp
 import re
 import json
 from cevlib.exceptions import NotInitialisedException
 from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
 from cevlib.types.competition import Competition
+from cevlib.types.iType import IType
 
 from cevlib.types.playByPlay import PlayByPlay
 from cevlib.types.report import MatchReport
@@ -16,11 +17,12 @@ from cevlib.types.results import Result
 from cevlib.types.stats import TeamStatistics, TopPlayer, TopPlayers
 from cevlib.types.team import Team
 from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
+from cevlib.types.types import MatchState
 
 
-class MatchCache:
+class MatchCache(IType):
     def __init__(self,
-                 playByPlay: PlayByPlay,
+                 playByPlay: Optional[PlayByPlay],
                  competition: Competition,
                  topPlayers: TopPlayers,
                  gallery: List[str],
@@ -33,8 +35,8 @@ class MatchCache:
                  awayTeam: Team,
                  watchLink: str,
                  highlightsLink: str,
-                 finished: bool,
-                 report: MatchReport) -> None:
+                 state: MatchState,
+                 report: Optional[MatchReport]) -> None:
         self._playByPlay = playByPlay
         self._competition = competition
         self._topPlayers = topPlayers
@@ -48,8 +50,31 @@ class MatchCache:
         self._venue = venue
         self._watchLink = watchLink
         self._highlightsLink = highlightsLink
-        self._finished = finished
+        self._state = state
         self._report = report
+
+    def toJson(self) -> dict:
+        return {
+            "playByPlay": self.playByPlay.toJson() if self.playByPlay else None,
+            "competition": self.competition.toJson(),
+            "topPlayers": self.topPlayers.toJson(),
+            "gallery": self.gallery,
+            "currentScore": self.currentScore.toJson(),
+            "matchCentreLink": self.matchCentreLink,
+            "watchLink": self.watchLink,
+            "highlightsLink": self.highlightsLink,
+            "duration": str(self.duration),
+            "startTime": str(self.startTime),
+            "venue": self.venue,
+            "homeTeam": self.homeTeam.toJson(),
+            "awayTeam": self.awayTeam.toJson(),
+            "report": self.report.toJson() if self.report else None,
+            "state": self.state.value
+        }
+
+    @property
+    def valid(self) -> bool:
+        return True
 
     @property
     def playByPlay(self) -> PlayByPlay:
@@ -104,8 +129,8 @@ class MatchCache:
         return self._highlightsLink
 
     @property
-    def finished(self) -> bool:
-        return self._finished
+    def state(self) -> MatchState:
+        return self._state
 
     @property
     def report(self) -> MatchReport:
@@ -116,7 +141,7 @@ class MatchCache:
         return await match.cache()
 
 
-class Match:
+class Match(IType):
     def __init__(self, html: str, url: str) -> None:
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload/Photo/[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
@@ -129,6 +154,13 @@ class Match:
         self._matchCentreLink = url
         self._initialised = False
         self._reportCache: Optional[MatchReport] = None
+        self._scoreObservers: List[Coroutine] = [ ]
+        self._scoreObserverInterval = 20
+        asyncio.create_task(self._observeScore())
+
+    @property
+    def valid(self) -> bool:
+        return len(self._umbracoLinks) and self._matchCentreLink is not None
 
     async def init(self) -> None:
         """
@@ -194,9 +226,9 @@ class Match:
                     return match
         return await self._tryGetFinishedGameData()
 
-    async def _tryGetFinishedGameData(self) -> Optional[dict]:
+    async def _tryGetFinishedGameData(self, trulyFinished = True) -> Optional[dict]:
         async with aiohttp.ClientSession() as client:
-            self._finished = True
+            self._finished = trulyFinished
             livescorehero = { }
             matchpolldata = [ ]
             async with client.get(self._getLink("getlivescorehero")) as resp:
@@ -227,11 +259,40 @@ class Match:
                     liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
                     liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
         except IndexError:
+            liveScore = await self._tryGetFinishedGameData(False)
+            return Team({ "TeamLogo": {
+                            "AltText": liveScore.get("homeTeam" if home else "awayTeam"),
+                            "Url": liveScore.get("homeTeamIcon" if home else "awayTeamIcon")
+                        } },
+                    { }, TeamStatistics({ }, home), [ ],
+                    { } if home else { },
+                    liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
+                    liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
             return None
 
 
     # GET
 
+
+    def setScoreObserverInterval(self, intervalS: int) -> None:
+        self._scoreObserverInterval = intervalS
+
+    def addScoreObserver(self, observer: Coroutine) -> None:
+        self._scoreObservers.append(observer)
+
+    def removeScoreObserver(self, observer: Coroutine) -> None:
+        self._scoreObservers.remove(observer)
+
+    async def _observeScore(self) -> None:
+        lastScore: Optional[Result] = None
+        while True:
+            if len(self._scoreObservers):
+                result = await self.currentScore()
+                if lastScore != result:
+                    lastScore = result
+                    for observer in self._scoreObservers:
+                        await observer(lastScore)
+            await asyncio.sleep(self._scoreObserverInterval)
 
     async def currentScore(self) -> Result:
         if not self._initialised:
@@ -245,6 +306,20 @@ class Match:
             raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchId()
         return datetime.strptime(match["utcStartDate"], "%Y-%m-%dT%H:%M:%SZ")
+
+    async def _started(self) -> bool:
+        startTime = await self.startTime()
+        return datetime.utcnow() >= startTime
+
+    async def _finishedF(self) -> bool:
+        if not self._initialised:
+            await self.init()
+        await self._requestLiveScoresJsonByMatchId()
+        return self._finished
+
+    async def state(self) -> MatchState:
+        started, finished = await asyncio.gather(self._started(), self._finishedF())
+        return MatchState.Parse(started, finished)
 
     async def venue(self) -> str:
         if not self._initialised:
@@ -272,19 +347,13 @@ class Match:
         return await self._getTeam(1, False)
 
     @property
-    def finished(self) -> bool:
-        if not self._initialised:
-            raise NotInitialisedException
-        return self._finished
-
-    @property
     def gallery(self) -> List[str]:
         return self._gallery
 
-    async def report(self) -> MatchReport:
+    async def report(self) -> Optional[MatchReport]:
         if not self._reportCache:
             self._reportCache = await asyncRunInThreadWithReturn(MatchReport, self._html)
-        return self._reportCache
+        return self._reportCache or None
 
     async def duration(self) -> timedelta:
         if not self._initialised:
@@ -307,13 +376,13 @@ class Match:
         if not self._initialised:
             raise NotInitialisedException
         jdata = await self._requestLiveScoresJsonByMatchId()
-        return jdata.get("watchLink")
+        return jdata.get("watchLink") or None
 
     async def highlightsLink(self) -> str:
         if not self._initialised:
             raise NotInitialisedException
         jdata = await self._requestLiveScoresJsonByMatchId()
-        return jdata.get("highlightsLink")
+        return jdata.get("highlightsLink") or None
 
     async def competition(self) -> Competition:
         async with aiohttp.ClientSession() as client:
@@ -344,6 +413,9 @@ class Match:
 
     # CONVERT
 
+
+    async def toJson(self) -> dict:
+        return (await self.cache()).toJson()
 
     async def cache(self,) -> MatchCache:
         """
@@ -383,6 +455,7 @@ class Match:
         afterInit.append(self.awayTeam())
         afterInit.append(self.watchLink())
         afterInit.append(self.highlightsLink())
+        afterInit.append(self.state())
         afterInitResults = await asyncio.gather(*afterInit)
         t3 = time()
 
@@ -399,5 +472,5 @@ class Match:
                           afterInitResults[9],
                           afterInitResults[10],
                           afterInitResults[11],
-                          self._finished,
+                          afterInitResults[12],
                           afterInitResults[3])

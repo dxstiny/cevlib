@@ -1,7 +1,7 @@
 from typing import List
 
 
-class ScoreHeroToJson:
+class ScoreHeroToTeam:
     @staticmethod
     def convert(data: dict, matchPollData: List[dict]) -> dict:
         return {
@@ -11,7 +11,7 @@ class ScoreHeroToJson:
             "homeSetsWon": data["HomeTeam"]["Score"],
             "awaySetsWon": data["AwayTeam"]["Score"],
             "hasGoldenSet": True if data["GoldenSet"] else False,
-            "setResults": ScoreHeroToJson._convertSets(data),
+            "setResults": ScoreHeroToTeam._convertSets(data),
             "matchState_String": "FINISHED",
             "matchNumber": "MatchNumber",
             "currentSetScore": {
@@ -20,10 +20,6 @@ class ScoreHeroToJson:
                 "setNumber": 0,
                 "isInPlay": False
             },
-            "homeTeam": data["HomeTeam"]["Name"],
-            "awayTeam": data["AwayTeam"]["Name"],
-            "homeTeamIcon": data["HomeTeam"]["Logo"]["Url"],
-            "awayTeamIcon": data["AwayTeam"]["Logo"]["Url"],
             "homeTeamNickname": matchPollData[0]["Value"],
             "awayTeamNickname": matchPollData[1]["Value"],
             "homeTeamId": matchPollData[0]["Id"],
@@ -37,14 +33,13 @@ class ScoreHeroToJson:
         sets = [ ]
         index = 1
         for mainSet in mainSets:
-            if mainSet:
-                sets.append({
-                    "homeScore": mainSet.split("-")[0],
-                    "awayScore": mainSet.split("-")[1],
-                    "setNumber": index,
-                    "isInPlay": False
-                })
-                index += 1
+            sets.append({
+                "homeScore": mainSet.split("-")[0],
+                "awayScore": mainSet.split("-")[1],
+                "setNumber": index,
+                "isInPlay": False
+            })
+            index += 1
         if goldenSet:
             sets.append({
                 "homeScore": goldenSet.split("-")[0],

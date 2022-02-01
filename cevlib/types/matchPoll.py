@@ -2,8 +2,14 @@ from cevlib.types.iType import IType
 
 class TeamPoll(IType):
     def __init__(self, data: dict) -> None:
-        self._percent = data.get("Percent")
-        self._count = data.get("VoteCount")
+        self._percent: float = data.get("Percent")
+        self._count: int = data.get("VoteCount")
+
+    def toJson(self) -> dict:
+        return {
+            "percent": self.percent,
+            "count": self.count
+        }
 
     def __repr__(self) -> str:
         return f"(cevlib.types.matchPoll.TeamPoll) {self._count} ({self._percent})"

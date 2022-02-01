@@ -25,6 +25,16 @@ class Player(IType):
     def valid(self) -> bool:
         return self._id is not None
 
+    def toJson(self) -> dict:
+        return {
+            "zone": self.zone.value,
+            "position": self.position.value,
+            "name": self.name,
+            "id": self.id,
+            "number": self.number,
+            "stats": self._stats.toJson() if self._stats else None
+        }
+
     @property
     def zone(self) -> Zone:
         return self._zone
@@ -58,10 +68,26 @@ class FormMatch(IType):
         self._won = won
         self._link = link
 
+    def toJson(self) -> dict:
+        return {
+            "won": self.won,
+            "link": self.link
+        }
+
+    @property
+    def won(self) -> bool:
+        return self._won
+
+    @property
+    def link(self) -> str:
+        return self._link
+
     @staticmethod
     def Parse(data: dict) -> List[FormMatch]:
         matches: List[FormMatch] = [ ]
         for (index, match) in enumerate(data.get("Matches") or [ ]):
+            if index >= len(data["RecentForm"]):
+                break
             matches.append(FormMatch(data["RecentForm"][index], match["MatchCentreUrl"]))
         return matches
 
@@ -84,7 +110,7 @@ class Team(IType):
             nickname: Optional[str] = None) -> None:
         self._stats = stats
         playerStatsList: List[PlayerStatistic] = [ ]
-        for team in playerStatsData.get("Teams"):
+        for team in playerStatsData.get("Teams") or [ ]:
             playerStatsList.extend(team.get("Players"))
 
         teamLogo = data.get("TeamLogo") or { }
@@ -93,17 +119,31 @@ class Team(IType):
         self._name: Optional[str] = teamLogo.get("AltText")
         self._logo: Optional[str] = icon or teamLogo.get("Url")
         self._id: Optional[int] = int(data.get("TeamId") or "0")
-        self._poll = TeamPoll(matchPollData[0] if matchPollData[0]["Id"] == self._id else matchPollData[1])
+        self._poll = TeamPoll(matchPollData[0] if matchPollData[0]["Id"] == self._id else matchPollData[1])\
+                     if len(matchPollData) == 2 else None
         self._players: List[Player] = [ ]
-        self._players.append(Player(data.get("TopLeftPlayer"), playerStatsList))
-        self._players.append(Player(data.get("TopMidPlayer"), playerStatsList))
-        self._players.append(Player(data.get("TopRightPlayer"), playerStatsList))
-        self._players.append(Player(data.get("BottomLeftPlayer"), playerStatsList))
-        self._players.append(Player(data.get("BottomMidPlayer"), playerStatsList))
-        self._players.append(Player(data.get("BottomRightPlayer"), playerStatsList))
-        self._players.append(Player(data.get("HeadCoach"), playerStatsList))
+        if "TopLeftPlayer" in data: # assume that the others are as well, might improve
+            self._players.append(Player(data.get("TopLeftPlayer"), playerStatsList))
+            self._players.append(Player(data.get("TopMidPlayer"), playerStatsList))
+            self._players.append(Player(data.get("TopRightPlayer"), playerStatsList))
+            self._players.append(Player(data.get("BottomLeftPlayer"), playerStatsList))
+            self._players.append(Player(data.get("BottomMidPlayer"), playerStatsList))
+            self._players.append(Player(data.get("BottomRightPlayer"), playerStatsList))
+            self._players.append(Player(data.get("HeadCoach"), playerStatsList))
         self._players.extend([ Player(player, playerStatsList) for player in data.get("FeaturedPlayers") or [ ] ])
         self._players.extend([ Player(player, playerStatsList) for player in data.get("SubPlayers") or [ ] ])
+
+    def toJson(self) -> dict:
+        return {
+            "name": self.name,
+            "nickname": self.nickname,
+            "logo": self.logo,
+            "id": self.id,
+            "stats": self.stats.toJson(),
+            "poll": self.poll.toJson() if self.poll else None,
+            "form": [ form.toJson() for form in self.form ],
+            "players": [ player.toJson() for player in self.players ]
+        }
 
     @property
     def valid(self) -> bool:
@@ -114,7 +154,7 @@ class Team(IType):
         return self._form
 
     def __repr__(self) -> str:
-        return f"(cevlib.types.team.Team) {self._name} ({self._nickname}/{self._id}) {self._players}\n{self._form}"
+        return f"(cevlib.types.team.Team) {self._name} ({self._nickname}/{self._id}) \nplayers={self._players}\nform={self._form}"
 
     @property
     def name(self) -> Optional[str]:
@@ -137,8 +177,12 @@ class Team(IType):
         return self._stats
 
     @property
-    def poll(self) -> TeamPoll:
+    def poll(self) -> Optional[TeamPoll]:
         return self._poll
+
+    @property
+    def players(self) -> List[Player]:
+        return self._players
 
     def getFirstPlayer(self,
                   zone: Optional[Zone] = None,

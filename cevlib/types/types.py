@@ -5,7 +5,7 @@ class TeamStatisticType(Enum):
     WinningSpikes = "winningSpikes"
     KillBlocks = "killBlocks"
     Aces = "aces"
-    OpponentErrors = "oppnentErrors"
+    OpponentErrors = "opponentErrors"
     Points = "points"
     Unknown = "unknown"
 
@@ -136,3 +136,18 @@ class PlayType(Enum):
         if typeName == "First Serve":
             return PlayType.FirstServe
         return PlayType.Unknown
+
+
+class MatchState(Enum):
+    Upcoming = "upcoming"
+    Live = "live"
+    Finished = "finished"
+
+    @staticmethod
+    def Parse(started: bool, finished: bool) -> MatchState:
+        if not started and not finished:
+            return MatchState.Upcoming
+        if started and not finished:
+            return MatchState.Live
+        if finished:
+            return MatchState.Finished

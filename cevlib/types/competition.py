@@ -5,7 +5,7 @@ from cevlib.types.types import CompetitionGender
 
 class Competition(IType):
     def __init__(self, data: dict) -> None:
-        self._competitionName = data.get("Competition").split("|")[0].removesuffix(" ")
+        self._name = data.get("Competition").split("|")[0].removesuffix(" ")
         self._gender = CompetitionGender.Parse(data.get("Competition").split("|")[1].removeprefix(" "))
         self._groupPool = data.get("GroupPool")
         self._leg = data.get("Leg")
@@ -15,12 +15,12 @@ class Competition(IType):
         self._logo = data.get("CompetitionLogo")
 
     @property
-    def competition(self) -> str:
-        return self._competitionName
+    def name(self) -> str:
+        return self._name
 
     @property
-    def competitionDisplayName(self) -> str:
-        return f"{self._competitionName} | {self._gender.value}"
+    def displayName(self) -> str:
+        return f"{self._name} | {self._gender.value}"
 
     @property
     def gender(self) -> CompetitionGender:
@@ -51,8 +51,21 @@ class Competition(IType):
         return self._logo
 
     def __repr__(self) -> str:
-        return f"(cevlib.types.competition.Competition) {self.competitionDisplayName} ({self._matchNumber}) {self._season} > {self._phase} > {self._groupPool} ({self._leg})"
+        return f"(cevlib.types.competition.Competition) {self.displayName} ({self._matchNumber}) {self._season} > {self._phase} > {self._groupPool} ({self._leg})"
 
     @property
     def valid(self) -> bool:
-        return None not in (self._competitionName, self._gender, self._matchNumber)
+        return None not in (self._name, self._gender, self._matchNumber)
+
+    def toJson(self) -> dict:
+        return {
+            "name": self.name,
+            "displayName": self.displayName,
+            "gender": self.gender.value,
+            "groupPool": self.groupPool,
+            "leg": self.leg,
+            "phase": self.phase,
+            "season": self.season,
+            "logo": self.logo,
+            "matchNumber": self.matchNumber
+        }
