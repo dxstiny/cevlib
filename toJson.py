@@ -7,7 +7,7 @@ from time import time
 import json
 
 async def main():
-    match = await Match.ByUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-cup-2022-women/ccw-54-mladost-zagreb-v-lks-commercecon-lodz/")
+    match = await Match.ByUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-men/chcm-61-halkbank-ankara-v-tallinn-technical-university/")
 
     x = await match.toJson()
     with open("sample.json", "w") as outfile:

@@ -97,6 +97,12 @@ class Result(IType):
         return self._sets
 
     @property
+    def latestSet(self) -> Optional[SetResult]:
+        if not len(self.sets):
+            return None
+        return self.sets[len(self.sets) - 1]
+
+    @property
     def homeScore(self) -> int:
         return self._homeScore
 

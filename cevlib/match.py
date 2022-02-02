@@ -2,7 +2,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime, timedelta
 from time import time
-from typing import Callable, Coroutine, List, Optional
+from typing import Coroutine, List, Optional
 import aiohttp
 import re
 import json
@@ -23,7 +23,7 @@ from cevlib.types.types import MatchState
 class MatchCache(IType):
     def __init__(self,
                  playByPlay: Optional[PlayByPlay],
-                 competition: Competition,
+                 competition: Optional[Competition],
                  topPlayers: TopPlayers,
                  gallery: List[str],
                  matchCentreLink: str,
@@ -56,7 +56,7 @@ class MatchCache(IType):
     def toJson(self) -> dict:
         return {
             "playByPlay": self.playByPlay.toJson() if self.playByPlay else None,
-            "competition": self.competition.toJson(),
+            "competition": self.competition.toJson() if self.competition else None,
             "topPlayers": self.topPlayers.toJson(),
             "gallery": self.gallery,
             "currentScore": self.currentScore.toJson(),
@@ -81,7 +81,7 @@ class MatchCache(IType):
         return self._playByPlay
 
     @property
-    def competition(self) -> Competition:
+    def competition(self) -> Optional[Competition]:
         return self._competition
 
     @property
@@ -143,6 +143,9 @@ class MatchCache(IType):
 
 class Match(IType):
     def __init__(self, html: str, url: str) -> None:
+        self._invalidMatchCentre = "This page can be replaced with a custom 404. Check the documentation for" in html
+        #if self._invalidMatchCentre:
+            #raise AttributeError("404")
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload/Photo/[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
@@ -181,8 +184,11 @@ class Match(IType):
     # HELPERS
 
 
-    def _getParameter(self, link: str, parameter: str) -> str:
-        return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
+    def _getParameter(self, link: str, parameter: str) -> Optional[str]:
+        try:
+            return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
+        except:
+            return None
 
     def _getLinks(self, contains: str) -> str:
         eligibleLinks = [ ]
@@ -191,8 +197,11 @@ class Match(IType):
                 eligibleLinks.append("https://" + umbracoLink.replace("amp;", ""))
         return eligibleLinks
 
-    def _getLink(self, contains: str, index: int = 0) -> str:
-        return self._getLinks(contains)[index]
+    def _getLink(self, contains: str, index: int = 0) -> Optional[str]:
+        links = self._getLinks(contains)
+        if len(links) > index:
+            return links[index]
+        return None
 
     async def _getForm(self) -> dict:
         if not self._formCache:
@@ -201,11 +210,14 @@ class Match(IType):
                     self._formCache = json.loads(await resp.json(content_type=None))
         return self._formCache
 
-    async def _getMatchId(self) -> str:
-        async with aiohttp.ClientSession() as client:
-            async with client.get(self._getLink("livescorehero")) as resp:
-                jdata = await resp.json(content_type=None)
-                return int(jdata.get("MatchId"))
+    async def _getMatchId(self) -> int:
+        try:
+            async with aiohttp.ClientSession() as client:
+                async with client.get(self._getLink("livescorehero")) as resp:
+                    jdata = await resp.json(content_type=None)
+                    return int(jdata.get("MatchId"))
+        except:
+            return None
 
     async def _requestLiveScoresJson(self, useCache = True) -> dict:
         if useCache and self._liveScoresCache:
@@ -215,6 +227,20 @@ class Match(IType):
                 jdata = await resp.json()
                 self._liveScoresCache = jdata
                 return jdata
+
+    async def _requestLiveScoresJsonByMatchSafe(self, useCache = True) ->  Optional[dict]:
+        return await (self._requestLiveScoresJsonByMatchId(useCache) if not self._invalidMatchCentre else self._requestLiveScoresJsonByMatchCentreLink(useCache))
+
+    async def _requestLiveScoresJsonByMatchCentreLink(self, useCache = True) -> Optional[dict]:
+        assert self._matchCentreLink
+        jdata = await self._requestLiveScoresJson(useCache)
+        for competition in jdata["competitions"]:
+            for match in competition["matches"]:
+                if match["matchCentreLink"] == self._matchCentreLink:
+                    self._finished = match.get("matchState_String") == "FINISHED"
+                    match["competition"] = { "name": competition["competitionName"], "id": competition["competitionId"] }
+                    return match
+        return await self._tryGetFinishedGameData()
 
     async def _requestLiveScoresJsonByMatchId(self, useCache = True) -> Optional[dict]:
         assert self._matchId
@@ -227,6 +253,8 @@ class Match(IType):
         return await self._tryGetFinishedGameData()
 
     async def _tryGetFinishedGameData(self, trulyFinished = True) -> Optional[dict]:
+        if self._invalidMatchCentre:
+            return None
         async with aiohttp.ClientSession() as client:
             self._finished = trulyFinished
             livescorehero = { }
@@ -252,14 +280,16 @@ class Match(IType):
                     teamStatsData = json.loads(await resp.json(content_type=None))
                 async with client.get(self._getLink("GetMatchPoll")) as resp:
                     matchPoll = await resp.json(content_type=None)
-                liveScore = await self._requestLiveScoresJsonByMatchId()
+                liveScore = await self._requestLiveScoresJsonByMatchSafe()
                 form = await self._getForm()
                 return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
                     form["HomeTeam"] if home else form["AwayTeam"],
                     liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
                     liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
-        except IndexError:
+        except Exception:
             liveScore = await self._tryGetFinishedGameData(False)
+            if not liveScore:
+                liveScore = await self._requestLiveScoresJsonByMatchSafe()
             return Team({ "TeamLogo": {
                             "AltText": liveScore.get("homeTeam" if home else "awayTeam"),
                             "Url": liveScore.get("homeTeamIcon" if home else "awayTeamIcon")
@@ -286,25 +316,28 @@ class Match(IType):
     async def _observeScore(self) -> None:
         lastScore: Optional[Result] = None
         while True:
-            if len(self._scoreObservers):
-                result = await self.currentScore()
-                if lastScore != result:
-                    lastScore = result
-                    for observer in self._scoreObservers:
-                        await observer(lastScore)
+            try:
+                if len(self._scoreObservers):
+                    result = await self.currentScore()
+                    if lastScore != result:
+                        lastScore = result
+                        for observer in self._scoreObservers:
+                            await observer(self, lastScore)
+            except:
+                pass
             await asyncio.sleep(self._scoreObserverInterval)
 
     async def currentScore(self) -> Result:
         if not self._initialised:
             raise NotInitialisedException
-        match = await self._requestLiveScoresJsonByMatchId(self._finished)
+        match = await self._requestLiveScoresJsonByMatchSafe(self._finished)
         assert match is not None # not in live scores anymore (finished some time ago) -> find other way
         return Result(match)
 
     async def startTime(self) -> datetime:
         if not self._initialised:
             raise NotInitialisedException
-        match = await self._requestLiveScoresJsonByMatchId()
+        match = await self._requestLiveScoresJsonByMatchSafe()
         return datetime.strptime(match["utcStartDate"], "%Y-%m-%dT%H:%M:%SZ")
 
     async def _started(self) -> bool:
@@ -314,7 +347,7 @@ class Match(IType):
     async def _finishedF(self) -> bool:
         if not self._initialised:
             await self.init()
-        await self._requestLiveScoresJsonByMatchId()
+        await self._requestLiveScoresJsonByMatchSafe()
         return self._finished
 
     async def state(self) -> MatchState:
@@ -324,7 +357,7 @@ class Match(IType):
     async def venue(self) -> str:
         if not self._initialised:
             raise NotInitialisedException
-        match = await self._requestLiveScoresJsonByMatchId()
+        match = await self._requestLiveScoresJsonByMatchSafe()
         return match["matchLocation"]
 
     async def playByPlay(self) -> Optional[PlayByPlay]:
@@ -333,7 +366,7 @@ class Match(IType):
                 async with client.get(self._getLink("GetPlayByPlayComponent")) as resp:
                     jdata = await resp.json(content_type=None)
                     return PlayByPlay(jdata)
-        except IndexError:
+        except Exception:
             return None
 
     async def homeTeam(self) -> Optional[Team]:
@@ -358,11 +391,13 @@ class Match(IType):
     async def duration(self) -> timedelta:
         if not self._initialised:
             raise NotInitialisedException
-        if not self._finished:
+        if not await self._finishedF():
             startTime = await self.startTime()
             if datetime.utcnow() < startTime:
                 return timedelta()
             return datetime.utcnow() - startTime
+        if self._invalidMatchCentre:
+            return timedelta()
         async with aiohttp.ClientSession() as client:
             async with client.get(self._getLink("getlivescorehero")) as resp:
                 jdata = await resp.json(content_type=None)
@@ -375,16 +410,24 @@ class Match(IType):
     async def watchLink(self) -> str:
         if not self._initialised:
             raise NotInitialisedException
-        jdata = await self._requestLiveScoresJsonByMatchId()
+        jdata = await self._requestLiveScoresJsonByMatchSafe()
         return jdata.get("watchLink") or None
 
     async def highlightsLink(self) -> str:
         if not self._initialised:
             raise NotInitialisedException
-        jdata = await self._requestLiveScoresJsonByMatchId()
+        jdata = await self._requestLiveScoresJsonByMatchSafe()
         return jdata.get("highlightsLink") or None
 
-    async def competition(self) -> Competition:
+    async def competition(self) -> Optional[Competition]:
+        if self._invalidMatchCentre:
+            jdata = await self._requestLiveScoresJsonByMatchSafe()
+            competition = jdata.get("competition")
+            if competition is None:
+                return None
+            return Competition({
+                "Competition": competition.get("name")
+            })
         async with aiohttp.ClientSession() as client:
             async with client.get(self._getLink("getlivescorehero")) as resp:
                 jdata = await resp.json(content_type=None)

@@ -12,9 +12,9 @@ async def main():
     # cache = await MatchCache.FromMatch(match)
 
     await match.init()
-    async def implement(score):
+    async def implement(x: Match, score):
         print(score)
-        print(await match.duration())
+        print(await x.duration())
 
     match.addScoreObserver(implement)
 
