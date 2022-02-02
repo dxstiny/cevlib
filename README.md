@@ -11,8 +11,6 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - read calendar (e.g. get matches)
 - cleanup
 - improve error handling
-- tests :)
-- test golden set
 - provide examples
 - info (how to attend, quotes, officials, etc.)
 
