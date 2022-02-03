@@ -1,15 +1,15 @@
 {
     "playByPlay": null,
     "competition": {
-        "name": "CEV Volleyball Challenge Cup 2022",
-        "displayName": "CEV Volleyball Challenge Cup 2022 | Men",
-        "gender": "Men",
-        "groupPool": null,
-        "leg": null,
-        "phase": null,
-        "season": null,
-        "logo": null,
-        "matchNumber": null
+        "name": "CEV Champions League Volley 2022",
+        "displayName": "CEV Champions League Volley 2022 | Women",
+        "gender": "Women",
+        "groupPool": "Pool A",
+        "leg": "5th Leg",
+        "phase": "4th Round",
+        "season": "2022 European Cups",
+        "logo": "https://www-old.cev.eu/Images/Competitions/Logo.aspx?ID=1317",
+        "matchNumber": "CLW 25"
     },
     "topPlayers": {
         "topPlayers": []
@@ -17,39 +17,22 @@
     "gallery": [],
     "currentScore": {
         "hasGoldenSet": false,
-        "sets": [
-            {
-                "homeScore": 25,
-                "awayScore": 20,
-                "setNumber": 1,
-                "isInPlay": false
-            },
-            {
-                "homeScore": 25,
-                "awayScore": 18,
-                "setNumber": 2,
-                "isInPlay": false
-            },
-            {
-                "homeScore": 25,
-                "awayScore": 17,
-                "setNumber": 3,
-                "isInPlay": false
-            }
-        ],
-        "homeScore": 3,
+        "sets": [],
+        "regularSets": [],
+        "goldenSet": null,
+        "homeScore": 0,
         "awayScore": 0
     },
-    "matchCentreLink": "https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-men/chcm-61-halkbank-ankara-v-tallinn-technical-university/",
-    "watchLink": null,
+    "matchCentreLink": "https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/women/clw-25-sc-prometey-dnipro-v-lokomotiv-kaliningrad-region/",
+    "watchLink": "https://www.eurovolley.tv/en-int/playerpage/1224994",
     "highlightsLink": null,
     "duration": "0:00:00",
-    "startTime": "2022-02-02 14:30:00",
-    "venue": "TVF SC Baskent Sports Hall ANKARA / A",
+    "startTime": "2022-02-03 16:00:00",
+    "venue": "Burhan Felek Voleybol Salonu ISTANBUL",
     "homeTeam": {
-        "name": "Halkbank ANKARA",
-        "nickname": "ANK",
-        "logo": "https://www.cev.eu/GameHub/Teams/12414.png",
+        "name": "SC Prometey DNIPRO",
+        "nickname": "KAM",
+        "logo": "https://www-old.cev.eu/Images/Teams/Logo.aspx?ID=12303",
         "id": 0,
         "stats": {
             "setStats": []
@@ -59,9 +42,9 @@
         "players": []
     },
     "awayTeam": {
-        "name": "TALLINN Technical University",
-        "nickname": "",
-        "logo": "https://www.cev.eu/GameHub/Teams/12528.png",
+        "name": "Lokomotiv KALININGRAD Region",
+        "nickname": "KAL",
+        "logo": "https://www-old.cev.eu/Images/Teams/Logo.aspx?ID=12411",
         "id": 0,
         "stats": {
             "setStats": []
@@ -71,5 +54,5 @@
         "players": []
     },
     "report": null,
-    "state": "finished"
+    "state": "upcoming"
 }
