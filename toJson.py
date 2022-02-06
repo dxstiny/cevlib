@@ -1,8 +1,6 @@
 import asyncio
 
-from cevlib.match import Match, MatchCache
-
-from time import time
+from cevlib.match import Match
 
 import json
 

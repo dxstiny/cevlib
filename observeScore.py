@@ -1,22 +1,18 @@
 import asyncio
 
-from cevlib.match import Match, MatchCache
-
-from time import time
-
-import json
+from cevlib.match import Match
+from cevlib.types.results import Result
 
 async def main():
     match = await Match.ByUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-cup-2022-women/ccw-54-mladost-zagreb-v-lks-commercecon-lodz/")
 
-    # cache = await MatchCache.FromMatch(match)
-
     await match.init()
-    async def implement(x: Match, score):
+    async def implement(x: Match, score: Result):
         print(score)
         print(await x.duration())
 
     match.addScoreObserver(implement)
+    match.setScoreObserverInterval(10) # 10s
 
     while True:
         await asyncio.sleep(1)
