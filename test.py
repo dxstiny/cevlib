@@ -3,7 +3,7 @@ import asyncio
 from cevlib.match import Match, MatchCache
 
 async def main():
-    match = await Match.ByUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-men/chcm-61-halkbank-ankara-v-tallinn-technical-university/")
+    match = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/women/clw-38-lp-salo-v-asptt-mulhouse-vb/")
 
     cache = await match.cache()
     # OR
