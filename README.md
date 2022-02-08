@@ -8,11 +8,8 @@ The Owner undertakes its utmost effort to ensure that the content provided in th
 In such cases, without prejudice to any legal prerogatives of Users to enforce their rights, Users are kindly asked to preferably report related complaints by opening an issue.
 
 ## TODOs
-- read calendar (e.g. get matches)
 - cleanup
-- improve error handling
-- provide examples
 - info (how to attend, quotes, officials, etc.)
-- extract highlights link from centre
+- extract highlights link from match centre
 
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)
