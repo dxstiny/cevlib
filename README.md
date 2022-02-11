@@ -9,7 +9,6 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 
 ## TODOs
 - cleanup
-- info (how to attend, quotes, officials, etc.)
 - extract highlights link from match centre
 
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)

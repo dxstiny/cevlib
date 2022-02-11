@@ -1,4 +1,1075 @@
 {
+    "state": "finished",
+    "currentScore": {
+        "hasGoldenSet": false,
+        "sets": [
+            {
+                "homeScore": "26",
+                "awayScore": "28",
+                "setNumber": 1,
+                "isInPlay": false
+            },
+            {
+                "homeScore": "18",
+                "awayScore": "25",
+                "setNumber": 2,
+                "isInPlay": false
+            },
+            {
+                "homeScore": "25",
+                "awayScore": "27",
+                "setNumber": 3,
+                "isInPlay": false
+            }
+        ],
+        "regularSets": [
+            {
+                "homeScore": "26",
+                "awayScore": "28",
+                "setNumber": 1,
+                "isInPlay": false
+            },
+            {
+                "homeScore": "18",
+                "awayScore": "25",
+                "setNumber": 2,
+                "isInPlay": false
+            },
+            {
+                "homeScore": "25",
+                "awayScore": "27",
+                "setNumber": 3,
+                "isInPlay": false
+            }
+        ],
+        "goldenSet": null,
+        "homeScore": 0,
+        "awayScore": 3
+    },
+    "homeTeam": {
+        "name": "RC CANNES",
+        "nickname": "CAN",
+        "logo": "https://www-old.cev.eu/Images/Teams/Logo.aspx?ID=12259",
+        "id": 12259,
+        "stats": {
+            "setStats": [
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 18,
+                            "percent": 50.0
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 3,
+                            "percent": 42.9
+                        },
+                        {
+                            "type": "aces",
+                            "value": 0,
+                            "percent": 0.0
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 4,
+                            "percent": 57.1
+                        },
+                        {
+                            "type": "points",
+                            "value": 25,
+                            "percent": 47.2
+                        }
+                    ],
+                    "name": "Set 1"
+                },
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 12,
+                            "percent": 44.4
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 2,
+                            "percent": 66.7
+                        },
+                        {
+                            "type": "aces",
+                            "value": 1,
+                            "percent": 50.0
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 3,
+                            "percent": 27.3
+                        },
+                        {
+                            "type": "points",
+                            "value": 18,
+                            "percent": 41.9
+                        }
+                    ],
+                    "name": "Set 2"
+                },
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 15,
+                            "percent": 44.1
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 1,
+                            "percent": 20.0
+                        },
+                        {
+                            "type": "aces",
+                            "value": 2,
+                            "percent": 66.7
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 7,
+                            "percent": 77.8
+                        },
+                        {
+                            "type": "points",
+                            "value": 25,
+                            "percent": 49.0
+                        }
+                    ],
+                    "name": "Set 3"
+                },
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 45,
+                            "percent": 46.4
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 6,
+                            "percent": 40.0
+                        },
+                        {
+                            "type": "aces",
+                            "value": 3,
+                            "percent": 37.5
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 14,
+                            "percent": 51.9
+                        },
+                        {
+                            "type": "points",
+                            "value": 68,
+                            "percent": 46.3
+                        }
+                    ],
+                    "name": "Match"
+                }
+            ]
+        },
+        "poll": {
+            "percent": 81.5,
+            "count": 145
+        },
+        "form": [
+            {
+                "won": false,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-77-savino-del-bene-scandicci-v-rc-cannes/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-70-rc-cannes-v-vp-ukf-nitra/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-69-vp-ukf-nitra-v-rc-cannes/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-54-rc-cannes-v-cd-das-aves-termolan/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-53-cd-das-aves-termolan-v-rc-cannes/"
+            }
+        ],
+        "players": [
+            {
+                "zone": 4,
+                "position": "opposite",
+                "name": "De Hoog Carly Louise",
+                "id": 89253,
+                "number": 2,
+                "stats": {
+                    "points": 8,
+                    "serves": 0,
+                    "spikes": 8,
+                    "blocks": 0,
+                    "receptions": 2,
+                    "spikePercentage": 32,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 3,
+                "position": "middleBlocker",
+                "name": "Veglia Tiziana",
+                "id": 4371,
+                "number": 16,
+                "stats": {
+                    "points": 8,
+                    "serves": 2,
+                    "spikes": 2,
+                    "blocks": 4,
+                    "receptions": 2,
+                    "spikePercentage": 29,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 2,
+                "position": "outsideSpiker",
+                "name": "Snyder Carli Anne",
+                "id": 75143,
+                "number": 4,
+                "stats": {
+                    "points": 5,
+                    "serves": 0,
+                    "spikes": 5,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 42,
+                    "receptionPercentage": 43
+                }
+            },
+            {
+                "zone": 5,
+                "position": "outsideSpiker",
+                "name": "Winters Jaalia Elaine",
+                "id": 89256,
+                "number": 6,
+                "stats": {
+                    "points": 13,
+                    "serves": 0,
+                    "spikes": 13,
+                    "blocks": 0,
+                    "receptions": 5,
+                    "spikePercentage": 36,
+                    "receptionPercentage": 65
+                }
+            },
+            {
+                "zone": 6,
+                "position": "middleBlocker",
+                "name": "Felix Claire Davis",
+                "id": 89254,
+                "number": 1,
+                "stats": {
+                    "points": 10,
+                    "serves": 0,
+                    "spikes": 9,
+                    "blocks": 1,
+                    "receptions": 0,
+                    "spikePercentage": 60,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 1,
+                "position": "setter",
+                "name": "Brcic Bernarda",
+                "id": 4254,
+                "number": 15,
+                "stats": {
+                    "points": 1,
+                    "serves": 0,
+                    "spikes": 1,
+                    "blocks": 0,
+                    "receptions": 2,
+                    "spikePercentage": 25,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "headCoach",
+                "name": "Schiavo Filippo",
+                "id": 0,
+                "number": 48392,
+                "stats": null
+            },
+            {
+                "zone": 7,
+                "position": "libero",
+                "name": "Gelin Juliette",
+                "id": 68404,
+                "number": 3,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 54
+                }
+            },
+            {
+                "zone": 7,
+                "position": "libero",
+                "name": "Boisard Annaig",
+                "id": 89252,
+                "number": 20,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "outsideSpiker",
+                "name": "White Micaya Monet",
+                "id": 89255,
+                "number": 5,
+                "stats": {
+                    "points": 9,
+                    "serves": 1,
+                    "spikes": 7,
+                    "blocks": 1,
+                    "receptions": 7,
+                    "spikePercentage": 25,
+                    "receptionPercentage": 40
+                }
+            },
+            {
+                "zone": 0,
+                "position": "setter",
+                "name": "Le Thuc Lucille",
+                "id": 46976,
+                "number": 7,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "outsideSpiker",
+                "name": "Zatkovi\u0107 Eva",
+                "id": 68211,
+                "number": 8,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "opposite",
+                "name": "Matejko Marta",
+                "id": 68081,
+                "number": 9,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "outsideSpiker",
+                "name": "Marquet Camille",
+                "id": 73184,
+                "number": 10,
+                "stats": null
+            },
+            {
+                "zone": 0,
+                "position": "setter",
+                "name": "Takagui Ana Tiemi",
+                "id": 47017,
+                "number": 11,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "setter",
+                "name": "Mistral Camille",
+                "id": 89331,
+                "number": 11,
+                "stats": null
+            },
+            {
+                "zone": 0,
+                "position": "middleBlocker",
+                "name": "Bourgagrou Emeline",
+                "id": 77197,
+                "number": 14,
+                "stats": null
+            }
+        ]
+    },
+    "awayTeam": {
+        "name": "Savino Del Bene SCANDICCI",
+        "nickname": "SCA",
+        "logo": "https://www-old.cev.eu/Images/Teams/Logo.aspx?ID=12265",
+        "id": 12265,
+        "stats": {
+            "setStats": [
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 18,
+                            "percent": 50.0
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 4,
+                            "percent": 57.1
+                        },
+                        {
+                            "type": "aces",
+                            "value": 3,
+                            "percent": 100.0
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 3,
+                            "percent": 42.9
+                        },
+                        {
+                            "type": "points",
+                            "value": 28,
+                            "percent": 52.8
+                        }
+                    ],
+                    "name": "Set 1"
+                },
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 15,
+                            "percent": 55.6
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 1,
+                            "percent": 33.3
+                        },
+                        {
+                            "type": "aces",
+                            "value": 1,
+                            "percent": 50.0
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 8,
+                            "percent": 72.7
+                        },
+                        {
+                            "type": "points",
+                            "value": 25,
+                            "percent": 58.1
+                        }
+                    ],
+                    "name": "Set 2"
+                },
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 19,
+                            "percent": 55.9
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 4,
+                            "percent": 80.0
+                        },
+                        {
+                            "type": "aces",
+                            "value": 1,
+                            "percent": 33.3
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 2,
+                            "percent": 22.2
+                        },
+                        {
+                            "type": "points",
+                            "value": 26,
+                            "percent": 51.0
+                        }
+                    ],
+                    "name": "Set 3"
+                },
+                {
+                    "stats": [
+                        {
+                            "type": "winningSpikes",
+                            "value": 52,
+                            "percent": 53.6
+                        },
+                        {
+                            "type": "killBlocks",
+                            "value": 9,
+                            "percent": 60.0
+                        },
+                        {
+                            "type": "aces",
+                            "value": 5,
+                            "percent": 62.5
+                        },
+                        {
+                            "type": "opponentErrors",
+                            "value": 13,
+                            "percent": 48.1
+                        },
+                        {
+                            "type": "points",
+                            "value": 79,
+                            "percent": 53.7
+                        }
+                    ],
+                    "name": "Match"
+                }
+            ]
+        },
+        "poll": {
+            "percent": 18.5,
+            "count": 33
+        },
+        "form": [
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-77-savino-del-bene-scandicci-v-rc-cannes/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-68-sc-potsdam-v-savino-del-bene-scandicci/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-67-savino-del-bene-scandicci-v-sc-potsdam/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-48-savino-del-bene-scandicci-v-athens-asp-thetis-voula/"
+            },
+            {
+                "won": true,
+                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-47-athens-asp-thetis-voula-v-savino-del-bene-scandicci/"
+            }
+        ],
+        "players": [
+            {
+                "zone": 4,
+                "position": "middleBlocker",
+                "name": "Lubian  Marina",
+                "id": 60177,
+                "number": 9,
+                "stats": {
+                    "points": 4,
+                    "serves": 0,
+                    "spikes": 4,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 67,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 3,
+                "position": "outsideSpiker",
+                "name": "Pietrini Elena",
+                "id": 64756,
+                "number": 7,
+                "stats": {
+                    "points": 9,
+                    "serves": 0,
+                    "spikes": 9,
+                    "blocks": 0,
+                    "receptions": 4,
+                    "spikePercentage": 31,
+                    "receptionPercentage": 68
+                }
+            },
+            {
+                "zone": 2,
+                "position": "opposite",
+                "name": "Antropova Ekaterina",
+                "id": 70724,
+                "number": 17,
+                "stats": {
+                    "points": 7,
+                    "serves": 0,
+                    "spikes": 7,
+                    "blocks": 0,
+                    "receptions": 2,
+                    "spikePercentage": 54,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 5,
+                "position": "setter",
+                "name": "Malinov Ofelia",
+                "id": 47242,
+                "number": 5,
+                "stats": {
+                    "points": 2,
+                    "serves": 0,
+                    "spikes": 2,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 50,
+                    "receptionPercentage": 100
+                }
+            },
+            {
+                "zone": 6,
+                "position": "outsideSpiker",
+                "name": "Sorokaite Indre",
+                "id": 24936,
+                "number": 19,
+                "stats": {
+                    "points": 17,
+                    "serves": 3,
+                    "spikes": 12,
+                    "blocks": 2,
+                    "receptions": 9,
+                    "spikePercentage": 39,
+                    "receptionPercentage": 48
+                }
+            },
+            {
+                "zone": 1,
+                "position": "outsideSpiker",
+                "name": "Angeloni Veronica",
+                "id": 23915,
+                "number": 1,
+                "stats": {
+                    "points": 1,
+                    "serves": 1,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "headCoach",
+                "name": "Barbolini Massimo",
+                "id": 0,
+                "number": 8619,
+                "stats": null
+            },
+            {
+                "zone": 7,
+                "position": "libero",
+                "name": "Castillo Brenda",
+                "id": 47182,
+                "number": 24,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 71
+                }
+            },
+            {
+                "zone": 7,
+                "position": "libero",
+                "name": "Napodano Francesca",
+                "id": 72341,
+                "number": 6,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 78
+                }
+            },
+            {
+                "zone": 0,
+                "position": "middleBlocker",
+                "name": "Alberti Sara",
+                "id": 4308,
+                "number": 2,
+                "stats": {
+                    "points": 10,
+                    "serves": 1,
+                    "spikes": 5,
+                    "blocks": 4,
+                    "receptions": 1,
+                    "spikePercentage": 45,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "middleBlocker",
+                "name": "Silva Correa Ana Beatriz",
+                "id": 89332,
+                "number": 3,
+                "stats": {
+                    "points": 4,
+                    "serves": 0,
+                    "spikes": 3,
+                    "blocks": 1,
+                    "receptions": 0,
+                    "spikePercentage": 50,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "setter",
+                "name": "Moschettini Noemi",
+                "id": 90602,
+                "number": 4,
+                "stats": null
+            },
+            {
+                "zone": 0,
+                "position": "libero",
+                "name": "Merlo Enrica",
+                "id": 4301,
+                "number": 8,
+                "stats": null
+            },
+            {
+                "zone": 0,
+                "position": "outsideSpiker",
+                "name": "Pereira Natalia Zilio",
+                "id": 67443,
+                "number": 10,
+                "stats": {
+                    "points": 0,
+                    "serves": 0,
+                    "spikes": 0,
+                    "blocks": 0,
+                    "receptions": 0,
+                    "spikePercentage": 0,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "opposite",
+                "name": "Lippmann Louisa",
+                "id": 44416,
+                "number": 11,
+                "stats": {
+                    "points": 12,
+                    "serves": 0,
+                    "spikes": 10,
+                    "blocks": 2,
+                    "receptions": 1,
+                    "spikePercentage": 42,
+                    "receptionPercentage": 0
+                }
+            },
+            {
+                "zone": 0,
+                "position": "outsideSpiker",
+                "name": "Orthmann Hanna",
+                "id": 51611,
+                "number": 12,
+                "stats": null
+            },
+            {
+                "zone": 0,
+                "position": "setter",
+                "name": "Milanova Nikol",
+                "id": 73682,
+                "number": 13,
+                "stats": null
+            }
+        ]
+    },
+    "competition": {
+        "name": "CEV Volleyball Challenge Cup 2022",
+        "displayName": "CEV Volleyball Challenge Cup 2022 | Women",
+        "gender": "Women",
+        "groupPool": "4th Finals",
+        "leg": "Away Matches",
+        "phase": "Main Phase",
+        "season": "2022 European Cups",
+        "logo": "https://www-old.cev.eu/Images/Competitions/Logo.aspx?ID=1321",
+        "matchNumber": "CHCW 78"
+    },
+    "duration": "1:22:00",
+    "startTime": "2022-02-02 19:00:00",
+    "matchCentreLink": "https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-78-rc-cannes-v-savino-del-bene-scandicci/",
+    "watchLink": null,
+    "highlightsLink": null,
+    "venue": "Palais des Victoires CANNES",
+    "report": {
+        "headline": null,
+        "body": null,
+        "quotes": [],
+        "inNumbers": [
+            {
+                "title": "Points",
+                "description": "The combined total number of points scored by both teams throughout the entire match.",
+                "value": "120"
+            },
+            {
+                "title": "Duration",
+                "description": "The total length of the match, from the first serve through until the last point has ended.",
+                "value": "82"
+            },
+            {
+                "title": "Spectators",
+                "description": "Total number of people in attendance at the venue \u2013 taken at the end of the second set.",
+                "value": "202"
+            },
+            {
+                "title": "Match Spikes",
+                "description": "The combined total number of successful spikes achieved by both teams throughout the entire match.",
+                "value": "251"
+            },
+            {
+                "title": "Reception Level",
+                "description": "An average of the two team service reception percentages from the complete match.",
+                "value": "58%"
+            },
+            {
+                "title": "Net Domination",
+                "description": "The number of successful point winning blocks of RC CANNES compared to Savino Del Bene SCANDICCI.",
+                "value": "6-9"
+            },
+            {
+                "title": "Ace Count",
+                "description": "RC CANNES number of service aces compared to Savino Del Bene SCANDICCI",
+                "value": "3-5"
+            },
+            {
+                "title": "Error Difference",
+                "description": "Errors leading to points of RC CANNES, next to those from Savino Del Bene SCANDICCI",
+                "value": "30-32"
+            }
+        ]
+    },
+    "info": {
+        "infoText": null,
+        "officials": [
+            {
+                "name": "Mirco TILL",
+                "image": "https://www-old.cev.eu/Images/Officials/Photo.aspx?ID=49713",
+                "type": "First Referee",
+                "nationality": "GER"
+            },
+            {
+                "name": "Vanya PARVANOVA",
+                "image": "https://www-old.cev.eu/Images/Officials/Photo.aspx?ID=58666",
+                "type": "Second Referee",
+                "nationality": "BUL"
+            }
+        ],
+        "venue": {
+            "name": "Avenue Maurice Chevalier, CANNES, 06150",
+            "image": "https://www-old.cev.eu/Images/Players/PhotoPlayer.aspx?api=1x&data=uvAKuHWEX2uV3UkF6E68EqJokQX3C%2bYvDC2cS%2fLqpU0WYN0zCqxzOo04voOek31g3FnKXYsyxpwiA3764tlOIVA6lVxxcHYxxV8PIkh6uoZ4AcPEuyI5ATbtH%2buj%2fcqH0O%2fyWWUqIIQTzPXqoHBnGsQIAflKVNWStZ8mv5EXc7VzsLzMsE%2bOBfZyQpLIzxHy4oJyqSQTyDS%2bjP0h4vfIS8PTztzdBIUbC9LhLl2EZ6I%3d",
+            "capacity": "4000"
+        }
+    },
+    "topPlayers": {
+        "topPlayers": [
+            {
+                "type": "scorer",
+                "players": [
+                    {
+                        "number": "19",
+                        "name": "Indre SOROKAITE",
+                        "position": "outsideSpiker",
+                        "score": 17,
+                        "nationality": "ITA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
+                    },
+                    {
+                        "number": "6",
+                        "name": "Jaalia Elaine WINTERS",
+                        "position": "outsideSpiker",
+                        "score": 13,
+                        "nationality": "USA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=QwMZNMhlYL%2fxA4ikqBrcYZ22%2fMnz%2fl1tgcU%2f%2blv8AO4%3d"
+                    },
+                    {
+                        "number": "11",
+                        "name": "Louisa LIPPMANN",
+                        "position": "opposite",
+                        "score": 12,
+                        "nationality": "GER",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=f%2fho04wpQPNoLSnnwbu69LlUVtiAKbHiYapuGJWbtBA%3d"
+                    }
+                ]
+            },
+            {
+                "type": "attacker",
+                "players": [
+                    {
+                        "number": "6",
+                        "name": "Jaalia Elaine WINTERS",
+                        "position": "outsideSpiker",
+                        "score": 13,
+                        "nationality": "USA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=QwMZNMhlYL%2fxA4ikqBrcYZ22%2fMnz%2fl1tgcU%2f%2blv8AO4%3d"
+                    },
+                    {
+                        "number": "19",
+                        "name": "Indre SOROKAITE",
+                        "position": "outsideSpiker",
+                        "score": 12,
+                        "nationality": "ITA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
+                    },
+                    {
+                        "number": "11",
+                        "name": "Louisa LIPPMANN",
+                        "position": "opposite",
+                        "score": 10,
+                        "nationality": "GER",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=f%2fho04wpQPNoLSnnwbu69LlUVtiAKbHiYapuGJWbtBA%3d"
+                    }
+                ]
+            },
+            {
+                "type": "blocker",
+                "players": [
+                    {
+                        "number": "16",
+                        "name": "Tiziana VEGLIA",
+                        "position": "middleBlocker",
+                        "score": 4,
+                        "nationality": "ITA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=XI%2bhlnh3BOQ7LUCMQN734KR5Jif7JyDXmoggRvQp2DQ%3d"
+                    },
+                    {
+                        "number": "2",
+                        "name": "Sara ALBERTI",
+                        "position": "middleBlocker",
+                        "score": 4,
+                        "nationality": "ITA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=PzTXTG0X%2bzK5yIzIHhI3SHDbcQqcXcegQbyxAgwp2sI%3d"
+                    },
+                    {
+                        "number": "11",
+                        "name": "Louisa LIPPMANN",
+                        "position": "opposite",
+                        "score": 2,
+                        "nationality": "GER",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=f%2fho04wpQPNoLSnnwbu69LlUVtiAKbHiYapuGJWbtBA%3d"
+                    }
+                ]
+            },
+            {
+                "type": "server",
+                "players": [
+                    {
+                        "number": "19",
+                        "name": "Indre SOROKAITE",
+                        "position": "outsideSpiker",
+                        "score": 3,
+                        "nationality": "ITA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
+                    },
+                    {
+                        "number": "16",
+                        "name": "Tiziana VEGLIA",
+                        "position": "middleBlocker",
+                        "score": 2,
+                        "nationality": "ITA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=XI%2bhlnh3BOQ7LUCMQN734KR5Jif7JyDXmoggRvQp2DQ%3d"
+                    },
+                    {
+                        "number": "5",
+                        "name": "Micaya Monet WHITE",
+                        "position": "outsideSpiker",
+                        "score": 1,
+                        "nationality": "USA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=37awuWhOb3JIZnjtUp0JGICkxxczADp%2fiG3SUmdSCiM%3d"
+                    }
+                ]
+            },
+            {
+                "type": "receiver",
+                "players": [
+                    {
+                        "number": "6",
+                        "name": "Jaalia Elaine WINTERS",
+                        "position": "outsideSpiker",
+                        "score": 7,
+                        "nationality": "USA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=QwMZNMhlYL%2fxA4ikqBrcYZ22%2fMnz%2fl1tgcU%2f%2blv8AO4%3d"
+                    },
+                    {
+                        "number": "5",
+                        "name": "Micaya Monet WHITE",
+                        "position": "outsideSpiker",
+                        "score": 4,
+                        "nationality": "USA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=37awuWhOb3JIZnjtUp0JGICkxxczADp%2fiG3SUmdSCiM%3d"
+                    },
+                    {
+                        "number": "19",
+                        "name": "Indre SOROKAITE",
+                        "position": "outsideSpiker",
+                        "score": 4,
+                        "nationality": "ITA",
+                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
+                    }
+                ]
+            }
+        ]
+    },
+    "gallery": [],
     "playByPlay": {
         "sets": [
             {
@@ -3641,1054 +4712,5 @@
                 "setNumber": 3
             }
         ]
-    },
-    "competition": {
-        "name": "CEV Volleyball Challenge Cup 2022",
-        "displayName": "CEV Volleyball Challenge Cup 2022 | Women",
-        "gender": "Women",
-        "groupPool": "4th Finals",
-        "leg": "Away Matches",
-        "phase": "Main Phase",
-        "season": "2022 European Cups",
-        "logo": "https://www-old.cev.eu/Images/Competitions/Logo.aspx?ID=1321",
-        "matchNumber": "CHCW 78"
-    },
-    "topPlayers": {
-        "topPlayers": [
-            {
-                "type": "scorer",
-                "players": [
-                    {
-                        "number": "19",
-                        "name": "Indre SOROKAITE",
-                        "position": "outsideSpiker",
-                        "score": 17,
-                        "nationality": "ITA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
-                    },
-                    {
-                        "number": "6",
-                        "name": "Jaalia Elaine WINTERS",
-                        "position": "outsideSpiker",
-                        "score": 13,
-                        "nationality": "USA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=QwMZNMhlYL%2fxA4ikqBrcYZ22%2fMnz%2fl1tgcU%2f%2blv8AO4%3d"
-                    },
-                    {
-                        "number": "11",
-                        "name": "Louisa LIPPMANN",
-                        "position": "opposite",
-                        "score": 12,
-                        "nationality": "GER",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=f%2fho04wpQPNoLSnnwbu69LlUVtiAKbHiYapuGJWbtBA%3d"
-                    }
-                ]
-            },
-            {
-                "type": "attacker",
-                "players": [
-                    {
-                        "number": "6",
-                        "name": "Jaalia Elaine WINTERS",
-                        "position": "outsideSpiker",
-                        "score": 13,
-                        "nationality": "USA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=QwMZNMhlYL%2fxA4ikqBrcYZ22%2fMnz%2fl1tgcU%2f%2blv8AO4%3d"
-                    },
-                    {
-                        "number": "19",
-                        "name": "Indre SOROKAITE",
-                        "position": "outsideSpiker",
-                        "score": 12,
-                        "nationality": "ITA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
-                    },
-                    {
-                        "number": "11",
-                        "name": "Louisa LIPPMANN",
-                        "position": "opposite",
-                        "score": 10,
-                        "nationality": "GER",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=f%2fho04wpQPNoLSnnwbu69LlUVtiAKbHiYapuGJWbtBA%3d"
-                    }
-                ]
-            },
-            {
-                "type": "blocker",
-                "players": [
-                    {
-                        "number": "16",
-                        "name": "Tiziana VEGLIA",
-                        "position": "middleBlocker",
-                        "score": 4,
-                        "nationality": "ITA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=XI%2bhlnh3BOQ7LUCMQN734KR5Jif7JyDXmoggRvQp2DQ%3d"
-                    },
-                    {
-                        "number": "2",
-                        "name": "Sara ALBERTI",
-                        "position": "middleBlocker",
-                        "score": 4,
-                        "nationality": "ITA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=PzTXTG0X%2bzK5yIzIHhI3SHDbcQqcXcegQbyxAgwp2sI%3d"
-                    },
-                    {
-                        "number": "11",
-                        "name": "Louisa LIPPMANN",
-                        "position": "opposite",
-                        "score": 2,
-                        "nationality": "GER",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=f%2fho04wpQPNoLSnnwbu69LlUVtiAKbHiYapuGJWbtBA%3d"
-                    }
-                ]
-            },
-            {
-                "type": "server",
-                "players": [
-                    {
-                        "number": "19",
-                        "name": "Indre SOROKAITE",
-                        "position": "outsideSpiker",
-                        "score": 3,
-                        "nationality": "ITA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
-                    },
-                    {
-                        "number": "16",
-                        "name": "Tiziana VEGLIA",
-                        "position": "middleBlocker",
-                        "score": 2,
-                        "nationality": "ITA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=XI%2bhlnh3BOQ7LUCMQN734KR5Jif7JyDXmoggRvQp2DQ%3d"
-                    },
-                    {
-                        "number": "5",
-                        "name": "Micaya Monet WHITE",
-                        "position": "outsideSpiker",
-                        "score": 1,
-                        "nationality": "USA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=37awuWhOb3JIZnjtUp0JGICkxxczADp%2fiG3SUmdSCiM%3d"
-                    }
-                ]
-            },
-            {
-                "type": "receiver",
-                "players": [
-                    {
-                        "number": "6",
-                        "name": "Jaalia Elaine WINTERS",
-                        "position": "outsideSpiker",
-                        "score": 7,
-                        "nationality": "USA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=QwMZNMhlYL%2fxA4ikqBrcYZ22%2fMnz%2fl1tgcU%2f%2blv8AO4%3d"
-                    },
-                    {
-                        "number": "5",
-                        "name": "Micaya Monet WHITE",
-                        "position": "outsideSpiker",
-                        "score": 4,
-                        "nationality": "USA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=37awuWhOb3JIZnjtUp0JGICkxxczADp%2fiG3SUmdSCiM%3d"
-                    },
-                    {
-                        "number": "19",
-                        "name": "Indre SOROKAITE",
-                        "position": "outsideSpiker",
-                        "score": 4,
-                        "nationality": "ITA",
-                        "image": "https://www-old.cev.eu/Images/Players/Picture.aspx?api=1x&data=IZ4jtcnog1Y%2fUcnEgzGN5U7Oi51Ls1mSdMQa7y9CyLA%3d"
-                    }
-                ]
-            }
-        ]
-    },
-    "gallery": [],
-    "currentScore": {
-        "hasGoldenSet": false,
-        "sets": [
-            {
-                "homeScore": 26,
-                "awayScore": 28,
-                "setNumber": 1,
-                "isInPlay": false
-            },
-            {
-                "homeScore": 18,
-                "awayScore": 25,
-                "setNumber": 2,
-                "isInPlay": false
-            },
-            {
-                "homeScore": 25,
-                "awayScore": 27,
-                "setNumber": 3,
-                "isInPlay": false
-            }
-        ],
-        "regularSets": [
-            {
-                "homeScore": 26,
-                "awayScore": 28,
-                "setNumber": 1,
-                "isInPlay": false
-            },
-            {
-                "homeScore": 18,
-                "awayScore": 25,
-                "setNumber": 2,
-                "isInPlay": false
-            },
-            {
-                "homeScore": 25,
-                "awayScore": 27,
-                "setNumber": 3,
-                "isInPlay": false
-            }
-        ],
-        "goldenSet": null,
-        "homeScore": 0,
-        "awayScore": 3
-    },
-    "matchCentreLink": "https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-78-rc-cannes-v-savino-del-bene-scandicci/",
-    "watchLink": null,
-    "highlightsLink": null,
-    "duration": "1:22:00",
-    "startTime": "2022-02-02 19:00:00",
-    "venue": "Palais des Victoires CANNES",
-    "homeTeam": {
-        "name": "RC CANNES",
-        "nickname": "CAN",
-        "logo": "https://www.cev.eu/GameHub/Teams/12259.png",
-        "id": 12259,
-        "stats": {
-            "setStats": [
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 18,
-                            "percent": 50.0
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 3,
-                            "percent": 42.9
-                        },
-                        {
-                            "type": "aces",
-                            "value": 0,
-                            "percent": 0.0
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 4,
-                            "percent": 57.1
-                        },
-                        {
-                            "type": "points",
-                            "value": 25,
-                            "percent": 47.2
-                        }
-                    ],
-                    "name": "Set 1"
-                },
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 12,
-                            "percent": 44.4
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 2,
-                            "percent": 66.7
-                        },
-                        {
-                            "type": "aces",
-                            "value": 1,
-                            "percent": 50.0
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 3,
-                            "percent": 27.3
-                        },
-                        {
-                            "type": "points",
-                            "value": 18,
-                            "percent": 41.9
-                        }
-                    ],
-                    "name": "Set 2"
-                },
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 15,
-                            "percent": 44.1
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 1,
-                            "percent": 20.0
-                        },
-                        {
-                            "type": "aces",
-                            "value": 2,
-                            "percent": 66.7
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 7,
-                            "percent": 77.8
-                        },
-                        {
-                            "type": "points",
-                            "value": 25,
-                            "percent": 49.0
-                        }
-                    ],
-                    "name": "Set 3"
-                },
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 45,
-                            "percent": 46.4
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 6,
-                            "percent": 40.0
-                        },
-                        {
-                            "type": "aces",
-                            "value": 3,
-                            "percent": 37.5
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 14,
-                            "percent": 51.9
-                        },
-                        {
-                            "type": "points",
-                            "value": 68,
-                            "percent": 46.3
-                        }
-                    ],
-                    "name": "Match"
-                }
-            ]
-        },
-        "poll": {
-            "percent": 15.8,
-            "count": 3
-        },
-        "form": [
-            {
-                "won": false,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-77-savino-del-bene-scandicci-v-rc-cannes/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-70-rc-cannes-v-vp-ukf-nitra/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-69-vp-ukf-nitra-v-rc-cannes/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-54-rc-cannes-v-cd-das-aves-termolan/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-53-cd-das-aves-termolan-v-rc-cannes/"
-            }
-        ],
-        "players": [
-            {
-                "zone": 4,
-                "position": "opposite",
-                "name": "De Hoog Carly Louise",
-                "id": 89253,
-                "number": 2,
-                "stats": {
-                    "points": 8,
-                    "serves": 0,
-                    "spikes": 8,
-                    "blocks": 0,
-                    "receptions": 2,
-                    "spikePercentage": 32,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 3,
-                "position": "middleBlocker",
-                "name": "Veglia Tiziana",
-                "id": 4371,
-                "number": 16,
-                "stats": {
-                    "points": 8,
-                    "serves": 2,
-                    "spikes": 2,
-                    "blocks": 4,
-                    "receptions": 2,
-                    "spikePercentage": 29,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 2,
-                "position": "outsideSpiker",
-                "name": "Snyder Carli Anne",
-                "id": 75143,
-                "number": 4,
-                "stats": {
-                    "points": 5,
-                    "serves": 0,
-                    "spikes": 5,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 42,
-                    "receptionPercentage": 43
-                }
-            },
-            {
-                "zone": 5,
-                "position": "outsideSpiker",
-                "name": "Winters Jaalia Elaine",
-                "id": 89256,
-                "number": 6,
-                "stats": {
-                    "points": 13,
-                    "serves": 0,
-                    "spikes": 13,
-                    "blocks": 0,
-                    "receptions": 5,
-                    "spikePercentage": 36,
-                    "receptionPercentage": 65
-                }
-            },
-            {
-                "zone": 6,
-                "position": "middleBlocker",
-                "name": "Felix Claire Davis",
-                "id": 89254,
-                "number": 1,
-                "stats": {
-                    "points": 10,
-                    "serves": 0,
-                    "spikes": 9,
-                    "blocks": 1,
-                    "receptions": 0,
-                    "spikePercentage": 60,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 1,
-                "position": "setter",
-                "name": "Brcic Bernarda",
-                "id": 4254,
-                "number": 15,
-                "stats": {
-                    "points": 1,
-                    "serves": 0,
-                    "spikes": 1,
-                    "blocks": 0,
-                    "receptions": 2,
-                    "spikePercentage": 25,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "headCoach",
-                "name": "Schiavo Filippo",
-                "id": 0,
-                "number": 48392,
-                "stats": null
-            },
-            {
-                "zone": 7,
-                "position": "libero",
-                "name": "Gelin Juliette",
-                "id": 68404,
-                "number": 3,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 54
-                }
-            },
-            {
-                "zone": 7,
-                "position": "libero",
-                "name": "Boisard Annaig",
-                "id": 89252,
-                "number": 20,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "outsideSpiker",
-                "name": "White Micaya Monet",
-                "id": 89255,
-                "number": 5,
-                "stats": {
-                    "points": 9,
-                    "serves": 1,
-                    "spikes": 7,
-                    "blocks": 1,
-                    "receptions": 7,
-                    "spikePercentage": 25,
-                    "receptionPercentage": 40
-                }
-            },
-            {
-                "zone": 0,
-                "position": "setter",
-                "name": "Le Thuc Lucille",
-                "id": 46976,
-                "number": 7,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "outsideSpiker",
-                "name": "Zatkovi\u0107 Eva",
-                "id": 68211,
-                "number": 8,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "opposite",
-                "name": "Matejko Marta",
-                "id": 68081,
-                "number": 9,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "outsideSpiker",
-                "name": "Marquet Camille",
-                "id": 73184,
-                "number": 10,
-                "stats": null
-            },
-            {
-                "zone": 0,
-                "position": "setter",
-                "name": "Takagui Ana Tiemi",
-                "id": 47017,
-                "number": 11,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "setter",
-                "name": "Mistral Camille",
-                "id": 89331,
-                "number": 11,
-                "stats": null
-            },
-            {
-                "zone": 0,
-                "position": "middleBlocker",
-                "name": "Bourgagrou Emeline",
-                "id": 77197,
-                "number": 14,
-                "stats": null
-            }
-        ]
-    },
-    "awayTeam": {
-        "name": "Savino Del Bene SCANDICCI",
-        "nickname": "SCA",
-        "logo": "https://www.cev.eu/GameHub/Teams/12265.png",
-        "id": 12265,
-        "stats": {
-            "setStats": [
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 18,
-                            "percent": 50.0
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 4,
-                            "percent": 57.1
-                        },
-                        {
-                            "type": "aces",
-                            "value": 3,
-                            "percent": 100.0
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 3,
-                            "percent": 42.9
-                        },
-                        {
-                            "type": "points",
-                            "value": 28,
-                            "percent": 52.8
-                        }
-                    ],
-                    "name": "Set 1"
-                },
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 15,
-                            "percent": 55.6
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 1,
-                            "percent": 33.3
-                        },
-                        {
-                            "type": "aces",
-                            "value": 1,
-                            "percent": 50.0
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 8,
-                            "percent": 72.7
-                        },
-                        {
-                            "type": "points",
-                            "value": 25,
-                            "percent": 58.1
-                        }
-                    ],
-                    "name": "Set 2"
-                },
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 19,
-                            "percent": 55.9
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 4,
-                            "percent": 80.0
-                        },
-                        {
-                            "type": "aces",
-                            "value": 1,
-                            "percent": 33.3
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 2,
-                            "percent": 22.2
-                        },
-                        {
-                            "type": "points",
-                            "value": 26,
-                            "percent": 51.0
-                        }
-                    ],
-                    "name": "Set 3"
-                },
-                {
-                    "stats": [
-                        {
-                            "type": "winningSpikes",
-                            "value": 52,
-                            "percent": 53.6
-                        },
-                        {
-                            "type": "killBlocks",
-                            "value": 9,
-                            "percent": 60.0
-                        },
-                        {
-                            "type": "aces",
-                            "value": 5,
-                            "percent": 62.5
-                        },
-                        {
-                            "type": "opponentErrors",
-                            "value": 13,
-                            "percent": 48.1
-                        },
-                        {
-                            "type": "points",
-                            "value": 79,
-                            "percent": 53.7
-                        }
-                    ],
-                    "name": "Match"
-                }
-            ]
-        },
-        "poll": {
-            "percent": 84.2,
-            "count": 16
-        },
-        "form": [
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-77-savino-del-bene-scandicci-v-rc-cannes/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-68-sc-potsdam-v-savino-del-bene-scandicci/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-67-savino-del-bene-scandicci-v-sc-potsdam/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-48-savino-del-bene-scandicci-v-athens-asp-thetis-voula/"
-            },
-            {
-                "won": true,
-                "link": "http://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-47-athens-asp-thetis-voula-v-savino-del-bene-scandicci/"
-            }
-        ],
-        "players": [
-            {
-                "zone": 4,
-                "position": "middleBlocker",
-                "name": "Lubian  Marina",
-                "id": 60177,
-                "number": 9,
-                "stats": {
-                    "points": 4,
-                    "serves": 0,
-                    "spikes": 4,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 67,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 3,
-                "position": "outsideSpiker",
-                "name": "Pietrini Elena",
-                "id": 64756,
-                "number": 7,
-                "stats": {
-                    "points": 9,
-                    "serves": 0,
-                    "spikes": 9,
-                    "blocks": 0,
-                    "receptions": 4,
-                    "spikePercentage": 31,
-                    "receptionPercentage": 68
-                }
-            },
-            {
-                "zone": 2,
-                "position": "opposite",
-                "name": "Antropova Ekaterina",
-                "id": 70724,
-                "number": 17,
-                "stats": {
-                    "points": 7,
-                    "serves": 0,
-                    "spikes": 7,
-                    "blocks": 0,
-                    "receptions": 2,
-                    "spikePercentage": 54,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 5,
-                "position": "setter",
-                "name": "Malinov Ofelia",
-                "id": 47242,
-                "number": 5,
-                "stats": {
-                    "points": 2,
-                    "serves": 0,
-                    "spikes": 2,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 50,
-                    "receptionPercentage": 100
-                }
-            },
-            {
-                "zone": 6,
-                "position": "outsideSpiker",
-                "name": "Sorokaite Indre",
-                "id": 24936,
-                "number": 19,
-                "stats": {
-                    "points": 17,
-                    "serves": 3,
-                    "spikes": 12,
-                    "blocks": 2,
-                    "receptions": 9,
-                    "spikePercentage": 39,
-                    "receptionPercentage": 48
-                }
-            },
-            {
-                "zone": 1,
-                "position": "outsideSpiker",
-                "name": "Angeloni Veronica",
-                "id": 23915,
-                "number": 1,
-                "stats": {
-                    "points": 1,
-                    "serves": 1,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "headCoach",
-                "name": "Barbolini Massimo",
-                "id": 0,
-                "number": 8619,
-                "stats": null
-            },
-            {
-                "zone": 7,
-                "position": "libero",
-                "name": "Castillo Brenda",
-                "id": 47182,
-                "number": 24,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 71
-                }
-            },
-            {
-                "zone": 7,
-                "position": "libero",
-                "name": "Napodano Francesca",
-                "id": 72341,
-                "number": 6,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 78
-                }
-            },
-            {
-                "zone": 0,
-                "position": "middleBlocker",
-                "name": "Alberti Sara",
-                "id": 4308,
-                "number": 2,
-                "stats": {
-                    "points": 10,
-                    "serves": 1,
-                    "spikes": 5,
-                    "blocks": 4,
-                    "receptions": 1,
-                    "spikePercentage": 45,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "middleBlocker",
-                "name": "Silva Correa Ana Beatriz",
-                "id": 89332,
-                "number": 3,
-                "stats": {
-                    "points": 4,
-                    "serves": 0,
-                    "spikes": 3,
-                    "blocks": 1,
-                    "receptions": 0,
-                    "spikePercentage": 50,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "setter",
-                "name": "Moschettini Noemi",
-                "id": 90602,
-                "number": 4,
-                "stats": null
-            },
-            {
-                "zone": 0,
-                "position": "libero",
-                "name": "Merlo Enrica",
-                "id": 4301,
-                "number": 8,
-                "stats": null
-            },
-            {
-                "zone": 0,
-                "position": "outsideSpiker",
-                "name": "Pereira Natalia Zilio",
-                "id": 67443,
-                "number": 10,
-                "stats": {
-                    "points": 0,
-                    "serves": 0,
-                    "spikes": 0,
-                    "blocks": 0,
-                    "receptions": 0,
-                    "spikePercentage": 0,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "opposite",
-                "name": "Lippmann Louisa",
-                "id": 44416,
-                "number": 11,
-                "stats": {
-                    "points": 12,
-                    "serves": 0,
-                    "spikes": 10,
-                    "blocks": 2,
-                    "receptions": 1,
-                    "spikePercentage": 42,
-                    "receptionPercentage": 0
-                }
-            },
-            {
-                "zone": 0,
-                "position": "outsideSpiker",
-                "name": "Orthmann Hanna",
-                "id": 51611,
-                "number": 12,
-                "stats": null
-            },
-            {
-                "zone": 0,
-                "position": "setter",
-                "name": "Milanova Nikol",
-                "id": 73682,
-                "number": 13,
-                "stats": null
-            }
-        ]
-    },
-    "report": {
-        "headline": null,
-        "body": null,
-        "quotes": [],
-        "inNumbers": [
-            {
-                "title": "Points",
-                "description": "The combined total number of points scored by both teams throughout the entire match.",
-                "value": "120"
-            },
-            {
-                "title": "Duration",
-                "description": "The total length of the match, from the first serve through until the last point has ended.",
-                "value": "82"
-            },
-            {
-                "title": "Spectators",
-                "description": "Total number of people in attendance at the venue \u2013 taken at the end of the second set.",
-                "value": "202"
-            },
-            {
-                "title": "Match Spikes",
-                "description": "The combined total number of successful spikes achieved by both teams throughout the entire match.",
-                "value": "251"
-            },
-            {
-                "title": "Reception Level",
-                "description": "An average of the two team service reception percentages from the complete match.",
-                "value": "58%"
-            },
-            {
-                "title": "Net Domination",
-                "description": "The number of successful point winning blocks of RC CANNES compared to Savino Del Bene SCANDICCI.",
-                "value": "6-9"
-            },
-            {
-                "title": "Ace Count",
-                "description": "RC CANNES number of service aces compared to Savino Del Bene SCANDICCI",
-                "value": "3-5"
-            },
-            {
-                "title": "Error Difference",
-                "description": "Errors leading to points of RC CANNES, next to those from Savino Del Bene SCANDICCI",
-                "value": "30-32"
-            }
-        ]
-    },
-    "state": "finished"
+    }
 }
