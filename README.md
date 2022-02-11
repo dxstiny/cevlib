@@ -12,3 +12,6 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 - extract highlights link from match centre
 
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)
+
+## Contact
+In case of legal complaints or any other comments, feel free to contact me (the owner of this repository) on telegram: @dxstiny
