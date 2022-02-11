@@ -14,4 +14,4 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)
 
 ## Contact
-In case of legal complaints or any other comments, feel free to contact me (the owner of this repository) on telegram: @dxstiny
+In case of legal complaints or other comments, you can contact me (the owner of this repository) on Telegram: [@dxstiny](https://t.me/dxstiny)
