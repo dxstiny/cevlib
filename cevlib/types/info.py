@@ -80,7 +80,7 @@ class Info(IType):
 
         infoContainer = soup.find("div", class_="match-info")
         if not infoContainer:
-            raise AttributeError
+            return
         infoItems = infoContainer.find_all("li", class_="accordion-item")
         for infoItem in infoItems:
             if _getAccordionTitle(infoItem) == "Officials":
