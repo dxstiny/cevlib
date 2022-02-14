@@ -155,6 +155,10 @@ class Match(IType):
             #raise AttributeError("404")
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload\/Photo\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]).jpg", html) ]
+        embeddedVideos = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*\/embed\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
+        self._highlightsLinkCache: Optional[str] = None
+        if len(embeddedVideos):
+            self._highlightsLinkCache = "https://" + embeddedVideos[0].replace("/embed/", "/v/").split("?")[0]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
         self._html = html
         self._matchId: Optional[int] = None
@@ -421,10 +425,12 @@ class Match(IType):
         return jdata.get("watchLink") or None
 
     async def highlightsLink(self) -> str:
-        if not self._initialised:
-            raise NotInitialisedException
-        jdata = await self._requestLiveScoresJsonByMatchSafe()
-        return jdata.get("highlightsLink") or None
+        if not self._highlightsLinkCache:
+            if not self._initialised:
+                raise NotInitialisedException
+            jdata = await self._requestLiveScoresJsonByMatchSafe()
+            self._highlightsLinkCache = jdata.get("highlightsLink") or None
+        return self._highlightsLinkCache
 
     async def competition(self) -> Optional[Competition]:
         if self._invalidMatchCentre:
