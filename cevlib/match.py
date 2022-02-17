@@ -439,7 +439,11 @@ class Match(IType):
             if competition is None:
                 return None
             return Competition({
-                "Competition": competition.get("name")
+                "Competition": competition.get("name"),
+                "Leg": jdata.get("legName"),
+                "Phase": jdata.get("phaseName"),
+                "GroupPool": jdata.get("groupName"),
+                "MatchNumber": jdata.get("matchNumber")
             })
         async with aiohttp.ClientSession() as client:
             async with client.get(self._getLink("getlivescorehero")) as resp:

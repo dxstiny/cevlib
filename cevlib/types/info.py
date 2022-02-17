@@ -100,5 +100,5 @@ class Info(IType):
         return {
             "infoText": self._infoText,
             "officials": [ official.toJson() for official in self._officials ],
-            "venue": self._venue.toJson()
+            "venue": self._venue.toJson() if self._venue else None
         }
