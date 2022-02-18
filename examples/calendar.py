@@ -13,6 +13,10 @@ async def main():
     # these matches are displayed on cev.eu under "GameHub/Recent Results"
     print( matches )
 
+    matches = await Calendar.UpcomingAndRecentMatches() # get both Upcoming & Recent matches (faster than running them separately)
+    # these matches are displayed on cev.eu under "GameHub"
+    print( matches )
+
     x = await matches[0].toMatch() # any CalendarMatch object can be cast to a "full" Match (full capabilities), a match centre link is currently required though
     # if no match centre link exists for this match, toMatch returns None
     if x:
