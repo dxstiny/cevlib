@@ -8,7 +8,7 @@ The Owner undertakes its utmost effort to ensure that the content provided in th
 In such cases, without prejudice to any legal prerogatives of Users to enforce their rights, Users are kindly asked to preferably report related complaints by opening an issue.
 
 ## Live Demo
-[CEV Next](https://cev-next.herokuapp.com/) makes use of exactly this library and displays the available information in a beautiful UI.
+[CEV Next](http://cev-nex.tk/) makes use of exactly this library and displays the available information in a beautiful UI.
 
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)
 
