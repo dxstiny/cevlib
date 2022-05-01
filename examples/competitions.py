@@ -9,6 +9,10 @@ async def main():
     print( link )
 
     assert link
+    competition = await link.toCompetition()
+    print( competition )
+
+    # or
     competition = await Competition.FromUrl(link.href) # get the first competition (Competition object)
     print( competition )
 

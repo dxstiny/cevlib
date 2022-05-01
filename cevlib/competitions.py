@@ -401,6 +401,9 @@ class CompetitionLink(IType):
             "href": self._href
         }
 
+    async def toCompetition(self) -> Competition:
+        return await Competition.FromUrl(self.href)
+
 
 class Competitions(IType):
     _competitionsCache: List[CompetitionLink] = [ ]
