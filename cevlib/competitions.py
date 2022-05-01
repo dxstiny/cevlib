@@ -1,4 +1,5 @@
 from __future__ import annotations
+from os import link
 from typing import Dict, List, Optional, Tuple
 import re
 from bs4 import BeautifulSoup
@@ -49,8 +50,20 @@ class Draw(IType):
         return self._matches[0].teams
 
     @property
+    def matches(self) -> List[CalendarMatch]:
+        assert self.valid
+        return self._matches
+
+    def get(self, index: int) -> Optional[Pool]:
+        """matches[index]"""
+        return self.matches[index] if index < len(self.matches) else None
+
+    @property
     def valid(self) -> bool:
         return len(self._matches) and self._sameTeams()
+    
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.Draw) {len(self._matches)} matches"
 
     def toJson(self) -> dict:
         if not self.valid:
@@ -58,22 +71,103 @@ class Draw(IType):
         return [ match.toJson() for match in self._matches ]
 
 
-class Round(IType):
-    def __init__(self, name: str, draws: List[Draw]) -> None:
-        self._name = name
-        self._draws = draws
+class StandingsTeam(IType):
+    def __init__(self, team: dict) -> None:
+        self._team = team
+
+    @property
+    def team(self) -> dict:
+        return self._team
 
     @property
     def valid(self) -> bool:
-        return self._name and len(self._draws)
+        return True
+    
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.StandingsTeam) {self.team}"
+
+    def toJson(self) -> dict:
+        return self._team
+
+
+class StandingsPool(IType):
+    def __init__(self, teams: List[StandingsTeam]) -> None:
+        self._teams = teams
 
     @property
-    def name(self) -> str:
-        return self._name
+    def teams(self) -> List[StandingsTeam]:
+        return self._teams
 
     @property
-    def draws(self) -> List[Draw]:
-        return self._draws
+    def valid(self) -> bool:
+        return True
+
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.StandingsPool) {len(self.teams)} teams"
+
+    def toJson(self) -> dict:
+        return [ team.toJson() for team in self.teams ]
+
+class Standings(IType):
+    def __init__(self, table: Optional[Tag]) -> None:
+        self._pools: List[StandingsPool] = [ ]
+        if not table:
+            return
+        head = table.find("thead")
+        bodies = table.find_all("tbody")
+        if not head or len(bodies) == 0:
+            return
+        rows = head.find_all("tr")
+        if len(rows) < 2:
+            return
+        headings1 = [ th.get_text(strip = True) for th in rows[0].find_all("th") ]
+        headings1 = [ heading for heading in headings1 if heading ]
+        headings1.insert(0, "")
+        self._headings = [ ]
+        headings1It = 0
+        for th in rows[1].find_all("th"):
+            assert isinstance(th, Tag)
+            self._headings.append(f"{headings1[headings1It]}.{th.get_text(strip = True)}")
+            if th.get("class") == ["u-pr-8"]:
+                headings1It += 1
+
+        if len(self._headings) == 0:
+            return
+        for body in bodies:
+            teams: List[StandingsTeam] = [ ]
+            for row in body.find_all("tr"):
+                standing = { }
+                for i, text in enumerate(row.find_all("td")):
+                    standing[self._headings[i]] = text.get_text(strip = True)
+                teams.append(StandingsTeam(standing))
+            self._pools.append(StandingsPool(teams))
+
+    @property
+    def pools(self) -> List[StandingsPool]:
+        return self._pools
+
+    def get(self, index) -> Optional[List[dict]]:
+        """pools[index]"""
+        if index >= len(self.pools):
+            return None
+        return self.pools[index]
+
+    @property
+    def valid(self) -> bool:
+        return True
+
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.Standings) {len(self.pools)} pools"
+
+    def toJson(self) -> dict:
+        return [ pool.toJson() for pool in self.pools ]
+
+
+class Pool(IType):
+    def __init__(self, name: str, draws: List[Draw], standings: Optional[StandingsPool] = None) -> None:
+        self._name = name
+        self._draws = draws
+        self._standings = standings
 
     def moveOrCreateDraw(self, anyDrawTeam: Team, newIndex: int, competition: Optional[CompetitionModel]) -> None:
         if anyDrawTeam.name == "Bye":
@@ -91,29 +185,60 @@ class Round(IType):
         assert competition
         self._draws.insert(newIndex, Draw([ CalendarMatch.ShortcutMatch(competition, anyDrawTeam), CalendarMatch.ShortcutMatch(competition, anyDrawTeam) ]))
 
+    @property
+    def valid(self) -> bool:
+        return bool(self._name and len(self._draws))
+
+    @property
+    def standingsPool(self) -> Optional[StandingsPool]:
+        return self._standings
+
+    @property
+    def draws(self) -> List[Draw]:
+        return self._draws
+
+    def get(self, index: int) -> Optional[Draw]:
+        """draws[index]"""
+        return self.draws[index] if index < len(self.draws) else None
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.Pool) {self._name} ({len(self.draws)} draws) ({self.standingsPool})"
+
     def toJson(self) -> dict:
         return {
             "name": self._name,
-            "draws": [ draw.toJson() for draw in self._draws ]
+            "draws": [ draw.toJson() for draw in self._draws ],
+            "standings": self.standingsPool.toJson() if self.standingsPool else None
         }
 
 
-class Competition(IType):
-    def __init__(self, rounds: List[Round]) -> None:
-        self._rounds = rounds
-        self._rearrangeDraws()
+class Round(IType):
+    def __init__(self, name: str, pools: List[Pool]) -> None:
+        self._name = name
+        self._pools = pools
+
+    @property
+    def valid(self) -> bool:
+        return bool(self._name and len(self._pools))
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def pools(self) -> List[Pool]:
+        return self._pools
     
-    def _rearrangeDraws(self) -> None:
-        rounds = [ round for round in self._rounds if "Pool" not in round.name and "Round" not in round.name ]
-        for i in range(len(rounds) - 1):
-            round = rounds[- (i + 1)]
-            previousRound = rounds[- (i + 2)]
-            for j in range(len(round.draws)):
-                previousRound.moveOrCreateDraw(round.draws[j].firstTeam, j * 2, round.draws[j].competition)
-                previousRound.moveOrCreateDraw(round.draws[j].secondTeam, j * 2 + 1, round.draws[j].competition)
+    def get(self, index: int) -> Optional[Pool]:
+        """pools[index]"""
+        return self.pools[index] if index < len(self.pools) else None
 
     @staticmethod
-    def _ParseRound(pool: dict, competition: CompetitionLink) -> Round:
+    def ParsePool(pool: dict, competition: CompetitionLink, standings: Optional[Standings]):
         draws: List[List[CalendarMatch]] = [ ]
         for match in pool.get("Results"):
             homeId = 0
@@ -142,7 +267,38 @@ class Competition(IType):
                     break
             if newDraw:
                 draws.append([newMatch])
-        return Round(pool.get("Name"), [ Draw([ match for match in draw ]) for draw in draws ])
+        return Pool(pool.get("Name"), [ Draw([ match for match in draw ]) for draw in draws ], standings)
+
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.Round) {self._name} ({len(self.pools)} pools)"
+
+    def toJson(self) -> dict:
+        return {
+            "name": self._name,
+            "pools": [ pool.toJson() for pool in self._pools ]
+        }
+
+
+class Competition(IType):
+    def __init__(self, rounds: List[Round]) -> None:
+        self._rounds = rounds
+        self._rearrangeDraws()
+    
+    def _rearrangeDraws(self) -> None:
+        pools: List[Pool] = [ ]
+        [ pools.extend(round.pools) for round in self._rounds ]
+        for i in range(len(pools) - 1):
+            pool = pools[- (i + 1)]
+            previousPool = pools[- (i + 2)]
+            if pool.standingsPool or previousPool.standingsPool:
+                continue
+            for j in range(len(pool.draws)):
+                previousPool.moveOrCreateDraw(pool.draws[j].firstTeam, j * 2, pool.draws[j].competition)
+                previousPool.moveOrCreateDraw(pool.draws[j].secondTeam, j * 2 + 1, pool.draws[j].competition)
+
+    @staticmethod
+    def _ParseRound(name: str, pools: List[dict], competition: CompetitionLink, standings: Optional[Standings] = None) -> Round:
+        return Round(name, [ Round.ParsePool(pool, competition, standings.get(i) if standings else None) for i, pool in enumerate(pools) ])
 
     @staticmethod
     async def FromUrl(url: str) -> Competition:
@@ -152,18 +308,43 @@ class Competition(IType):
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as resp:
                 html = await resp.text()
-        links = [ "https://" + match[0].replace("&amp;", "&") for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*GetResultList?[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
+        #links = [ "https://" + match[0].replace("&amp;", "&") for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*GetResultList?[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         rounds = [ ]
-        for link in links:
+        soup = BeautifulSoup(html, "html.parser")
+
+        roundNameLookup = [ comp.get_text(strip = True) for comp in soup.find_all("li", class_="tabs-title") ]
+
+        #data-score-endpoint
+        for i, comp in enumerate(soup.find_all("div", class_="competition-components-container")):
+            if not isinstance(comp, Tag):
+                continue
+            linkDiv = comp.find("div", attrs = { "data-score-endpoint": True })
+            if not isinstance(linkDiv, Tag):
+                continue # has no useful content
+            tableDiv = comp.find("div", class_="pool-standings-table")
+            standings = Standings(tableDiv)
+            link = "https:" + linkDiv["data-score-endpoint"]
             async with aiohttp.ClientSession() as client:
                 async with client.get(link) as resp:
                     jdata = await resp.json(content_type=None)
-                    rounds.extend([ Competition._ParseRound(pool, competition) for pool in jdata.get("Pools") ])
+                    name = roundNameLookup[i] if i <= len(roundNameLookup) else "N/A"
+                    rounds.append(Competition._ParseRound(name, jdata.get("Pools"), competition, standings))
         return Competition(rounds)
     
     @property
+    def rounds(self) -> List[Round]:
+        return self._rounds
+
+    def get(self, index: int) -> Optional[Round]:
+        """rounds[index]"""
+        return self.rounds[index] if index < len(self.rounds) else None
+
+    @property
     def valid(self) -> bool:
         return True
+
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.Competition) {len(self._rounds)} rounds"
     
     def toJson(self) -> dict:
         return [ round.toJson() for round in self._rounds ]
@@ -282,6 +463,17 @@ class Competitions(IType):
 
     def getByLink(self, link: str) -> Optional[Competition]:
         return next((item for item in self._competitions if item.href == link), None)
+
+    @property
+    def links(self) -> List[CompetitionLink]:
+        return self._competitions
+
+    def get(self, index: int) -> Optional[CompetitionLink]:
+        """links[index]"""
+        return self.links[index] if index < len(self.links) else None
+
+    def __repr__(self) -> str:
+        return f"(cevlib.competitions.Competitions) {self._competitions}"
 
     def toJson(self) -> dict:
         return [ competition.toJson() for competition in self._competitions ]
