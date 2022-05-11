@@ -1,7 +1,8 @@
 # cevlib x PyScript
 inofficial python library for cev.eu (NOT affiliated)
 
-this branch's version is fully compatible with PyScript and thus runs in (almost) every browser - no back end needed!
+the version of this branch is fully compatible with PyScript and therefore runs in (almost) every browser - no back end required!
+to use PyScript, "." in includes must be replaced by "_" (e.g. "cevlib.match" -> "cevlib_match")
 
 ## Terms of Use
 please refer to [cev.eu's Terms of Use](https://www.cev.eu/terms-of-use/)
@@ -12,7 +13,7 @@ In such cases, without prejudice to any legal prerogatives of Users to enforce t
 ## Live Demo
 [CEV Next](https://cev-next.herokuapp.com/#/) makes use of exactly this library and displays the available information in a beautiful UI.
 
-## [Try it out](https://cev-next.herokuapp.com/#/cevlib/wiki)
+## [Try it out](https://cev-next-pyscript.dxstiny.workers.dev/)
 
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)
 
