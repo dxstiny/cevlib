@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any, List
-from cevlib.types.iType import IType
-from cevlib.types.types import Position, TeamStatisticType, TopPlayerType
+from cevlib_types_iType import IType
+from cevlib_types_types import Position, TeamStatisticType, TopPlayerType
 
 
 class TeamStatistic(IType):

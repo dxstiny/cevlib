@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import List
-from cevlib.types.iType import IType
+from cevlib_types_iType import IType
 
-from cevlib.types.results import SetResult
-from cevlib.types.types import PlayType
+from cevlib_types_results import SetResult
+from cevlib_types_types import PlayType
 
 def ensureString(data: dict, key: str) -> str:
     value = data.get(key)

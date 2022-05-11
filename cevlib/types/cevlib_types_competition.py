@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
-from cevlib.types.iType import IType
-from cevlib.types.types import CompetitionGender
+from cevlib_types_iType import IType
+from cevlib_types_types import CompetitionGender
 
 
 class Competition(IType):

@@ -5,12 +5,18 @@ from queue import Queue
 
 
 async def asyncRunInThread(target: Callable, args: Optional[List[Any]]) -> None:
+    return target(*args)
+    # NOTE threads don't work with PyScript
+    
     t1 = Thread(target = target, args = args)
     t1.start()
     while t1.is_alive():
         await asyncio.sleep(1)
 
 async def asyncRunInThreadWithReturn(target: Any, *args) -> Any:
+    return target(*args)
+    # NOTE threads don't work with PyScript
+
     q = Queue()
 
     def _implement() -> None:

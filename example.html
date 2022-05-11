@@ -1,0 +1,82 @@
+<head>
+    <title>cevlib</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <py-env>
+        - beautifulsoup4
+        - paths:
+            - 'cevlib/cevlib_match.py'
+            - 'cevlib/cevlib_calendar.py'
+            - 'cevlib/cevlib_competitions.py'
+            - 'cevlib/cevlib_exceptions.py'
+    
+            - 'cevlib/helpers/cevlib_helpers_asyncThread.py'
+    
+            - 'cevlib/converters/cevlib_converters_scoreHeroToJson.py'
+    
+            - 'cevlib/types/cevlib_types_competition.py'
+            - 'cevlib/types/cevlib_types_info.py'
+            - 'cevlib/types/cevlib_types_iType.py'
+            - 'cevlib/types/cevlib_types_matchPoll.py'
+            - 'cevlib/types/cevlib_types_playByPlay.py'
+            - 'cevlib/types/cevlib_types_report.py'
+            - 'cevlib/types/cevlib_types_results.py'
+            - 'cevlib/types/cevlib_types_stats.py'
+            - 'cevlib/types/cevlib_types_team.py'
+            - 'cevlib/types/cevlib_types_types.py'
+    </py-env>
+</head>
+
+<body>
+    <div class="help">
+        <h1>CEVlib x PyScript</h1>
+        Check out the <a href="https://github.com/dxstiny/cevlib/wiki">wiki</a>
+        <br>
+        Note: replace every "." with "_" (e.g. cevlib.match -> cevlib_match)
+    </div>
+    <py-repl id="match" auto-generate="true">
+from cevlib_match import Match
+import asyncio
+
+match: Match = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
+await match.init()
+
+await match.toJson()
+    </py-repl>
+
+    <py-repl id="competition" auto-generate="true">
+from cevlib_competitions import Competitions
+import asyncio
+
+competitions = await Competitions.GetAll() # get all competitions (Competitions object)
+
+competitions.toJson()
+    </py-repl>
+
+
+    <py-repl id="calendar" auto-generate="true">
+import asyncio
+from cevlib_calendar import Calendar
+
+matches = await Calendar.UpcomingAndRecentMatches() # get both Upcoming & Recent matches (faster than running them separately)
+# these matches are displayed on cev.eu under "GameHub"
+
+[ match.toJson() for match in matches ]
+    </py-repl>
+</body>
+
+
+<style>
+    .help {
+        margin: 2rem;
+    }
+
+    .help h1 {
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    .help a {
+        color: #dc0000;
+    }
+</style>

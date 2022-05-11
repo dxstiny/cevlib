@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import List, Union
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
-from cevlib.types.iType import IType
+
+from cevlib_types_iType import IType
 
 
 class MatchReport(IType):

@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 import re
 
-from cevlib.types.iType import IType
+from cevlib_types_iType import IType
 
 
 class Referee(IType):

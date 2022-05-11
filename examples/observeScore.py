@@ -1,7 +1,7 @@
 import asyncio
 
-from cevlib.match import Match
-from cevlib.types.results import Result
+from cevlib.cevlib_match import Match
+from cevlib.types.cevlib_types_results import Result
 
 async def main():
     match = await Match.ByUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-cup-2022-women/ccw-54-mladost-zagreb-v-lks-commercecon-lodz/")

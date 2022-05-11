@@ -1,18 +1,18 @@
 from __future__ import annotations
-from os import link
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 import re
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-import aiohttp
-from cevlib.calendar import CalendarMatch
+from pyodide.http import pyfetch
 
-from cevlib.types.competition import Competition as CompetitionModel
-from cevlib.types.iType import IType
-from cevlib.types.results import Result
-from cevlib.types.team import Team
-from cevlib.types.types import CompetitionGender
+from cevlib_calendar import CalendarMatch
+
+from cevlib_types_competition import Competition as CompetitionModel
+from cevlib_types_iType import IType
+from cevlib_types_results import Result
+from cevlib_types_team import Team
+from cevlib_types_types import CompetitionGender
 
 
 class Draw(IType):
@@ -305,9 +305,8 @@ class Competition(IType):
         html = ""
         competition = (await Competitions.GetAll()).getByLink(url)
         assert competition
-        async with aiohttp.ClientSession() as client:
-            async with client.get(url) as resp:
-                html = await resp.text()
+        resp = await pyfetch(url)
+        html = await resp.string()
         #links = [ "https://" + match[0].replace("&amp;", "&") for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*GetResultList?[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
         rounds = [ ]
         soup = BeautifulSoup(html, "html.parser")
@@ -324,11 +323,10 @@ class Competition(IType):
             tableDiv = comp.find("div", class_="pool-standings-table")
             standings = Standings(tableDiv)
             link = "https:" + linkDiv["data-score-endpoint"]
-            async with aiohttp.ClientSession() as client:
-                async with client.get(link) as resp:
-                    jdata = await resp.json(content_type=None)
-                    name = roundNameLookup[i] if i <= len(roundNameLookup) else "N/A"
-                    rounds.append(Competition._ParseRound(name, jdata.get("Pools"), competition, standings))
+            resp = await pyfetch(link)
+            jdata = await resp.json()
+            name = roundNameLookup[i] if i <= len(roundNameLookup) else "N/A"
+            rounds.append(Competition._ParseRound(name, jdata.get("Pools"), competition, standings))
         return Competition(rounds)
     
     @property
@@ -456,9 +454,8 @@ class Competitions(IType):
         
     @staticmethod
     async def GetAll() -> Competitions:
-        async with aiohttp.ClientSession() as client:
-            async with client.get(f"https://www.cev.eu/") as resp:
-                return Competitions(await resp.text())
+        resp = await pyfetch("https://www.cev.eu/")
+        return Competitions(await resp.string())
     
     @property
     def valid(self) -> bool:

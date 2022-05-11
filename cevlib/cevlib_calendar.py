@@ -2,13 +2,13 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional, Tuple
 
-import aiohttp
-from cevlib.match import Match
-from cevlib.types.competition import Competition
-from cevlib.types.iType import IType
-from cevlib.types.results import Result
-from cevlib.types.team import Team
-from cevlib.types.types import MatchState
+from pyodide.http import pyfetch
+from cevlib_match import Match
+from cevlib_types_competition import Competition
+from cevlib_types_iType import IType
+from cevlib_types_results import Result
+from cevlib_types_team import Team
+from cevlib_types_types import MatchState
 
 class CalendarMatch(IType):
     def __init__(self, url: Optional[str], competition: Competition, homeTeam: Team, awayTeam: Team, venue: str, startTime: str, result: Result, finished: bool) -> None:
@@ -104,11 +104,10 @@ class Calendar(IType):
         today = datetime.now()
         timestamp = datetime(year if year else today.year, month if month else today.month, 1).strftime("%Y-%m-%dT%H:%M:%SZ")
         matches = [ ]
-        async with aiohttp.ClientSession() as client:
-            async with client.get(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") as resp:
-                jdata = await resp.json(content_type=None)
-                for date in jdata.get("Dates") or [ ]:
-                    matches.extend(date.get("Matches") or [ ])
+        resp = await pyfetch(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}")
+        jdata = await resp.json(content_type=None)
+        for date in jdata.get("Dates") or [ ]:
+            matches.extend(date.get("Matches") or [ ])
         return [ CalendarMatch(str(match.get("MatchCentreUrl")),
                                Competition({ "Competition": match.get("CompetitionName"), "CompetitionLogo": match.get("CompetitionLogo"), "Phase": match.get("PhaseName") }),
                                Team.Build( match.get("HomeTeamName"), match.get("HomeTeamLogo"), match.get("HomeClubCode"), True ),
@@ -121,7 +120,6 @@ class Calendar(IType):
                                }),
                                match.get("Finalized"))
                  for match in matches ]
-
 
     @staticmethod
     async def RecentMatches() -> List[CalendarMatch]:
@@ -162,13 +160,12 @@ class Calendar(IType):
     @staticmethod
     async def _GetLiveScoreMatches() -> List[dict]:
         matches = [ ]
-        async with aiohttp.ClientSession() as client:
-            async with client.get("https://www.cev.eu/LiveScores.json") as resp:
-                jdata = await resp.json(content_type=None)
-                for competition in jdata.get("competitions"):
-                    for m in competition.get("matches"):
-                        m["competition"] = { "Competition": competition["competitionName"], "id": competition["competitionId"] }
-                        matches.append(m)
+        resp = await pyfetch("https://www.cev.eu/LiveScores.json")
+        jdata = await resp.json()
+        for competition in jdata.get("competitions"):
+            for m in competition.get("matches"):
+                m["competition"] = { "Competition": competition["competitionName"], "id": competition["competitionId"] }
+                matches.append(m)
 
         return matches
 

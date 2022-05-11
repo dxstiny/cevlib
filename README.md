@@ -1,5 +1,7 @@
-# cevlib
+# cevlib x PyScript
 inofficial python library for cev.eu (NOT affiliated)
+
+this branch's version is fully compatible with PyScript and thus runs in (almost) every browser - no back end needed!
 
 ## Terms of Use
 please refer to [cev.eu's Terms of Use](https://www.cev.eu/terms-of-use/)

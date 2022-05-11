@@ -3,22 +3,22 @@ import asyncio
 from datetime import datetime, timedelta
 from time import time
 from typing import Coroutine, List, Optional
-import aiohttp
+from pyodide.http import pyfetch
 import re
 import json
-from cevlib.exceptions import NotInitialisedException
-from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
-from cevlib.types.competition import Competition
-from cevlib.types.iType import IType
-from cevlib.types.info import Info
+from cevlib_exceptions import NotInitialisedException
+from cevlib_helpers_asyncThread import asyncRunInThreadWithReturn
+from cevlib_types_competition import Competition
+from cevlib_types_iType import IType
+from cevlib_types_info import Info
 
-from cevlib.types.playByPlay import PlayByPlay
-from cevlib.types.report import MatchReport
-from cevlib.types.results import Result
-from cevlib.types.stats import TeamStatistics, TopPlayer, TopPlayers
-from cevlib.types.team import Team
-from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
-from cevlib.types.types import MatchState
+from cevlib_types_playByPlay import PlayByPlay
+from cevlib_types_report import MatchReport
+from cevlib_types_results import Result
+from cevlib_types_stats import TeamStatistics, TopPlayer, TopPlayers
+from cevlib_types_team import Team
+from cevlib_converters_scoreHeroToJson import ScoreHeroToJson
+from cevlib_types_types import MatchState
 
 
 class MatchCache(IType):
@@ -221,28 +221,25 @@ class Match(IType):
 
     async def _getForm(self) -> dict:
         if not self._formCache:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(self._getLink("GetFormComponent")) as resp:
-                    self._formCache = json.loads(await resp.json(content_type=None))
+            resp = await pyfetch(self._getLink("GetFormComponent"))
+            self._formCache = json.loads(await resp.json())
         return self._formCache
 
     async def _getMatchId(self) -> int:
         try:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(self._getLink("livescorehero")) as resp:
-                    jdata = await resp.json(content_type=None)
-                    return int(jdata.get("MatchId"))
+            resp = await pyfetch(self._getLink("livescorehero"))
+            jdata = await resp.json()
+            return int(jdata.get("MatchId"))
         except:
             return None
 
     async def _requestLiveScoresJson(self, useCache = True) -> dict:
         if useCache and self._liveScoresCache:
             return self._liveScoresCache
-        async with aiohttp.ClientSession() as client:
-            async with client.get("https://www.cev.eu/LiveScores.json") as resp:
-                jdata = await resp.json(content_type=None)
-                self._liveScoresCache = jdata
-                return jdata
+        resp = await pyfetch("https://www.cev.eu/LiveScores.json")
+        jdata = await resp.json()
+        self._liveScoresCache = jdata
+        return jdata
 
     async def _requestLiveScoresJsonByMatchSafe(self, useCache = True) ->  Optional[dict]:
         return await (self._requestLiveScoresJsonByMatchId(useCache) if not self._invalidMatchCentre else self._requestLiveScoresJsonByMatchCentreLink(useCache))
@@ -271,37 +268,35 @@ class Match(IType):
     async def _tryGetFinishedGameData(self, trulyFinished = True) -> Optional[dict]:
         if self._invalidMatchCentre:
             return None
-        async with aiohttp.ClientSession() as client:
-            self._finished = trulyFinished
-            livescorehero = { }
-            matchpolldata = [ ]
-            async with client.get(self._getLink("getlivescorehero")) as resp:
-                livescorehero = await resp.json(content_type=None)
-            async with client.get(self._getLink("GetMatchPoll")) as resp:
-                matchpolldata = await resp.json(content_type=None)
-            return ScoreHeroToJson.convert(livescorehero, matchpolldata)
+        self._finished = trulyFinished
+        livescorehero = { }
+        matchpolldata = [ ]
+        resp = await pyfetch(self._getLink("getlivescorehero"))
+        livescorehero = await resp.json()
+        resp = await pyfetch(self._getLink("GetMatchPoll"))
+        matchpolldata = await resp.json()
+        return ScoreHeroToJson.convert(livescorehero, matchpolldata)
 
     async def _getTeam(self, index: int, home: bool) -> Optional[Team]:
         try:
-            async with aiohttp.ClientSession() as client:
-                playerStatsData = { }
-                teamData = { }
-                teamStatsData = { }
-                matchPoll = [ ]
-                async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
-                    teamData = await resp.json(content_type=None)
-                async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
-                    playerStatsData = json.loads(await resp.json(content_type=None))
-                async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
-                    teamStatsData = json.loads(await resp.json(content_type=None))
-                async with client.get(self._getLink("GetMatchPoll")) as resp:
-                    matchPoll = await resp.json(content_type=None)
-                liveScore = await self._requestLiveScoresJsonByMatchSafe()
-                form = await self._getForm()
-                return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
-                    form["HomeTeam"] if home else form["AwayTeam"],
-                    liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
-                    liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
+            playerStatsData = { }
+            teamData = { }
+            teamStatsData = { }
+            matchPoll = [ ]
+            resp = await pyfetch(self._getLink("GetStartingTeamComponent", index))
+            teamData = await resp.json()
+            resp = await pyfetch(self._getLink("GetPlayerStatsComponentMC"))
+            playerStatsData = json.loads(await resp.json())
+            resp = await pyfetch(self._getLink("GetTeamStatsComponentMC"))
+            teamStatsData = json.loads(await resp.json())
+            resp = await pyfetch(self._getLink("GetMatchPoll"))
+            matchPoll = await resp.json()
+            liveScore = await self._requestLiveScoresJsonByMatchSafe()
+            form = await self._getForm()
+            return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
+                form["HomeTeam"] if home else form["AwayTeam"],
+                liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
+                liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
         except Exception:
             liveScore = await self._tryGetFinishedGameData(False)
             if not liveScore:
@@ -373,10 +368,9 @@ class Match(IType):
 
     async def playByPlay(self) -> Optional[PlayByPlay]:
         try:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(self._getLink("GetPlayByPlayComponent")) as resp:
-                    jdata = await resp.json(content_type=None)
-                    return PlayByPlay(jdata)
+            resp = await pyfetch(self._getLink("GetPlayByPlayComponent"))
+            jdata = await resp.json()
+            return PlayByPlay(jdata)
         except Exception:
             return None
 
@@ -409,10 +403,9 @@ class Match(IType):
             return datetime.utcnow() - startTime
         if self._invalidMatchCentre:
             return timedelta()
-        async with aiohttp.ClientSession() as client:
-            async with client.get(self._getLink("getlivescorehero")) as resp:
-                jdata = await resp.json(content_type=None)
-                return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
+        resp = await pyfetch(self._getLink("getlivescorehero"))
+        jdata = await resp.json()
+        return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
 
     @property
     def matchCentreLink(self) -> str:
@@ -445,19 +438,18 @@ class Match(IType):
                 "GroupPool": jdata.get("groupName"),
                 "MatchNumber": jdata.get("matchNumber")
             })
-        async with aiohttp.ClientSession() as client:
-            async with client.get(self._getLink("getlivescorehero")) as resp:
-                jdata = await resp.json(content_type=None)
-                return Competition(jdata)
+        
+        resp = await pyfetch(self._getLink("getlivescorehero"))
+        jdata = await resp.json()
+        return Competition(jdata)
 
     async def topPlayers(self) -> TopPlayers:
         topPlayers = TopPlayers()
         links = self._getLinks("GetTopStatisticsComponent")
         for link in links:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(link) as resp:
-                    jdata = await resp.json(content_type=None)
-                    topPlayers.append(TopPlayer(jdata))
+            resp = await pyfetch(link)
+            jdata = await resp.json()
+            topPlayers.append(TopPlayer(jdata))
         return topPlayers
 
     async def info(self) -> Info:
@@ -471,9 +463,8 @@ class Match(IType):
 
     @staticmethod
     async def ByUrl(url: str) -> Match:
-        async with aiohttp.ClientSession() as client:
-            async with client.get(url) as resp:
-                return Match(await resp.text(), url)
+        resp = await pyfetch(url)
+        return Match(await resp.string(), url)
 
 
     # CONVERT

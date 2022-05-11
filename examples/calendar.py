@@ -1,5 +1,5 @@
 import asyncio
-from cevlib.calendar import Calendar
+from cevlib.cevlib_calendar import Calendar
 
 async def main():
     matches = await Calendar.MatchesOfMonth(3, 2022) # get all matches of march, 2022

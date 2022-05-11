@@ -1,11 +1,11 @@
 from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
-from cevlib.types.iType import IType
-from cevlib.types.matchPoll import TeamPoll
-from cevlib.types.stats import PlayerStatistic, TeamStatistics
-from cevlib.types.types import Position, Zone
-from cevlib.types.results import Result
+from cevlib_types_iType import IType
+from cevlib_types_matchPoll import TeamPoll
+from cevlib_types_stats import PlayerStatistic, TeamStatistics
+from cevlib_types_types import Position, Zone
+from cevlib_types_results import Result
 
 
 class Player(IType):

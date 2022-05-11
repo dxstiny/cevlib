@@ -1,5 +1,5 @@
 import asyncio
-from cevlib.competitions import Competitions, Competition
+from cevlib.cevlib_competitions import Competitions, Competition
 
 async def main():
     competitions = await Competitions.GetAll() # get all competitions (Competitions object)

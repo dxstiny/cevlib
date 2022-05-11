@@ -1,6 +1,6 @@
 import asyncio
 
-from cevlib.match import Match
+from cevlib.cevlib_match import Match
 
 async def main():
     # get a match object by its match centre url
