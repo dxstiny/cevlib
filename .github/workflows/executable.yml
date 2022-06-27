@@ -1,4 +1,4 @@
-name: Pylint
+name: executable
 
 on:
   push:
@@ -18,10 +18,11 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install pylint==2.11.1 aiohttp==3.7.4.post0
+        pip3 install mypy
+        pip3 install -r requirements.txt
     - name: Analysing...
       id: main
       working-directory: ./
       run: |
-        python3 -m pylint --rcfile=./.pylintrc cevlib/*.py cevlib/*/*.py --disable=fixme
+        python3 ./test.py
       continue-on-error: false

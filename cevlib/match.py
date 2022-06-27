@@ -2,7 +2,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime, timedelta
 from time import time
-from typing import Coroutine, List, Optional
+from typing import Any, Coroutine, Dict, List, Optional
 import aiohttp
 import re
 import json
@@ -150,7 +150,8 @@ class MatchCache(IType):
 
 class Match(IType):
     def __init__(self, html: str, url: str) -> None:
-        self._invalidMatchCentre = "This page can be replaced with a custom 404. Check the documentation for" in html or "Object reference not set to an instance of an object." in html
+        self._invalidMatchCentre = "This page can be replaced with a custom 404. Check the documentation for" in html or \
+                                   "Object reference not set to an instance of an object." in html
         #if self._invalidMatchCentre:
             #raise AttributeError("404")
         self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
@@ -463,7 +464,7 @@ class Match(IType):
     async def info(self) -> Info:
         if not self._infoCache:
             self._infoCache = await asyncRunInThreadWithReturn(Info, self._html)
-        return self._infoCache or None
+        return self._infoCache
 
 
     # CREATE
@@ -479,7 +480,7 @@ class Match(IType):
     # CONVERT
 
 
-    async def toJson(self) -> dict:
+    async def toJson(self) -> Dict[str, Any]:
         return (await self.cache()).toJson()
 
     async def cache(self,) -> MatchCache:
@@ -502,7 +503,7 @@ class Match(IType):
                     #highlightsLink = True,
                     #finished = True,
                     #report = True,) -> MatchCache:
-        afterInit = [ ]
+        afterInit: List[Coroutine[Any, Any, Any]] = [ ]
 
         afterInit.append(self.playByPlay())
         afterInit.append(self.competition())

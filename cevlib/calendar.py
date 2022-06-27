@@ -1,9 +1,11 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
+
 from cevlib.match import Match
+from cevlib.helpers.dictTool import DictEx
 from cevlib.types.competition import Competition
 from cevlib.types.iType import IType
 from cevlib.types.results import Result
@@ -11,7 +13,15 @@ from cevlib.types.team import Team
 from cevlib.types.types import MatchState
 
 class CalendarMatch(IType):
-    def __init__(self, url: Optional[str], competition: Competition, homeTeam: Team, awayTeam: Team, venue: str, startTime: str, result: Result, finished: bool) -> None:
+    def __init__(self,
+                 url: Optional[str],
+                 competition: Competition,
+                 homeTeam: Team,
+                 awayTeam: Team,
+                 venue: str,
+                 startTime: str,
+                 result: Result,
+                 finished: bool) -> None:
         self._matchCentreLink = url
         self._competition = competition
         self._homeTeam = homeTeam
@@ -26,20 +36,42 @@ class CalendarMatch(IType):
         self._state = MatchState.Parse(datetime.utcnow() >= self._startTime, self._finished)
 
     @staticmethod
+    def parse(data: Dict[str, Any]) -> CalendarMatch:
+        dex = DictEx(data)
+        return CalendarMatch(dex.ensureString("MatchCentreUrl"),
+                             Competition({ "Competition": dex.ensureString("CompetitionName"),
+                                           "CompetitionLogo": dex.ensureString("CompetitionLogo"),
+                                           "Phase": dex.ensureString("PhaseName") }),
+                             Team.Build( dex.ensureString("HomeTeamName"),
+                                         dex.ensureString("HomeTeamLogo"),
+                                         dex.ensureString("HomeClubCode"),
+                                         True ),
+                             Team.Build( dex.ensureString("GuestTeamName"),
+                                         dex.ensureString("GuestTeamLogo"),
+                                         dex.ensureString("GuestClubCode"),
+                                         False ),
+                             dex.ensureString("StadiumName"),
+                             dex.ensureString("MatchDateTime_UTC"),
+                             Result({
+                                "homeSetsWon": dex.ensureInt("WonSetHome"),
+                                "awaySetsWon": dex.ensureInt("WonSetGuest"),
+                             }),
+                             dex.ensureBool("Finalized"))
+
+    @staticmethod
     def ShortcutMatch(competition: Competition, team: Team) -> CalendarMatch:
-        return CalendarMatch(None, competition, team, Team.Build("", "", "", False), "", datetime.fromtimestamp(0).strftime("%Y-%m-%dT%H:%M:%SZ"), Result({}), True)
+        return CalendarMatch(None,
+                             competition,
+                             team,
+                             Team.Build("", "", "", False),
+                             "",
+                             datetime.fromtimestamp(0).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                             Result({}),
+                             True)
 
     @property
-    def teams(self) -> Tuple[Team]:
+    def teams(self) -> Tuple[Team, Team]:
         return ( self._homeTeam, self._awayTeam )
-
-    @property
-    def homeTeam(self) -> Team:
-        return self._homeTeam
-
-    @property
-    def awayTeam(self) -> Team:
-        return self._awayTeam
 
     async def toMatch(self) -> Optional[Match]:
         if not self._matchCentreLink:
@@ -82,7 +114,7 @@ class CalendarMatch(IType):
         return self._venue
 
     @property
-    def matchCentreLink(self) -> str:
+    def matchCentreLink(self) -> Optional[str]:
         return self._matchCentreLink
 
     @property
@@ -103,23 +135,14 @@ class Calendar(IType):
     async def MatchesOfMonth(month: Optional[int] = None, year: Optional[int] = None) -> List[CalendarMatch]:
         today = datetime.now()
         timestamp = datetime(year if year else today.year, month if month else today.month, 1).strftime("%Y-%m-%dT%H:%M:%SZ")
-        matches = [ ]
+        matches: List[Dict[str, Any]] = [ ]
         async with aiohttp.ClientSession() as client:
             async with client.get(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") as resp:
                 jdata = await resp.json(content_type=None)
-                for date in jdata.get("Dates") or [ ]:
+                calendar = DictEx(jdata)
+                for date in calendar.ensureList("Dates"):
                     matches.extend(date.get("Matches") or [ ])
-        return [ CalendarMatch(str(match.get("MatchCentreUrl")),
-                               Competition({ "Competition": match.get("CompetitionName"), "CompetitionLogo": match.get("CompetitionLogo"), "Phase": match.get("PhaseName") }),
-                               Team.Build( match.get("HomeTeamName"), match.get("HomeTeamLogo"), match.get("HomeClubCode"), True ),
-                               Team.Build( match.get("GuestTeamName"), match.get("GuestTeamLogo"), match.get("GuestClubCode"), False ),
-                               match.get("StadiumName"),
-                               match.get("MatchDateTime_UTC"),
-                               Result({
-                                   "homeSetsWon": match.get("WonSetHome"),
-                                   "awaySetsWon": match.get("WonSetGuest"),
-                               }),
-                               match.get("Finalized"))
+        return [ CalendarMatch.parse(match)
                  for match in matches ]
 
 
@@ -145,19 +168,26 @@ class Calendar(IType):
 
     @staticmethod
     def _LiveScoresToCalendarMatch(match: dict) -> CalendarMatch:
-        compDict = match.get("competition")
-        compDict["Phase"] = match.get("phaseName")
-        compDict["Leg"] = match.get("legName")
-        compDict["GroupPool"] = match.get("groupName")
-        compDict["MatchNumber"] = match.get("matchNumber")
-        return CalendarMatch(match.get("matchCentreLink"),
+        dex = DictEx(match)
+        compDict = dex.ensureDict("competition")
+        compDict["Phase"] = dex.get("phaseName")
+        compDict["Leg"] = dex.get("legName")
+        compDict["GroupPool"] = dex.get("groupName")
+        compDict["MatchNumber"] = dex.get("matchNumber")
+        return CalendarMatch(dex.get("matchCentreLink"),
                              Competition(compDict),
-                             Team.Build( match.get("homeTeam"), match.get("homeTeamIcon"), match.get("homeTeamNickname"), True ),
-                             Team.Build( match.get("awayTeam"), match.get("awayTeamIcon"), match.get("awayTeamNickname"), False ),
-                             match.get("matchLocation"),
-                             match.get("utcStartDate"),
+                             Team.Build( dex.ensureString("homeTeam"),
+                                         dex.ensureString("homeTeamIcon"),
+                                         dex.ensureString("homeTeamNickname"),
+                                         True ),
+                             Team.Build( dex.ensureString("awayTeam"),
+                                         dex.ensureString("awayTeamIcon"),
+                                         dex.ensureString("awayTeamNickname"),
+                                         False ),
+                             dex.ensureString("matchLocation"),
+                             dex.ensureString("utcStartDate"),
                              Result(match),
-                             match.get("matchState_String") == "FINISHED")
+                             dex.ensureString("matchState_String") == "FINISHED")
 
     @staticmethod
     async def _GetLiveScoreMatches() -> List[dict]:
@@ -167,7 +197,8 @@ class Calendar(IType):
                 jdata = await resp.json(content_type=None)
                 for competition in jdata.get("competitions"):
                     for m in competition.get("matches"):
-                        m["competition"] = { "Competition": competition["competitionName"], "id": competition["competitionId"] }
+                        m["competition"] = { "Competition": competition["competitionName"],
+                                             "id": competition["competitionId"] }
                         matches.append(m)
 
         return matches
@@ -175,7 +206,7 @@ class Calendar(IType):
     def __repr__(self) -> str:
         return f"(cevlib.calendar.Calendar)"
 
-    def toJson() -> dict:
+    def toJson(self) -> dict:
         return { }
 
     @property

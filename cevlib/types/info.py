@@ -1,6 +1,6 @@
 from typing import List, Optional
-from bs4 import BeautifulSoup
-from bs4.element import Tag
+from bs4 import BeautifulSoup # type: ignore
+from bs4.element import Tag # type: ignore
 import re
 
 from cevlib.types.iType import IType

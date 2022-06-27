@@ -1,3 +1,5 @@
+import os
+
 import asyncio
 
 from cevlib.match import Match, MatchCache
@@ -24,5 +26,6 @@ async def main():
     print("highlightsLink", cache.highlightsLink)
     print("state", cache.state)
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+if os.name == "nt":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 asyncio.run(main())

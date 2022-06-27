@@ -1,9 +1,8 @@
 from __future__ import annotations
-from os import link
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 import re
-from bs4 import BeautifulSoup
-from bs4.element import Tag
+from bs4 import BeautifulSoup # type: ignore
+from bs4.element import Tag # type: ignore
 
 import aiohttp
 from cevlib.calendar import CalendarMatch
