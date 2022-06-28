@@ -179,7 +179,7 @@ class Pool(IType):
         if anyDrawTeam.name == "Bye":
             return
         oldIndex = -1
-        for i in enumerate(self._draws):
+        for i, _ in enumerate(self._draws):
             if anyDrawTeam in self._draws[i].teams:
                 oldIndex = i
                 break
@@ -319,7 +319,7 @@ class Competition(IType):
             previousPool = pools[- (i + 2)]
             if pool.standingsPool or previousPool.standingsPool:
                 continue
-            for j in enumerate(pool.draws):
+            for j, _ in enumerate(pool.draws):
                 previousPool.moveOrCreateDraw(pool.draws[j].firstTeam,
                                               j * 2, pool.draws[j].competition)
                 previousPool.moveOrCreateDraw(pool.draws[j].secondTeam,

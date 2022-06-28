@@ -76,7 +76,7 @@ class CalendarMatch(IType):
     async def toMatch(self) -> Optional[Match]:
         if not self._matchCentreLink:
             return None
-        return await Match.ByUrl(self._matchCentreLink)
+        return await Match.byUrl(self._matchCentreLink)
 
     def __repr__(self) -> str:
         return f"(cevlib.calendar.CalendarMatch) {self._matchCentreLink} {self._competition} {self._venue} {self._startTime}\n{self._homeTeam}\n{self._awayTeam}\n{self._result}" # pylint: disable=line-too-long
