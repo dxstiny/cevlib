@@ -52,6 +52,7 @@ class CompetitionGender(Enum):
     Men = "Men"
     Unknown = "Unknown"
 
+    @staticmethod
     def Parse(value: str) -> CompetitionGender:
         if value in ("Women", "W"):
             return CompetitionGender.Women
@@ -126,7 +127,7 @@ class PlayType(Enum):
     Unknown = "unknown"
 
     @staticmethod
-    def Parse(typeName) -> PlayType:
+    def Parse(typeName: str) -> PlayType:
         if typeName == "Spike":
             return PlayType.Spike
         if typeName == "Serve":
@@ -142,6 +143,7 @@ class MatchState(Enum):
     Upcoming = "upcoming"
     Live = "live"
     Finished = "finished"
+    Unknown = "unknown"
 
     @staticmethod
     def Parse(started: bool, finished: bool) -> MatchState:
@@ -151,3 +153,4 @@ class MatchState(Enum):
             return MatchState.Live
         if finished:
             return MatchState.Finished
+        return MatchState.Unknown

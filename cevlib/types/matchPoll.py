@@ -1,11 +1,13 @@
-from cevlib.types.iType import IType
+from cevlib.helpers.dictTool import DictEx
+from cevlib.types.iType import IType, JObject
 
 class TeamPoll(IType):
-    def __init__(self, data: dict) -> None:
-        self._percent: float = data.get("Percent")
-        self._count: int = data.get("VoteCount")
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        self._percent: float = dex.ensure("Percent", float)
+        self._count: int = dex.ensure("VoteCount", int)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "percent": self.percent,
             "count": self.count

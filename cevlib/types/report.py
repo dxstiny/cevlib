@@ -1,18 +1,23 @@
 from __future__ import annotations
-from typing import List, Union
+from typing import List, Optional, Union
 from bs4 import BeautifulSoup # type: ignore
 from bs4.element import Tag, NavigableString # type: ignore
-from cevlib.types.iType import IType
+
+from cevlib.types.iType import IType, JObject
 
 
 class MatchReport(IType):
     def __init__(self, html: str) -> None:
         soup = BeautifulSoup(html, "html.parser")
+        self._quotes: List[MatchQuote] = [ ]
+        self._inNumbers: List[MatchInNumber]  = [ ]
+        self._body: Optional[str] = None
+        self._headline: Optional[str] = None
         try:
             matchReport = soup.find("div", class_="match-report")
             try:
-                self._headline = matchReport.h2.get_text(strip=True)
-                self._body = matchReport.find("div", class_="match-report__summary-container").p.text
+                self._headline = str(matchReport.h2.get_text(strip=True))
+                self._body = str(matchReport.find("div", class_="match-report__summary-container").p.text)
             except:
                 self._headline = None
                 self._body = None
@@ -24,10 +29,10 @@ class MatchReport(IType):
         except AttributeError:
             self._headline = None
             self._body = None
-            self._quotes: List[MatchQuote] = [ ]
-            self._inNumbers: List[MatchInNumber]  = [ ]
+            self._quotes = [ ]
+            self._inNumbers = [ ]
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "headline": self.headline,
             "body": self.body,
@@ -36,12 +41,12 @@ class MatchReport(IType):
         }
 
     @property
-    def headline(self) -> str:
+    def headline(self) -> Optional[str]:
         assert self.valid
         return self._headline
 
     @property
-    def body(self) -> str:
+    def body(self) -> Optional[str]:
         assert self.valid
         return self._body
 
@@ -69,7 +74,7 @@ class MatchInNumber(IType):
         self._title = title
         self._description = description
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "title": self.title,
             "description": self.description,
@@ -113,7 +118,7 @@ class MatchQuote(IType):
         self._cite = cite.split("<br>")[0]
         self._citeDescription = cite.split("<br>")[1]
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "quote": self.quote,
             "cite": self.cite,

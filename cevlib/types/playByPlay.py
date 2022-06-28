@@ -1,25 +1,23 @@
 from __future__ import annotations
 from typing import List
-from cevlib.types.iType import IType
 
+from cevlib.helpers.dictTool import DictEx, ListEx
+
+from cevlib.types.iType import IType, JObject
 from cevlib.types.results import SetResult
 from cevlib.types.types import PlayType
 
-def ensureString(data: dict, key: str) -> str:
-    value = data.get(key)
-    if isinstance(value, str):
-        return value
-    return ""
 
 class Play(IType):
-    def __init__(self, data: dict) -> None:
-        self._type: PlayType = PlayType.Parse(data.get("Title"))
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        self._type: PlayType = PlayType.Parse(dex.assertGet("Title", str))
         self._currentScore: SetResult = SetResult.ParseFromPlayByPlay(data)
-        self._playerName: str = ensureString(data, "PlayerName").title() # TODO player type
-        self._playerNumber: int = data.get("PlayerNumber")
-        self._isHome: bool = data.get("IsHome")
+        self._playerName: str = dex.assertGet("PlayerName", str).title() # TODO player type
+        self._playerNumber: int = dex.assertGet("PlayerNumber", int)
+        self._isHome: bool = dex.assertGet("IsHome", bool)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "type": self.type.value,
             "currentScore": self.currentScore.toJson(),
@@ -49,11 +47,12 @@ class Play(IType):
 
 
 class Set(IType):
-    def __init__(self, data: dict) -> None:
-        self._plays = [ Play(event) for event in data.get("Events") ]
-        self._setNumber = int(data.get("TabName").split(" ")[1])
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        self._plays = [ Play(event) for event in dex.ensure("Events", list) ]
+        self._setNumber = ListEx(dex.ensure("TabName", str).split(" ")).ensure(1, int)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "plays": [ play.toJson() for play in self.plays ],
             "setNumber": self.setNumber
@@ -61,7 +60,7 @@ class Set(IType):
 
     @property
     def valid(self) -> bool:
-        return len(self._plays) > 0
+        return bool(self._plays)
 
     @property
     def plays(self) -> List[Play]:
@@ -76,18 +75,19 @@ class Set(IType):
 
 
 class PlayByPlay(IType):
-    def __init__(self, data: dict) -> None:
-        self._sets = [ Set(playEvent) for playEvent in data.get("PlayEvents") ]
+    def __init__(self, data: JObject) -> None:
+        self._sets = [ Set(playEvent)
+                       for playEvent in DictEx(data).ensure("PlayEvents", list) ]
 
     @property
     def valid(self) -> bool:
-        return len(self._sets) > 0
+        return bool(self._sets)
 
     @property
     def sets(self) -> List[Set]:
         return self._sets
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "sets": [ set_.toJson() for set_ in self.sets ]
         }

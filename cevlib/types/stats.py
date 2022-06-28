@@ -1,16 +1,20 @@
 from __future__ import annotations
-from typing import Any, List
-from cevlib.types.iType import IType
+from typing import List, Optional
+
+from cevlib.helpers.dictTool import DictEx
+
+from cevlib.types.iType import IType, JArray, JObject
 from cevlib.types.types import Position, TeamStatisticType, TopPlayerType
 
 
 class TeamStatistic(IType):
-    def __init__(self, data: dict, home: bool) -> None:
-        self._type = TeamStatisticType.Parse(data.get("Name"))
-        self._value = data["HomeTeamValue" if home else "AwayTeamValue"]
-        self._percent = data["HomeTeamPercent" if home else "AwayTeamPercent"]
+    def __init__(self, data: JObject, home: bool) -> None:
+        dex = DictEx(data)
+        self._type = TeamStatisticType.Parse(dex.ensure("Name", str))
+        self._value = dex.ensure("HomeTeamValue" if home else "AwayTeamValue", str) # TODO find out type (str, int)
+        self._percent = dex.ensure("HomeTeamPercent" if home else "AwayTeamPercent", str)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "type": self.type.value,
             "value": self._value,
@@ -22,11 +26,11 @@ class TeamStatistic(IType):
         return self._type
 
     @property
-    def value(self) -> Any:
+    def value(self) -> str:
         return self._value
 
     @property
-    def percent(self) -> Any:
+    def percent(self) -> str:
         return self._percent
 
     @property
@@ -38,11 +42,11 @@ class TeamStatistic(IType):
 
 
 class TeamStatisticSet(IType):
-    def __init__(self, data: list, name: str, home: bool) -> None:
+    def __init__(self, data: JArray, name: str, home: bool) -> None:
         self._stats = [ TeamStatistic(statistic, home) for statistic in data ]
         self._name = name
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "stats": [ stat.toJson() for stat in self.stats ],
             "name": self.name
@@ -60,17 +64,18 @@ class TeamStatisticSet(IType):
     def name(self) -> str:
         return self._name
 
-    def byType(self, type_: TeamStatisticType) -> TeamStatistic:
+    def byType(self, type_: TeamStatisticType) -> Optional[TeamStatistic]:
         for stat in self._stats:
             if stat._type == type_:
                 return stat
+        return None
 
     def __repr__(self) -> str:
         return f"(cevlib.types.stats.TeamStatisticSet) {self._name} {self._stats}"
 
 
 class TeamStatistics(IType):
-    def __init__(self, data: dict, home: bool) -> None:
+    def __init__(self, data: JObject, home: bool) -> None:
         tabs = data.get("Tabs") or [ ]
         self._setStats: List[TeamStatisticSet] = [ ]
         for tab in tabs:
@@ -87,27 +92,28 @@ class TeamStatistics(IType):
     def __repr__(self) -> str:
         return f"(cevlib.types.stats.TeamStatistics) {self._setStats}"
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "setStats": [ setStat.toJson() for setStat in self._setStats ]
         }
 
 
 class PlayerStatistic(IType):
-    def __init__(self, data: dict) -> None:
-        self._points: int = data.get("Points")
-        self._serves: int = data.get("Serves")
-        self._spikes: int = data.get("Spikes")
-        self._blocks: int = data.get("Blocks")
-        self._receptions: int = data.get("Reception")
-        self._spikePerc: int = int(data.get("SpikePerc").replace("%", ""))
-        self._receptionPerc: int = int(data.get("PositiveReceptionPerc").replace("%", ""))
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        self._points: int = dex.ensure("Points", int)
+        self._serves: int = dex.ensure("Serves", int)
+        self._spikes: int = dex.ensure("Spikes", int)
+        self._blocks: int = dex.ensure("Blocks", int)
+        self._receptions: int = dex.ensure("Reception", int)
+        self._spikePerc: int = int(dex.ensure("SpikePerc", str).replace("%", ""))
+        self._receptionPerc: int = int(dex.ensure("PositiveReceptionPerc", str).replace("%", ""))
 
     @property
     def valid(self) -> bool:
         return None not in (self._points, self._serves, self._spikes, self._blocks, self._receptions, self._spikePerc, self._receptionPerc)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "points": self.points,
             "serves": self.serves,
@@ -160,15 +166,16 @@ class PlayerStatistic(IType):
 
 
 class TopPlayerPlayer(IType):
-    def __init__(self, data: dict) -> None:
-        self._number: int = data.get("Number")
-        self._name: str = data.get("Name")
-        self._position = Position.Parse(data.get("Position"))
-        self._score: int = data.get("Score")
-        self._nationality: str = data.get("Team")
-        self._image: str = data.get("Image")
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        self._number: int = dex.ensure("Number", int)
+        self._name: str = dex.ensure("Name", str)
+        self._position = Position.Parse(dex.ensure("Position", str))
+        self._score: int = dex.ensure("Score", int)
+        self._nationality: str = dex.ensure("Team", str)
+        self._image: str = dex.ensure("Image", str)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "number": self.number,
             "name": self.name,
@@ -211,13 +218,14 @@ class TopPlayerPlayer(IType):
 
 
 class TopPlayer(IType):
-    def __init__(self, data: dict) -> None:
-        self._type = TopPlayerType.Parse(data.get("Type"))
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        self._type = TopPlayerType.Parse(dex.ensure("Type", str))
         self._players: List[TopPlayerPlayer] = [ ]
-        for player in data["Match"]["Players"]:
+        for player in dex.ensure("Match", DictEx).ensure("Players", list):
             self._players.append(TopPlayerPlayer(player))
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "type": self._type.value,
             "players": [ player.toJson() for player in self._players ]
@@ -225,7 +233,7 @@ class TopPlayer(IType):
 
     @property
     def valid(self) -> bool:
-        return len(self._players)
+        return bool(self._players)
 
     @property
     def type(self) -> TopPlayerType:
@@ -247,7 +255,7 @@ class TopPlayers(IType):
     def __init__(self) -> None:
         self._topPlayers: List[TopPlayer] = [ ]
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "topPlayers": [ player.toJson() for player in self._topPlayers ]
         }

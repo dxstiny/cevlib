@@ -1,24 +1,29 @@
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, TypeVar, cast, Iterable
 from threading import Thread
 import asyncio
 from queue import Queue
 
 
-async def asyncRunInThread(target: Callable, args: Optional[List[Any]]) -> None:
-    t1 = Thread(target = target, args = args)
-    t1.start()
-    while t1.is_alive():
+T = TypeVar("T")
+
+
+async def asyncRunInThread(target: Callable[[Any], None],
+                           *args: Optional[Iterable[Any]]) -> None:
+    thread = Thread(target = target, args = args)
+    thread.start()
+    while thread.is_alive():
         await asyncio.sleep(1)
 
-async def asyncRunInThreadWithReturn(target: Any, *args) -> Any:
-    q = Queue()
+async def asyncRunInThreadWithReturn(target: Callable[[Any], T],
+                                     *args: Optional[Iterable[Any]]) -> T:
+    queue: Queue[Any] = Queue()
 
     def _implement() -> None:
-        ret = target(*args) if args else target()
-        q.put_nowait(ret)
+        ret = target(*args) if args else target() # type: ignore
+        queue.put_nowait(ret)
 
-    t1 = Thread(target = _implement)
-    t1.start()
-    while t1.is_alive():
+    thread = Thread(target = _implement)
+    thread.start()
+    while thread.is_alive():
         await asyncio.sleep(1)
-    return q.get_nowait()
+    return cast(T, queue.get_nowait())

@@ -3,14 +3,14 @@ from bs4 import BeautifulSoup # type: ignore
 from bs4.element import Tag # type: ignore
 import re
 
-from cevlib.types.iType import IType
+from cevlib.types.iType import IType, JObject
 
 
 class Referee(IType):
     def __init__(self, tag: Tag) -> None:
         self._type = tag.find("div", class_="u-border-grey-light").string
         imgStyle = tag.find("div", class_="accordion-content__image").get("style")
-        imgMatch: Optional[re.Match] = re.search(r"https:\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Images\/Officials\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", imgStyle)
+        imgMatch: Optional[re.Match[str]] = re.search(r"https:\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Images\/Officials\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", imgStyle)
         self._img = imgMatch.group(0) if imgMatch else None
 
         nameAndNat = tag.find("div", class_="accordion-content__item")
@@ -29,7 +29,7 @@ class Referee(IType):
     def valid(self) -> bool:
         return True
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "name": self._name,
             "image": self._img,
@@ -55,7 +55,7 @@ class Venue(IType):
     def valid(self) -> bool:
         return True
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "name": self._name,
             "image": self._img,
@@ -67,7 +67,10 @@ def _getAccordionTitle(tag: Tag) -> Optional[str]:
     a = tag.find("a", class_="accordion-title")
     if not a:
         return None
-    return a.string
+    title = a.string
+    if isinstance(title, str):
+        return title
+    return None
 
 
 class Info(IType):
@@ -96,7 +99,7 @@ class Info(IType):
     def valid(self) -> bool:
         return True
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "infoText": self._infoText,
             "officials": [ official.toJson() for official in self._officials ],

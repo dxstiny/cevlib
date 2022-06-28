@@ -1,13 +1,23 @@
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
+from typing import Any, Coroutine, Dict, List, TypeVar, Union
+
+
+JObject = Dict[str, Any]
+JArray = List[Dict[str, Any]]
 
 class IType(ABC):
-    @abstractproperty
+    @property
+    @abstractmethod
     def valid(self) -> bool:
-        pass
+        """is valid?"""
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.valid
 
     @abstractmethod
-    def toJson() -> dict:
-        pass
+    def toJson(self) -> Union[JObject,
+                          JArray,
+                          List[JArray],
+                          Coroutine[Any, Any, JObject],
+                          Coroutine[Any, Any, JArray]]:
+        """serialise"""

@@ -3,18 +3,21 @@ from __future__ import annotations
 import re
 from typing import List, Optional
 
-from cevlib.types.iType import IType
+from cevlib.helpers.dictTool import DictEx, ListEx
+
+from cevlib.types.iType import IType, JObject
 
 
 class SetResult(IType):
     """Result of a single set"""
-    def __init__(self, data: dict) -> None:
-        self._homeScore: Optional[int] = data.get("homeScore") or 0
-        self._awayScore: Optional[int] = data.get("awayScore") or 0
-        self._setNumber: Optional[int] = data.get("setNumber") or 0
-        self._isInPlay: Optional[bool] = data.get("isInPlay") or False
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        self._homeScore: int = dex.ensure("homeScore", int)
+        self._awayScore: int = dex.ensure("awayScore", int)
+        self._setNumber: int = dex.ensure("setNumber", int)
+        self._isInPlay: bool = dex.ensure("isInPlay", bool)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "homeScore": self.homeScore,
             "awayScore": self.awayScore,
@@ -47,7 +50,7 @@ class SetResult(IType):
         return f"(cevlib.types.results.setResult) {self._homeScore} - {self._awayScore} ({'ongoing' if self._isInPlay else 'finished'})"
 
     @staticmethod
-    def ParseList(setResults: List[dict]) -> List[SetResult]:
+    def ParseList(setResults: List[JObject]) -> List[SetResult]:
         results = [ ]
         for setResult in setResults:
             result = SetResult(setResult)
@@ -56,32 +59,34 @@ class SetResult(IType):
         return results
 
     @staticmethod
-    def ParseFromPlayByPlay(data: dict) -> SetResult:
-        score = data["Description"]
+    def ParseFromPlayByPlay(data: JObject) -> SetResult:
+        dex = DictEx(data)
+        score = ListEx(dex.ensure("Description", str).split("-"))
         return SetResult({
-            "homeScore": int(score.split("-")[0]),
-            "awayScore": int(score.split("-")[1]),
-            "setNumber": int(data["SetNumber"]),
+            "homeScore": score.ensure(0, int),
+            "awayScore": score.ensure(1, int),
+            "setNumber": dex.ensure("SetNumber", int),
             "isInPlay": False
         })
 
 
 class Result(IType):
-    def __init__(self, data: dict) -> None:
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
         self._sets: List[SetResult] = SetResult.ParseList(data.get("setResults") or [ ])
-        currentSet = SetResult(data.get("currentSetScore") or { })
+        currentSet = SetResult(dex.ensure("currentSetScore", dict))
         if currentSet:
             self._sets.append(currentSet)
-        self._hasGoldenSet: bool = data.get("hasGoldenSet") or False
-        self._homeScore: int = data.get("homeSetsWon") or 0
-        self._awayScore: int = data.get("awaySetsWon") or 0
+        self._hasGoldenSet: bool = dex.ensure("hasGoldenSet", bool)
+        self._homeScore: int = dex.ensure("homeSetsWon", int)
+        self._awayScore: int = dex.ensure("awaySetsWon", int)
 
     def __eq__(self, __o: object) -> bool:
         if not isinstance(__o, Result):
             return False
         return self.toJson() == __o.toJson()
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "hasGoldenSet": self.hasGoldenSet,
             "sets": [ set_.toJson() for set_ in self.sets ],
@@ -92,14 +97,15 @@ class Result(IType):
         }
 
     @staticmethod
-    def ParseFromForm(data: dict) -> Result:
-        sets = re.sub(r"[(</span>) ]", "", data.get("SetsFormatted")).split(",")
+    def ParseFromForm(data: JObject) -> Result:
+        dex = DictEx(data)
+        sets = re.sub(r"[(</span>) ]", "", dex.ensure("SetsFormatted", str)).split(",")
         return Result({
-            "homeSetsWon": data["HomeTeam"]["Score"],
-            "awaySetsWon": data["AwayTeam"]["Score"],
+            "homeSetsWon": dex.ensure("HomeTeam", DictEx).ensure("Score", int),
+            "awaySetsWon": dex.ensure("AwayTeam", DictEx).ensure("Score", int),
             "setResults": [ {
-                "homeScore": set.split("-")[0],
-                "awayScore": set.split("-")[1],
+                "homeScore": ListEx(set.split("-")).ensure(0, int),
+                "awayScore": ListEx(set.split("-")).ensure(1, int),
                 "setNumber": i + 1,
                 "isInPlay": False
             } for (i, set) in enumerate(sets) if not set == "" ]

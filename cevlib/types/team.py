@@ -1,7 +1,10 @@
 from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
-from cevlib.types.iType import IType
+
+from cevlib.helpers.dictTool import DictEx, ListEx
+
+from cevlib.types.iType import IType, JArray, JObject
 from cevlib.types.matchPoll import TeamPoll
 from cevlib.types.stats import PlayerStatistic, TeamStatistics
 from cevlib.types.types import Position, Zone
@@ -9,17 +12,19 @@ from cevlib.types.results import Result
 
 
 class Player(IType):
-    def __init__(self, data: dict, playerStatsData: list) -> None:
-        self._number = data.get("Number")
-        self._name = data.get("Name").title() if data.get("Name") else "N/A"
-        self._position = Position.Parse(data.get("Position"))
-        self._image = data.get("Image")
-        self._isCaptain = data.get("isCaptain") or False
-        self._zone = Zone.Parse(data.get("PositionNumber"))
-        self._id = data.get("PlayerId")
+    def __init__(self, data: JObject, playerStatsData: JArray) -> None:
+        dex = DictEx(data)
+        self._number = dex.ensure("Number", int)
+        self._name = dex.ensure("Name", str, "N/A").title()
+        self._position = Position.Parse(dex.ensure("Position", str))
+        self._image = dex.ensure("Image", str)
+        self._isCaptain = dex.ensure("isCaptain", bool)
+        self._zone = Zone.Parse(dex.ensure("PositionNumber", int))
+        self._id = dex.ensure("PlayerId", int)
         self._stats: Optional[PlayerStatistic] = None
-        for player in playerStatsData:
-            if self._name.split(" ")[0] in player.get("Name").title() and player.get("PlayerNumber") == self._number:
+        for value in playerStatsData:
+            player = DictEx(value)
+            if self._name.split(" ")[0] in player.ensure("Name", str).title() and player.ensure("PlayerNumber", int) == self._number:
                 self._stats = PlayerStatistic(player)
                 break
 
@@ -27,7 +32,7 @@ class Player(IType):
     def valid(self) -> bool:
         return self._id is not None
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "zone": self.zone.value,
             "position": self.position.value,
@@ -58,7 +63,7 @@ class Player(IType):
         return self._number
 
     @property
-    def stats(self) -> PlayerStatistic:
+    def stats(self) -> Optional[PlayerStatistic]:
         return self._stats
 
     def __repr__(self) -> str:
@@ -66,7 +71,13 @@ class Player(IType):
 
 
 class FormMatch(IType):
-    def __init__(self, won: bool, link: str, homeTeam: Team, awayTeam: Team, result: Result, startTime: datetime) -> None:
+    def __init__(self,
+                 won: bool,
+                 link: str,
+                 homeTeam: Team,
+                 awayTeam: Team,
+                 result: Result,
+                 startTime: datetime) -> None:
         self._won = won
         self._link = link
         self._homeTeam = homeTeam
@@ -74,7 +85,7 @@ class FormMatch(IType):
         self._result = result
         self._startTime = startTime
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "won": self.won,
             "link": self.link,
@@ -93,7 +104,7 @@ class FormMatch(IType):
         return self._link
 
     @staticmethod
-    def Parse(data: dict) -> List[FormMatch]:
+    def Parse(data: JObject) -> List[FormMatch]:
         matches: List[FormMatch] = [ ]
         for (index, match) in enumerate(data.get("Matches") or [ ]):
             if index >= len(data["RecentForm"]):
@@ -120,38 +131,40 @@ class FormMatch(IType):
 
 class Team(IType):
     def __init__(self,
-            data: dict,
-            playerStatsData: dict,
+            data: JObject,
+            playerStatsData: JObject,
             stats: TeamStatistics,
-            matchPollData: List[dict],
-            form: dict,
+            matchPollData: JArray,
+            form: JObject,
             icon: Optional[str] = None,
             nickname: Optional[str] = None,
             id: int = 0) -> None:
+        dex = DictEx(data)
+        pollData = ListEx(matchPollData)
         self._stats = stats
-        playerStatsList: List[PlayerStatistic] = [ ]
+        playerStatsList: JArray = [ ]
         for team in playerStatsData.get("Teams") or [ ]:
             playerStatsList.extend(team.get("Players"))
 
-        teamLogo = data.get("TeamLogo") or { }
+        teamLogo = dex.ensure("TeamLogo", DictEx)
         self._form = FormMatch.Parse(form)
         self._nickname: Optional[str] = nickname
-        self._name: Optional[str] = teamLogo.get("AltText")
-        self._logo: Optional[str] = icon or teamLogo.get("Url")
-        self._id: Optional[int] = id or int(data.get("TeamId") or "0")
-        self._poll = TeamPoll(matchPollData[0] if matchPollData[0]["Id"] == self._id else matchPollData[1])\
-                     if len(matchPollData) == 2 else None
+        self._name: Optional[str] = teamLogo.tryGet("AltText", str)
+        self._logo: Optional[str] = icon or teamLogo.tryGet("Url", str)
+        self._id: Optional[int] = id or dex.ensure("TeamId", int)
+        self._poll = TeamPoll(pollData.ensure(0, dict) if pollData.ensure(0, DictEx).ensure("Id", int) == self._id else pollData.ensure(1, dict))\
+                     if len(pollData) == 2 else None
         self._players: List[Player] = [ ]
         if "TopLeftPlayer" in data: # assume that the others are as well, might improve
-            self._players.append(Player(data.get("TopLeftPlayer"), playerStatsList))
-            self._players.append(Player(data.get("TopMidPlayer"), playerStatsList))
-            self._players.append(Player(data.get("TopRightPlayer"), playerStatsList))
-            self._players.append(Player(data.get("BottomLeftPlayer"), playerStatsList))
-            self._players.append(Player(data.get("BottomMidPlayer"), playerStatsList))
-            self._players.append(Player(data.get("BottomRightPlayer"), playerStatsList))
-            self._players.append(Player(data.get("HeadCoach"), playerStatsList))
-        self._players.extend([ Player(player, playerStatsList) for player in data.get("FeaturedPlayers") or [ ] ])
-        self._players.extend([ Player(player, playerStatsList) for player in data.get("SubPlayers") or [ ] ])
+            self._players.append(Player(dex.ensure("TopLeftPlayer", dict), playerStatsList))
+            self._players.append(Player(dex.ensure("TopMidPlayer", dict), playerStatsList))
+            self._players.append(Player(dex.ensure("TopRightPlayer", dict), playerStatsList))
+            self._players.append(Player(dex.ensure("BottomLeftPlayer", dict), playerStatsList))
+            self._players.append(Player(dex.ensure("BottomMidPlayer", dict), playerStatsList))
+            self._players.append(Player(dex.ensure("BottomRightPlayer", dict), playerStatsList))
+            self._players.append(Player(dex.ensure("HeadCoach", dict), playerStatsList))
+        self._players.extend([ Player(player, playerStatsList) for player in dex.ensure("FeaturedPlayers", list) ])
+        self._players.extend([ Player(player, playerStatsList) for player in dex.ensure("SubPlayers", list) ])
 
     @staticmethod
     def Build(name: str, icon: str, nickname: str, home: bool, id: int = 0) -> Team:
@@ -162,7 +175,7 @@ class Team(IType):
                     }, { }, TeamStatistics({ }, home), [ ], { },
                     icon, nickname, id)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "name": self.name,
             "nickname": self.nickname,
@@ -185,7 +198,9 @@ class Team(IType):
     def __repr__(self) -> str:
         return f"(cevlib.types.team.Team) {self._name} ({self._nickname}/{self._id}) \nplayers={self._players}\nform={self._form}"
 
-    def __eq__(self, other: Team) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Team):
+            return False
         if self.id and other.id:
             return self.id == other.id
         return self.name == other.name
@@ -224,7 +239,7 @@ class Team(IType):
                   id_: Optional[int] = None,
                   number: Optional[int] = None) -> Optional[Player]:
         players = self.getPlayers(zone, position, id_, number)
-        if len(players):
+        if len(players) > 0:
             return players[0]
         return None
 

@@ -1,25 +1,36 @@
 from __future__ import annotations
 from typing import Optional
-from cevlib.types.iType import IType
+
+from cevlib.helpers.dictTool import DictEx
+
+from cevlib.types.iType import IType, JObject
 from cevlib.types.types import CompetitionGender
 
 
 class Competition(IType):
-    def __init__(self, data: dict) -> None:
-        competition = data.get("Competition")
+    def __init__(self, data: JObject) -> None:
+        dex = DictEx(data)
+        competition = dex.ensure("Competition", str)
         if "|" not in competition:
             competition += "|"
         self._name = competition.split("|")[0].removesuffix(" ")
         self._gender = CompetitionGender.Parse(competition.split("|")[1].removeprefix(" ").split(" ", maxsplit = 1)[0])
-        self._groupPool = data.get("GroupPool")
-        self._leg = data.get("Leg")
-        self._phase = data.get("Phase")
-        self._season = data.get("Season")
-        self._matchNumber = data.get("MatchNumber")
-        self._logo = data.get("CompetitionLogo")
+        self._groupPool = dex.ensure("GroupPool", str)
+        self._leg = dex.ensure("Leg", str)
+        self._phase = dex.ensure("Phase", str)
+        self._season = dex.ensure("Season", str)
+        self._matchNumber = dex.ensure("MatchNumber", str)
+        self._logo = dex.ensure("CompetitionLogo", str)
 
     @staticmethod
-    def BuildPlain(name: Optional[str] = None, gender: CompetitionGender = CompetitionGender.Unknown, groupPool: Optional[str] = None, leg: Optional[str] = None, phase: Optional[str] = None, season: Optional[str] = None, matchNumber: Optional[str] = None, logo: Optional[str] = None):
+    def BuildPlain(name: Optional[str] = None,
+                   gender: CompetitionGender = CompetitionGender.Unknown,
+                   groupPool: Optional[str] = None,
+                   leg: Optional[str] = None,
+                   phase: Optional[str] = None,
+                   season: Optional[str] = None,
+                   matchNumber: Optional[str] = None,
+                   logo: Optional[str] = None) -> Competition:
         return Competition({
             "Competition": f"{name} | {gender.value}",
             "GroupPool": groupPool,
@@ -73,7 +84,7 @@ class Competition(IType):
     def valid(self) -> bool:
         return None not in (self._name, self._gender)
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "name": self.name,
             "displayName": self.displayName,

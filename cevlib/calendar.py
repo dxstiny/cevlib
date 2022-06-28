@@ -79,9 +79,9 @@ class CalendarMatch(IType):
         return await Match.ByUrl(self._matchCentreLink)
 
     def __repr__(self) -> str:
-        return f"(cevlib.calendar.CalendarMatch) {self._matchCentreLink} {self._competition} {self._venue} {self._startTime}\n{self._homeTeam}\n{self._awayTeam}\n{self._result}"
+        return f"(cevlib.calendar.CalendarMatch) {self._matchCentreLink} {self._competition} {self._venue} {self._startTime}\n{self._homeTeam}\n{self._awayTeam}\n{self._result}" # pylint: disable=line-too-long
 
-    def toJson(self) -> dict:
+    def toJson(self) -> Dict[str, Any]:
         return {
             "competition": self.competition.toJson(),
             "homeTeam": self.homeTeam.toJson(),
@@ -132,12 +132,14 @@ class CalendarMatch(IType):
 
 class Calendar(IType):
     @staticmethod
-    async def MatchesOfMonth(month: Optional[int] = None, year: Optional[int] = None) -> List[CalendarMatch]:
+    async def MatchesOfMonth(month: Optional[int] = None,
+                             year: Optional[int] = None) -> List[CalendarMatch]:
         today = datetime.now()
-        timestamp = datetime(year if year else today.year, month if month else today.month, 1).strftime("%Y-%m-%dT%H:%M:%SZ")
+        timestamp = datetime(year if year else today.year,
+                             month if month else today.month, 1).strftime("%Y-%m-%dT%H:%M:%SZ")
         matches: List[Dict[str, Any]] = [ ]
         async with aiohttp.ClientSession() as client:
-            async with client.get(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") as resp:
+            async with client.get(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") as resp: # pylint: disable=line-too-long
                 jdata = await resp.json(content_type=None)
                 calendar = DictEx(jdata)
                 for date in calendar.ensureList("Dates"):
@@ -167,7 +169,7 @@ class Calendar(IType):
                  for match in matches ]
 
     @staticmethod
-    def _LiveScoresToCalendarMatch(match: dict) -> CalendarMatch:
+    def _LiveScoresToCalendarMatch(match: Dict[str, Any]) -> CalendarMatch:
         dex = DictEx(match)
         compDict = dex.ensureDict("competition")
         compDict["Phase"] = dex.get("phaseName")
@@ -190,7 +192,7 @@ class Calendar(IType):
                              dex.ensureString("matchState_String") == "FINISHED")
 
     @staticmethod
-    async def _GetLiveScoreMatches() -> List[dict]:
+    async def _GetLiveScoreMatches() -> List[Dict[str, Any]]:
         matches = [ ]
         async with aiohttp.ClientSession() as client:
             async with client.get("https://www.cev.eu/LiveScores.json") as resp:
@@ -204,9 +206,9 @@ class Calendar(IType):
         return matches
 
     def __repr__(self) -> str:
-        return f"(cevlib.calendar.Calendar)"
+        return "(cevlib.calendar.Calendar)"
 
-    def toJson(self) -> dict:
+    def toJson(self) -> Dict[str, Any]:
         return { }
 
     @property

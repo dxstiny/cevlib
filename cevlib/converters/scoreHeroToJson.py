@@ -1,9 +1,11 @@
 from typing import List
 
+from cevlib.types.iType import JArray, JObject
+
 
 class ScoreHeroToJson:
     @staticmethod
-    def convert(data: dict, matchPollData: List[dict]) -> dict:
+    def convert(data: JObject, matchPollData: JArray) -> JObject:
         return {
             "matchLocation": data["StadiumInformation"],
             "utcStartDate": data["MatchStartDateTimeUTC"],
@@ -31,7 +33,7 @@ class ScoreHeroToJson:
         }
 
     @staticmethod
-    def _convertSets(data: dict) -> list:
+    def _convertSets(data: JObject) -> JArray:
         mainSets = data["SetsFormatted"].replace("<span>", "").replace("</span>", "").replace("(", "").replace(")", "").replace(" ", "").split(",")
         goldenSet = data["GoldenSet"]
         sets = [ ]

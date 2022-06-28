@@ -1,24 +1,32 @@
 from __future__ import annotations
+
 import asyncio
 from datetime import datetime, timedelta
-from time import time
-from typing import Any, Coroutine, Dict, List, Optional
-import aiohttp
 import re
 import json
-from cevlib.exceptions import NotInitialisedException
-from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
-from cevlib.types.competition import Competition
-from cevlib.types.iType import IType
-from cevlib.types.info import Info
+from time import time
+from typing import Any, Coroutine, Dict, List, Optional, Callable
+import aiohttp
 
+from cevlib.exceptions import NotInitialisedException
+
+from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
+from cevlib.helpers.dictTool import DictEx
+
+from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
+
+from cevlib.types.competition import Competition
+from cevlib.types.iType import IType, JObject
+from cevlib.types.info import Info
 from cevlib.types.playByPlay import PlayByPlay
 from cevlib.types.report import MatchReport
 from cevlib.types.results import Result
 from cevlib.types.stats import TeamStatistics, TopPlayer, TopPlayers
 from cevlib.types.team import Team
-from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 from cevlib.types.types import MatchState
+
+
+TScoreObserver = Callable[[Any, Any], Coroutine[Any, Any, Any]]
 
 
 class MatchCache(IType):
@@ -56,7 +64,7 @@ class MatchCache(IType):
         self._report = report
         self._info = info
 
-    def toJson(self) -> dict:
+    def toJson(self) -> JObject:
         return {
             "state": self.state.value,
             "currentScore": self.currentScore.toJson(),
@@ -81,7 +89,7 @@ class MatchCache(IType):
         return True
 
     @property
-    def playByPlay(self) -> PlayByPlay:
+    def playByPlay(self) -> Optional[PlayByPlay]:
         return self._playByPlay
 
     @property
@@ -137,8 +145,12 @@ class MatchCache(IType):
         return self._state
 
     @property
-    def report(self) -> MatchReport:
+    def report(self) -> Optional[MatchReport]:
         return self._report
+
+    @property
+    def info(self) -> Optional[Info]:
+        return self._info
 
     @staticmethod
     async def FromMatch(match: Match) -> MatchCache:
@@ -151,39 +163,40 @@ class MatchCache(IType):
 class Match(IType):
     def __init__(self, html: str, url: str) -> None:
         self._invalidMatchCentre = "This page can be replaced with a custom 404. Check the documentation for" in html or \
-                                   "Object reference not set to an instance of an object." in html
+                                   "Object reference not set to an instance of an object." in html # pylint: disable=line-too-long
         #if self._invalidMatchCentre:
             #raise AttributeError("404")
-        self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
-        self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload\/Photo\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]).(jpg|JPG)", html) ]
-        embeddedVideos = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*\/embed\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ]
+        self._umbracoLinks = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*umbraco[\w.,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ] # pylint: disable=line-too-long
+        self._gallery = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Upload\/Photo\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]).(jpg|JPG)", html) ] # pylint: disable=line-too-long
+        embeddedVideos = [ match[0] for match in re.finditer(r"([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*\/embed\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", html) ] # pylint: disable=line-too-long
         self._highlightsLinkCache: Optional[str] = None
         if len(embeddedVideos):
-            self._highlightsLinkCache = "https://" + embeddedVideos[0].replace("/embed/", "/v/").split("?")[0]
+            self._highlightsLinkCache = "https://" + embeddedVideos[0].replace("/embed/", "/v/") \
+                                                                      .split("?")[0]
         self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
         self._html = html
         self._matchId: Optional[int] = None
-        self._liveScoresCache: Optional[dict] = None
-        self._formCache: Optional[dict] = None
+        self._liveScoresCache: Optional[JObject] = None
+        self._formCache: Optional[JObject] = None
         self._finished = False
         self._matchCentreLink = url
         self._initialised = False
         self._reportCache: Optional[MatchReport] = None
         self._infoCache: Optional[Info] = None
-        self._scoreObservers: List[Coroutine] = [ ]
+        self._scoreObservers: List[TScoreObserver] = [ ]
         self._scoreObserverInterval = 20
         self._init = asyncio.create_task(self._startInit())
         asyncio.create_task(self._observeScore())
 
     @property
     def valid(self) -> bool:
-        return len(self._umbracoLinks) and self._matchCentreLink is not None
+        return bool(self._umbracoLinks) and self._matchCentreLink is not None
 
     async def _startInit(self) -> None:
         self._matchId = await self._getMatchId()
         self._initialised = True
 
-    def init(self) -> asyncio.Task:
+    def init(self) -> asyncio.Task[None]:
         """
         caches the match id, required for:
         - homeTeam/awayTeam
@@ -203,73 +216,81 @@ class Match(IType):
 
     def _getParameter(self, link: str, parameter: str) -> Optional[str]:
         try:
-            return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
+            return "0"
+            # TODO working?? (not indexable)
+            #return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
         except:
             return None
 
-    def _getLinks(self, contains: str) -> str:
+    def _getLinks(self, contains: str) -> List[str]:
         eligibleLinks = [ ]
         for umbracoLink in self._umbracoLinks:
             if contains in umbracoLink:
                 eligibleLinks.append("https://" + umbracoLink.replace("amp;", ""))
         return eligibleLinks
 
-    def _getLink(self, contains: str, index: int = 0) -> Optional[str]:
+    def _getLink(self, contains: str, index: int = 0) -> str:
         links = self._getLinks(contains)
         if len(links) > index:
             return links[index]
-        return None
+        return ""
 
-    async def _getForm(self) -> dict:
-        if not self._formCache:
+    async def _getForm(self) -> JObject:
+        if self._formCache is None:
             async with aiohttp.ClientSession() as client:
                 async with client.get(self._getLink("GetFormComponent")) as resp:
                     self._formCache = json.loads(await resp.json(content_type=None))
         return self._formCache
 
-    async def _getMatchId(self) -> int:
+    async def _getMatchId(self) -> Optional[int]:
         try:
             async with aiohttp.ClientSession() as client:
                 async with client.get(self._getLink("livescorehero")) as resp:
                     jdata = await resp.json(content_type=None)
                     return int(jdata.get("MatchId"))
-        except:
+        except: # pylint: disable=bare-except
             return None
 
-    async def _requestLiveScoresJson(self, useCache = True) -> dict:
+    async def _requestLiveScoresJson(self, useCache: bool = True) -> JObject:
         if useCache and self._liveScoresCache:
             return self._liveScoresCache
         async with aiohttp.ClientSession() as client:
             async with client.get("https://www.cev.eu/LiveScores.json") as resp:
-                jdata = await resp.json(content_type=None)
+                jdata = DictEx(await resp.json(content_type=None))
                 self._liveScoresCache = jdata
                 return jdata
 
-    async def _requestLiveScoresJsonByMatchSafe(self, useCache = True) ->  Optional[dict]:
-        return await (self._requestLiveScoresJsonByMatchId(useCache) if not self._invalidMatchCentre else self._requestLiveScoresJsonByMatchCentreLink(useCache))
+    async def _requestLiveScoresJsonByMatchSafe(self, useCache: bool = True) ->  Optional[JObject]:
+        return await (self._requestLiveScoresJsonByMatchId(useCache) if not self._invalidMatchCentre
+                      else self._requestLiveScoresJsonByMatchCentreLink(useCache))
 
-    async def _requestLiveScoresJsonByMatchCentreLink(self, useCache = True) -> Optional[dict]:
+    async def _requestLiveScoresJsonByMatchCentreLink(self,
+                                                      useCache: bool = True) -> Optional[JObject]:
         assert self._matchCentreLink
-        jdata = await self._requestLiveScoresJson(useCache)
-        for competition in jdata["competitions"]:
-            for match in competition["matches"]:
-                if match["matchCentreLink"] == self._matchCentreLink:
-                    self._finished = match.get("matchState_String") == "FINISHED"
-                    match["competition"] = { "name": competition["competitionName"], "id": competition["competitionId"] }
-                    return match
+        jdata = DictEx(await self._requestLiveScoresJson(useCache))
+        for competition in jdata.ensure("competitions", list):
+            cdex = DictEx(competition)
+            for match in cdex.ensure("matches", list):
+                mdex = DictEx(match)
+                if mdex.ensure("matchCentreLink", str) == self._matchCentreLink:
+                    self._finished = mdex.ensure("matchState_String", str) == "FINISHED"
+                    mdex["competition"] = { "name": cdex.tryGet("competitionName", str),
+                                            "id": cdex.tryGet("competitionId", int) }
+                    return mdex
         return await self._tryGetFinishedGameData()
 
-    async def _requestLiveScoresJsonByMatchId(self, useCache = True) -> Optional[dict]:
+    async def _requestLiveScoresJsonByMatchId(self, useCache: bool = True) -> Optional[JObject]:
         assert self._matchId
-        jdata = await self._requestLiveScoresJson(useCache)
-        for competition in jdata["competitions"]:
-            for match in competition["matches"]:
-                if match["matchId"] == self._matchId:
-                    self._finished = match.get("matchState_String") == "FINISHED"
-                    return match
+        jdata = DictEx(await self._requestLiveScoresJson(useCache))
+        for competition in jdata.ensure("competitions", list):
+            for match in DictEx(competition).ensure("matches", list):
+                mdex = DictEx(match)
+                if mdex.ensure("matchId", int) == self._matchId:
+                    self._finished = mdex.ensure("matchState_String", str) == "FINISHED"
+                    return mdex
         return await self._tryGetFinishedGameData()
 
-    async def _tryGetFinishedGameData(self, trulyFinished = True) -> Optional[dict]:
+    async def _tryGetFinishedGameData(self, trulyFinished: bool = True) -> Optional[JObject]:
         if self._invalidMatchCentre:
             return None
         async with aiohttp.ClientSession() as client:
@@ -297,19 +318,27 @@ class Match(IType):
                     teamStatsData = json.loads(await resp.json(content_type=None))
                 async with client.get(self._getLink("GetMatchPoll")) as resp:
                     matchPoll = await resp.json(content_type=None)
-                liveScore = await self._requestLiveScoresJsonByMatchSafe()
+                liveScore = DictEx(await self._requestLiveScoresJsonByMatchSafe())
                 form = await self._getForm()
-                return Team(teamData, playerStatsData, TeamStatistics(teamStatsData, home), matchPoll,
-                    form["HomeTeam"] if home else form["AwayTeam"],
-                    liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
-                    liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),)
+                return Team(teamData,
+                            playerStatsData,
+                            TeamStatistics(teamStatsData, home),
+                            matchPoll,
+                            form["HomeTeam"] if home else form["AwayTeam"],
+                            liveScore.ensure("homeTeamIcon" if home
+                                             else "awayTeamIcon", str),
+                            liveScore.ensure("homeTeamNickname" if home
+                                             else "awayTeamNickname", str),)
         except Exception:
-            liveScore = await self._tryGetFinishedGameData(False)
+            liveScore = DictEx(await self._tryGetFinishedGameData(False))
             if not liveScore:
-                liveScore = await self._requestLiveScoresJsonByMatchSafe()
-            return Team.Build(liveScore.get("homeTeam" if home else "awayTeam"),
-                              liveScore.get("homeTeamIcon" if home else "awayTeamIcon"),
-                              liveScore.get("homeTeamNickname" if home else "awayTeamNickname"),
+                liveScore = DictEx(await self._requestLiveScoresJsonByMatchSafe())
+            return Team.Build(liveScore.ensure("homeTeam" if home else "awayTeam",
+                                               str),
+                              liveScore.ensure("homeTeamIcon" if home else "awayTeamIcon",
+                                               str),
+                              liveScore.ensure("homeTeamNickname" if home else "awayTeamNickname",
+                                               str),
                               home)
 
 
@@ -317,25 +346,28 @@ class Match(IType):
 
 
     def setScoreObserverInterval(self, intervalS: int) -> None:
+        """the interval the score observer uses"""
         self._scoreObserverInterval = intervalS
 
-    def addScoreObserver(self, observer: Coroutine) -> None:
+    def addScoreObserver(self, observer: TScoreObserver) -> None:
+        """adds a new score observer"""
         self._scoreObservers.append(observer)
 
-    def removeScoreObserver(self, observer: Coroutine) -> None:
+    def removeScoreObserver(self, observer: TScoreObserver) -> None:
+        """removes a score observer"""
         self._scoreObservers.remove(observer)
 
     async def _observeScore(self) -> None:
         lastScore: Optional[Result] = None
         while True:
             try:
-                if len(self._scoreObservers):
+                if len(self._scoreObservers) > 0:
                     result = await self.currentScore()
                     if lastScore != result:
                         lastScore = result
                         for observer in self._scoreObservers:
                             await observer(self, lastScore)
-            except:
+            except: # pylint: disable=bare-except
                 pass
             await asyncio.sleep(self._scoreObserverInterval)
 
@@ -343,14 +375,15 @@ class Match(IType):
         if not self._initialised:
             raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchSafe(self._finished)
-        assert match is not None # not in live scores anymore (finished some time ago) -> find other way
+        # TODO not in live scores anymore (finished some time ago) -> find other way
+        assert match is not None
         return Result(match)
 
     async def startTime(self) -> datetime:
         if not self._initialised:
             raise NotInitialisedException
-        match = await self._requestLiveScoresJsonByMatchSafe()
-        return datetime.strptime(match["utcStartDate"], "%Y-%m-%dT%H:%M:%SZ")
+        match = DictEx(await self._requestLiveScoresJsonByMatchSafe())
+        return datetime.strptime(match.ensure("utcStartDate", str), "%Y-%m-%dT%H:%M:%SZ")
 
     async def _started(self) -> bool:
         startTime = await self.startTime()
@@ -369,8 +402,8 @@ class Match(IType):
     async def venue(self) -> str:
         if not self._initialised:
             raise NotInitialisedException
-        match = await self._requestLiveScoresJsonByMatchSafe()
-        return match["matchLocation"]
+        match = DictEx(await self._requestLiveScoresJsonByMatchSafe())
+        return match.ensure("matchLocation", str)
 
     async def playByPlay(self) -> Optional[PlayByPlay]:
         try:
@@ -419,36 +452,37 @@ class Match(IType):
     def matchCentreLink(self) -> str:
         return self._matchCentreLink
 
-    async def watchLink(self) -> str:
+    async def watchLink(self) -> Optional[str]:
         if not self._initialised:
             raise NotInitialisedException
-        jdata = await self._requestLiveScoresJsonByMatchSafe()
-        return jdata.get("watchLink") or None
+        jdata = DictEx(await self._requestLiveScoresJsonByMatchSafe())
+        return jdata.tryGet("watchLink", str)
 
-    async def highlightsLink(self) -> str:
+    async def highlightsLink(self) -> Optional[str]:
         if not self._highlightsLinkCache:
             if not self._initialised:
                 raise NotInitialisedException
-            jdata = await self._requestLiveScoresJsonByMatchSafe()
-            self._highlightsLinkCache = jdata.get("highlightsLink") or None
+            jdata = DictEx(await self._requestLiveScoresJsonByMatchSafe())
+            self._highlightsLinkCache = jdata.tryGet("highlightsLink", str)
         return self._highlightsLinkCache
 
     async def competition(self) -> Optional[Competition]:
         if self._invalidMatchCentre:
-            jdata = await self._requestLiveScoresJsonByMatchSafe()
-            competition = jdata.get("competition")
-            if competition is None:
+            jdata = DictEx(await self._requestLiveScoresJsonByMatchSafe())
+            competition = jdata.ensure("competition", DictEx)
+            if not competition:
                 return None
             return Competition({
-                "Competition": competition.get("name"),
-                "Leg": jdata.get("legName"),
-                "Phase": jdata.get("phaseName"),
-                "GroupPool": jdata.get("groupName"),
-                "MatchNumber": jdata.get("matchNumber")
+                "Competition": competition.ensure("name", str),
+                "Leg": jdata.ensure("legName", str),
+                "Phase": jdata.ensure("phaseName", str),
+                "GroupPool": jdata.ensure("groupName", str),
+                "MatchNumber": jdata.ensure("matchNumber", str)
             })
         async with aiohttp.ClientSession() as client:
             async with client.get(self._getLink("getlivescorehero")) as resp:
                 jdata = await resp.json(content_type=None)
+                assert jdata is not None
                 return Competition(jdata)
 
     async def topPlayers(self) -> TopPlayers:
@@ -462,8 +496,9 @@ class Match(IType):
         return topPlayers
 
     async def info(self) -> Info:
-        if not self._infoCache:
+        if self._infoCache is None:
             self._infoCache = await asyncRunInThreadWithReturn(Info, self._html)
+        assert self._infoCache
         return self._infoCache
 
 
@@ -471,7 +506,8 @@ class Match(IType):
 
 
     @staticmethod
-    async def ByUrl(url: str) -> Match:
+    async def byUrl(url: str) -> Match:
+        """creates a match by match url (link/href)"""
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as resp:
                 return Match(await resp.text(), url)
@@ -524,7 +560,6 @@ class Match(IType):
         afterInit.append(self.highlightsLink())
         afterInit.append(self.state())
         afterInitResults = await asyncio.gather(*afterInit)
-        t3 = time()
 
         return MatchCache(playByPlay= afterInitResults[0],
                           competition= afterInitResults[1],
