@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
 from __future__ import annotations
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from enum import Enum
 
 class TeamStatisticType(Enum):
+    """all possible team statistics"""
     WinningSpikes = "winningSpikes"
     KillBlocks = "killBlocks"
     Aces = "aces"
@@ -10,7 +15,8 @@ class TeamStatisticType(Enum):
     Unknown = "unknown"
 
     @staticmethod
-    def Parse(value: str) -> TeamStatisticType:
+    def parse(value: str) -> TeamStatisticType:
+        """parse by value"""
         if value == "Winning Spikes":
             return TeamStatisticType.WinningSpikes
         if value == "Kill Blocks":
@@ -25,6 +31,7 @@ class TeamStatisticType(Enum):
 
 
 class TopPlayerType(Enum):
+    """all 'top player' awards"""
     Scorer = "scorer"
     Attacker = "attacker"
     Blocker = "blocker"
@@ -33,7 +40,8 @@ class TopPlayerType(Enum):
     Unknown = "unknown"
 
     @staticmethod
-    def Parse(value: str) -> TopPlayerType:
+    def parse(value: str) -> TopPlayerType:
+        """parse by value"""
         if value == "Scorer":
             return TopPlayerType.Scorer
         if value == "Attacker":
@@ -48,12 +56,14 @@ class TopPlayerType(Enum):
 
 
 class CompetitionGender(Enum):
+    """gender of the competition"""
     Women = "Women"
     Men = "Men"
     Unknown = "Unknown"
 
     @staticmethod
-    def Parse(value: str) -> CompetitionGender:
+    def parse(value: str) -> CompetitionGender:
+        """parse by value"""
         if value in ("Women", "W"):
             return CompetitionGender.Women
         if value in ("Men", "M"):
@@ -62,6 +72,7 @@ class CompetitionGender(Enum):
 
 
 class Position(Enum):
+    """all player positions"""
     Setter = "setter"
     MiddleBlocker = "middleBlocker"
     OutsideSpiker = "outsideSpiker"
@@ -71,7 +82,8 @@ class Position(Enum):
     Unknown = "unknown"
 
     @staticmethod
-    def Parse(value: str) -> Position:
+    def parse(value: str) -> Position:
+        """parse by value"""
         if value == "Setter":
             return Position.Setter
         if value == "Middle blocker":
@@ -88,6 +100,7 @@ class Position(Enum):
 
 
 class Zone(Enum):
+    """all zones"""
     One = 1
     Two = 2
     Three = 3
@@ -99,7 +112,8 @@ class Zone(Enum):
     Unknown = -1
 
     @staticmethod
-    def Parse(value: int) -> Zone:
+    def parse(value: int) -> Zone:
+        """parse by value"""
         if value == 1:
             return Zone.One
         if value == 2:
@@ -120,6 +134,7 @@ class Zone(Enum):
 
 
 class PlayType(Enum):
+    """all types of 'play by play'"""
     Spike = "spike"
     Serve = "serve"
     Block = "block"
@@ -127,7 +142,8 @@ class PlayType(Enum):
     Unknown = "unknown"
 
     @staticmethod
-    def Parse(typeName: str) -> PlayType:
+    def parse(typeName: str) -> PlayType:
+        """parse by value"""
         if typeName == "Spike":
             return PlayType.Spike
         if typeName == "Serve":
@@ -140,13 +156,15 @@ class PlayType(Enum):
 
 
 class MatchState(Enum):
+    """state of the match"""
     Upcoming = "upcoming"
     Live = "live"
     Finished = "finished"
     Unknown = "unknown"
 
     @staticmethod
-    def Parse(started: bool, finished: bool) -> MatchState:
+    def parse(started: bool, finished: bool) -> MatchState:
+        """determine"""
         if not started and not finished:
             return MatchState.Upcoming
         if started and not finished:

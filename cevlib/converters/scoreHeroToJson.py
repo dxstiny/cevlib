@@ -1,18 +1,26 @@
-from typing import List
+# -*- coding: utf-8 -*-
+"""cevlib"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
+from cevlib.helpers.dictTool import DictEx, ListEx
 
 from cevlib.types.iType import JArray, JObject
 
 
 class ScoreHeroToJson:
+    """score hero endpoint to live scores endpoint data"""
     @staticmethod
     def convert(data: JObject, matchPollData: JArray) -> JObject:
+        """convert"""
+        dex = DictEx(data)
+        pollData = ListEx(matchPollData)
         return {
-            "matchLocation": data["StadiumInformation"],
-            "utcStartDate": data["MatchStartDateTimeUTC"],
-            "matchId": int(data["MatchId"]),
-            "homeSetsWon": data["HomeTeam"]["Score"],
-            "awaySetsWon": data["AwayTeam"]["Score"],
-            "hasGoldenSet": True if data["GoldenSet"] else False,
+            "matchLocation": dex.tryGet("StadiumInformation", str),
+            "utcStartDate": dex.tryGet("MatchStartDateTimeUTC", str),
+            "matchId": dex.ensure("MatchId", int),
+            "homeSetsWon": dex.ensure("HomeTeam", DictEx).tryGet("Score", int),
+            "awaySetsWon": dex.ensure("AwayTeam", DictEx).tryGet("Score", int),
+            "hasGoldenSet": dex.ensure("GoldenSet", bool),
             "setResults": ScoreHeroToJson._convertSets(data),
             "matchState_String": "FINISHED",
             "matchNumber": "MatchNumber",
@@ -22,19 +30,28 @@ class ScoreHeroToJson:
                 "setNumber": 0,
                 "isInPlay": False
             },
-            "homeTeam": data["HomeTeam"]["Name"],
-            "awayTeam": data["AwayTeam"]["Name"],
-            "homeTeamIcon": data["HomeTeam"]["Logo"]["Url"],
-            "awayTeamIcon": data["AwayTeam"]["Logo"]["Url"],
-            "homeTeamNickname": matchPollData[0]["Value"],
-            "awayTeamNickname": matchPollData[1]["Value"],
-            "homeTeamId": matchPollData[0]["Id"],
-            "awayTeamId": matchPollData[1]["Id"]
+            "homeTeam": dex.ensure("HomeTeam", DictEx).tryGet("Name", str),
+            "awayTeam": dex.ensure("AwayTeam", DictEx).tryGet("Name", str),
+            "homeTeamIcon": dex.ensure("HomeTeam", DictEx)
+                               .ensure("Logo", DictEx).tryGet("Url", str),
+            "awayTeamIcon": dex.ensure("AwayTeam", DictEx)
+                               .ensure("Logo", DictEx).tryGet("Url", str),
+            "homeTeamNickname": pollData.ensure(0, DictEx).tryGet("Value", str),
+            "awayTeamNickname": pollData.ensure(1, DictEx).tryGet("Value", str),
+            "homeTeamId": pollData.ensure(0, DictEx).tryGet("Id", int),
+            "awayTeamId": pollData.ensure(1, DictEx).tryGet("Id", int)
         }
 
     @staticmethod
     def _convertSets(data: JObject) -> JArray:
-        mainSets = data["SetsFormatted"].replace("<span>", "").replace("</span>", "").replace("(", "").replace(")", "").replace(" ", "").split(",")
+        """convert sets"""
+        mainSets = data["SetsFormatted"]\
+                        .replace("<span>", "")\
+                        .replace("</span>", "")\
+                        .replace("(", "")\
+                        .replace(")", "")\
+                        .replace(" ", "")\
+                        .split(",")
         goldenSet = data["GoldenSet"]
         sets = [ ]
         index = 1

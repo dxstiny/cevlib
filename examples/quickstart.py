@@ -4,7 +4,7 @@ from cevlib.match import Match
 
 async def main():
     # get a match object by its match centre url
-    match: Match = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
+    match: Match = await Match.byUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
 
     # print all available properties
 
@@ -17,7 +17,7 @@ async def main():
 
     await match.init()
 
-    print(await match.currentScore())
+    print(await match.result())
     print(await match.duration())
     print(await match.startTime())
     print(await match.venue())

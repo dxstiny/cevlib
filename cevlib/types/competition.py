@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
 from __future__ import annotations
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from typing import Optional
 
 from cevlib.helpers.dictTool import DictEx
@@ -7,14 +11,17 @@ from cevlib.types.iType import IType, JObject
 from cevlib.types.types import CompetitionGender
 
 
-class Competition(IType):
+class Competition(IType): # TODO rename to MatchCompetition
+    """a match's competition info"""
     def __init__(self, data: JObject) -> None:
         dex = DictEx(data)
         competition = dex.ensure("Competition", str)
         if "|" not in competition:
             competition += "|"
         self._name = competition.split("|")[0].removesuffix(" ")
-        self._gender = CompetitionGender.Parse(competition.split("|")[1].removeprefix(" ").split(" ", maxsplit = 1)[0])
+        self._gender = CompetitionGender.parse(competition.split("|")[1]
+                                                    .removeprefix(" ")
+                                                    .split(" ", maxsplit = 1)[0])
         self._groupPool = dex.ensure("GroupPool", str)
         self._leg = dex.ensure("Leg", str)
         self._phase = dex.ensure("Phase", str)
@@ -23,7 +30,8 @@ class Competition(IType):
         self._logo = dex.ensure("CompetitionLogo", str)
 
     @staticmethod
-    def BuildPlain(name: Optional[str] = None,
+    # TODO might swap with ctor and replace with parse
+    def buildPlain(name: Optional[str] = None,
                    gender: CompetitionGender = CompetitionGender.Unknown,
                    groupPool: Optional[str] = None,
                    leg: Optional[str] = None,
@@ -31,6 +39,7 @@ class Competition(IType):
                    season: Optional[str] = None,
                    matchNumber: Optional[str] = None,
                    logo: Optional[str] = None) -> Competition:
+        """builds a competition"""
         return Competition({
             "Competition": f"{name} | {gender.value}",
             "GroupPool": groupPool,
@@ -43,42 +52,51 @@ class Competition(IType):
 
     @property
     def name(self) -> str:
+        """competition name"""
         return self._name
 
     @property
     def displayName(self) -> str:
+        """competition name + gender"""
         return f"{self._name} | {self._gender.value}"
 
     @property
     def gender(self) -> CompetitionGender:
+        """competition gender"""
         return self._gender
 
     @property
     def groupPool(self) -> str:
+        """competition group pool"""
         return self._groupPool
 
     @property
     def leg(self) -> str:
+        """competition leg"""
         return self._leg
 
     @property
     def phase(self) -> str:
+        """competition phase"""
         return self._phase
 
     @property
     def season(self) -> str:
+        """season"""
         return self._season
 
     @property
     def matchNumber(self) -> str:
+        """match number"""
         return self._matchNumber
 
     @property
     def logo(self) -> str:
+        """competition logo (link)"""
         return self._logo
 
     def __repr__(self) -> str:
-        return f"(cevlib.types.competition.Competition) {self.displayName} ({self._matchNumber}) {self._season} > {self._phase} > {self._groupPool} ({self._leg})"
+        return f"(cevlib.types.competition.Competition) {self.displayName} ({self._matchNumber}) {self._season} > {self._phase} > {self._groupPool} ({self._leg})" # pylint: disable=line-too-long
 
     @property
     def valid(self) -> bool:

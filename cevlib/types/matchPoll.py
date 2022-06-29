@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from cevlib.helpers.dictTool import DictEx
 from cevlib.types.iType import IType, JObject
 
+
 class TeamPoll(IType):
+    """team poll (who will win?)"""
     def __init__(self, data: JObject) -> None:
         dex = DictEx(data)
         self._percent: float = dex.ensure("Percent", float)
@@ -17,11 +23,13 @@ class TeamPoll(IType):
         return f"(cevlib.types.matchPoll.TeamPoll) {self._count} ({self._percent})"
 
     @property
-    def percent(self) -> float:
+    def percent(self) -> float: # TODO 0 - 1 or 0 - 100?
+        """percentage that voted for this team"""
         return self._percent
-    
+
     @property
     def count(self) -> int:
+        """number of votes"""
         return self._count
 
     @property

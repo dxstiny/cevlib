@@ -5,7 +5,7 @@ from cevlib.match import Match
 import json
 
 async def main():
-    match = await Match.ByUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-78-rc-cannes-v-savino-del-bene-scandicci/")
+    match = await Match.byUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-challenge-cup-2022-women/chcw-78-rc-cannes-v-savino-del-bene-scandicci/")
 
     x = await match.toJson()
     with open("sample.json", "w") as outfile:

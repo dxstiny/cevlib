@@ -1,16 +1,23 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from typing import List, Optional
+import re
+
 from bs4 import BeautifulSoup # type: ignore
 from bs4.element import Tag # type: ignore
-import re
 
 from cevlib.types.iType import IType, JObject
 
 
 class Referee(IType):
+    """referee"""
     def __init__(self, tag: Tag) -> None:
         self._type = tag.find("div", class_="u-border-grey-light").string
         imgStyle = tag.find("div", class_="accordion-content__image").get("style")
-        imgMatch: Optional[re.Match[str]] = re.search(r"https:\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Images\/Officials\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", imgStyle)
+        imgMatch: Optional[re.Match[str]] = re.search(r"https:\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@;?^=%&:\/~+#-]*Images\/Officials\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])", # pylint: disable=line-too-long
+                                                      imgStyle)
         self._img = imgMatch.group(0) if imgMatch else None
 
         nameAndNat = tag.find("div", class_="accordion-content__item")
@@ -23,7 +30,7 @@ class Referee(IType):
         self._nationality = nat.string
 
     def __repr__(self) -> str:
-        return f"(cevlib.types.info.Referee) {self._name} {self._type} ({self._nationality}) {self._img}"
+        return f"(cevlib.types.info.Referee) {self._name} {self._type} ({self._nationality}) {self._img}" # pylint: disable=line-too-long
 
     @property
     def valid(self) -> bool:
@@ -39,6 +46,7 @@ class Referee(IType):
 
 
 class Venue(IType):
+    """venue info"""
     def __init__(self, tag: Tag) -> None:
         self._img = tag.find("img", class_="u-object-cover").get("src")
         data = tag.find("p")
@@ -64,16 +72,17 @@ class Venue(IType):
 
 
 def _getAccordionTitle(tag: Tag) -> Optional[str]:
-    a = tag.find("a", class_="accordion-title")
-    if not a:
+    anchor = tag.find("a", class_="accordion-title")
+    if not anchor:
         return None
-    title = a.string
+    title = anchor.string
     if isinstance(title, str):
         return title
     return None
 
 
 class Info(IType):
+    """match info"""
     def __init__(self, html: str) -> None:
         soup = BeautifulSoup(html, "html.parser")
         infoText = soup.find("div", class_="text-container")

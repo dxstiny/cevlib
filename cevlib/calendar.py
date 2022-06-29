@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
 from __future__ import annotations
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -7,12 +11,14 @@ import aiohttp
 from cevlib.match import Match
 from cevlib.helpers.dictTool import DictEx
 from cevlib.types.competition import Competition
+from cevlib.types.iMatch import IMatch
 from cevlib.types.iType import IType
 from cevlib.types.results import Result
 from cevlib.types.team import Team
 from cevlib.types.types import MatchState
 
-class CalendarMatch(IType):
+
+class CalendarMatch(IMatch):
     def __init__(self,
                  url: Optional[str],
                  competition: Competition,
@@ -33,7 +39,7 @@ class CalendarMatch(IType):
         duration = (datetime.now() - self._startTime)
         self._finished = True if (self._startTime.year == 1900 or duration.days) else finished
         self._result = result
-        self._state = MatchState.Parse(datetime.utcnow() >= self._startTime, self._finished)
+        self._state = MatchState.parse(datetime.utcnow() >= self._startTime, self._finished)
 
     @staticmethod
     def parse(data: Dict[str, Any]) -> CalendarMatch:
@@ -42,11 +48,11 @@ class CalendarMatch(IType):
                              Competition({ "Competition": dex.ensureString("CompetitionName"),
                                            "CompetitionLogo": dex.ensureString("CompetitionLogo"),
                                            "Phase": dex.ensureString("PhaseName") }),
-                             Team.Build( dex.ensureString("HomeTeamName"),
+                             Team.build( dex.ensureString("HomeTeamName"),
                                          dex.ensureString("HomeTeamLogo"),
                                          dex.ensureString("HomeClubCode"),
                                          True ),
-                             Team.Build( dex.ensureString("GuestTeamName"),
+                             Team.build( dex.ensureString("GuestTeamName"),
                                          dex.ensureString("GuestTeamLogo"),
                                          dex.ensureString("GuestClubCode"),
                                          False ),
@@ -63,7 +69,7 @@ class CalendarMatch(IType):
         return CalendarMatch(None,
                              competition,
                              team,
-                             Team.Build("", "", "", False),
+                             Team.build("", "", "", False),
                              "",
                              datetime.fromtimestamp(0).strftime("%Y-%m-%dT%H:%M:%SZ"),
                              Result({}),
@@ -129,6 +135,10 @@ class CalendarMatch(IType):
     def valid(self) -> bool:
         return True
 
+    @property
+    def finished(self) -> bool:
+        return self._finished
+
 
 class Calendar(IType):
     @staticmethod
@@ -178,11 +188,11 @@ class Calendar(IType):
         compDict["MatchNumber"] = dex.get("matchNumber")
         return CalendarMatch(dex.get("matchCentreLink"),
                              Competition(compDict),
-                             Team.Build( dex.ensureString("homeTeam"),
+                             Team.build( dex.ensureString("homeTeam"),
                                          dex.ensureString("homeTeamIcon"),
                                          dex.ensureString("homeTeamNickname"),
                                          True ),
-                             Team.Build( dex.ensureString("awayTeam"),
+                             Team.build( dex.ensureString("awayTeam"),
                                          dex.ensureString("awayTeamIcon"),
                                          dex.ensureString("awayTeamNickname"),
                                          False ),

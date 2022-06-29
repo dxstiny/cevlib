@@ -1,11 +1,16 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from abc import ABC, abstractmethod
-from typing import Any, Coroutine, Dict, List, TypeVar, Union
+from typing import Any, Coroutine, Dict, List, Union
 
 
 JObject = Dict[str, Any]
 JArray = List[Dict[str, Any]]
 
 class IType(ABC):
+    """model interface"""
     @property
     @abstractmethod
     def valid(self) -> bool:

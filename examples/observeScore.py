@@ -4,7 +4,7 @@ from cevlib.match import Match
 from cevlib.types.results import Result
 
 async def main():
-    match = await Match.ByUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-cup-2022-women/ccw-54-mladost-zagreb-v-lks-commercecon-lodz/")
+    match = await Match.byUrl("https://www.cev.eu/match-centres/2022-european-cups/cev-volleyball-cup-2022-women/ccw-54-mladost-zagreb-v-lks-commercecon-lodz/")
 
     await match.init()
     async def implement(x: Match, score: Result):

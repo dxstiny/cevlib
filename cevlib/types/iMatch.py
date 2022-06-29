@@ -1,10 +1,19 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from abc import abstractmethod
+from datetime import datetime
+from typing import Optional
+
 from cevlib.types.competition import Competition
 from cevlib.types.iType import IType
+from cevlib.types.results import Result
 from cevlib.types.team import Team
 from cevlib.types.types import MatchState
 
 class IMatch(IType):
+    """simple match interface"""
     @property
     @abstractmethod
     def state(self) -> MatchState:
@@ -12,7 +21,12 @@ class IMatch(IType):
 
     @property
     @abstractmethod
-    def competition(self) -> Competition:
+    def finished(self) -> bool:
+        """match finished?"""
+
+    @property
+    @abstractmethod
+    def competition(self) -> Optional[Competition]:
         """competition"""
 
     @property
@@ -27,5 +41,20 @@ class IMatch(IType):
 
     @property
     @abstractmethod
-    def homeTeam(self) -> str:
+    def venue(self) -> str:
+        """venue / location"""
+
+    @property
+    @abstractmethod
+    def startTime(self) -> datetime:
+        """start time"""
+
+    @property
+    @abstractmethod
+    def result(self) -> Result:
+        """result"""
+
+    @property
+    @abstractmethod
+    def matchCentreLink(self) -> Optional[str]:
         """match href"""

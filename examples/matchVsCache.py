@@ -7,20 +7,20 @@ from time import time
 async def main():
     # cache up to 300ms
 
-    match = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
-    match2 = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
+    match = await Match.byUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
+    match2 = await Match.byUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
 
     t1 = time()
     cache = await match.cache()
     print(cache.venue)
-    print(cache.currentScore)
+    print(cache.result)
     print(cache.homeTeam)
     print(cache.competition)
     t2 = time()
 
     print(await match2.init())
     print(await match2.venue())
-    print(await match2.currentScore())
+    print(await match2.result())
     print(await match2.homeTeam())
     print(await match2.competition())
     t3 = time()
@@ -31,18 +31,18 @@ async def main():
     # BUT
     # cache up to 1s faster
 
-    match = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
-    match2 = await Match.ByUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
+    match = await Match.byUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
+    match2 = await Match.byUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
 
     t1 = time()
     cache = await match.cache()
-    print(cache.currentScore)
+    print(cache.result)
     print(cache.homeTeam)
     print(cache.report)
     t2 = time()
 
     print(await match2.init())
-    print(await match2.currentScore())
+    print(await match2.result())
     print(await match2.homeTeam())
     print(await match2.report())
     t3 = time()

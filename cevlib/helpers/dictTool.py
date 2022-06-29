@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""reAudioPlayer ONE"""
+"""cevlib"""
 from __future__ import annotations
-__copyright__ = ("Copyright (c) 2022 https://github.com/reAudioPlayer")
-
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
 
 from typing import Any, Dict, List, Optional, Type, TypeVar
 
@@ -19,6 +18,7 @@ class DictEx(Dict[str, Any]):
         return bool(self._data)
 
     def assertGet(self, key: str, type_: Type[T]) -> T:
+        """assert has key & is type"""
         assert key in self._data
         val = self._data[key]
         assert isinstance(val, type_)
@@ -32,6 +32,7 @@ class DictEx(Dict[str, Any]):
             return None
 
     def ensure(self, key: str, type_: Type[T], default: Optional[T] = None) -> T:
+        """get & cast w/ default"""
         try:
             return type_(self._data[key]) # type: ignore
         except: # pylint: disable=bare-except
@@ -75,7 +76,14 @@ class ListEx(List[Any]):
     def __bool__(self) -> bool:
         return bool(self._data)
 
-    def getType(self, index: int, type_: Type[T]) -> Optional[T]:
+    def assertGet(self, index: int, type_: Type[T]) -> T:
+        """assert has key & is type"""
+        assert index < len(self._data)
+        val = self._data[index]
+        assert isinstance(val, type_)
+        return val
+
+    def tryGet(self, index: int, type_: Type[T]) -> Optional[T]:
         """extracts a string"""
         try:
             return type_(self._data[index]) # type: ignore
@@ -83,6 +91,7 @@ class ListEx(List[Any]):
             return None
 
     def ensure(self, index: int, type_: Type[T], default: Optional[T] = None) -> T:
+        """get & cast w/ default"""
         try:
             return type_(self._data[index]) # type: ignore
         except: # pylint: disable=bare-except

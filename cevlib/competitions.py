@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
 from __future__ import annotations
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 from typing import Any, Dict, List, Optional, Tuple
 import re
 from bs4 import BeautifulSoup # type: ignore
@@ -262,24 +266,24 @@ class Round(IType):
                 print(exc)
 
             newMatch = CalendarMatch(mdex.ensureString("MatchCentreUrl"),
-                CompetitionModel.BuildPlain(competition.name,
+                CompetitionModel.buildPlain(competition.name,
                     competition.gender,
                     season = str(competition.age) if competition.age else None,
-                    phase = pdex.ensureString("Name"),
-                    matchNumber = mdex.ensureString("MatchName")),
-                Team.Build(mdex.ensureDictChain("HomeTeam").ensureString("Name"),
-                    mdex.ensureDictChain("HomeTeam").ensureDictChain("Logo").ensureString("Name"),
+                    phase = pdex.ensure("Name", str),
+                    matchNumber = mdex.ensure("MatchName", str)),
+                Team.build(mdex.ensure("HomeTeam", DictEx).ensure("Name", str),
+                    mdex.ensure("HomeTeam", DictEx).ensure("Logo", DictEx).ensure("Name", str),
                     "N/A",
                     True,
                     homeId),
-                Team.Build(mdex.ensureDictChain("AwayTeam").ensureString("Name"),
-                    mdex.ensureDictChain("AwayTeam").ensureDictChain("Logo").ensureString("Name"),
+                Team.build(mdex.ensure("AwayTeam", DictEx).ensure("Name", str),
+                    mdex.ensure("AwayTeam", DictEx).ensure("Logo", DictEx).ensure("Name", str),
                     "N/A",
                     False,
                     awayId),
                 mdex.ensureString("Location"),
                 mdex.ensureString("MatchDateTime"),
-                Result.ParseFromForm(match),
+                Result.parseFromForm(match),
                 mdex.ensureBool("IsComplete"))
             newDraw = True
             for draw in draws:
@@ -394,7 +398,7 @@ class CompetitionLink(IType):
         self._href = href
         self._type = menuTitle
         self._name = slabTitle
-        self._gender = CompetitionGender.Parse(entry)
+        self._gender = CompetitionGender.parse(entry)
         self._age: Optional[int] = None
 
         if self._gender == CompetitionGender.Unknown:
@@ -403,7 +407,7 @@ class CompetitionLink(IType):
             age = match.group(1)
             gender = match.group(2)
             self._age = int(age) if age else None
-            self._gender = CompetitionGender.Parse(gender)
+            self._gender = CompetitionGender.parse(gender)
 
     @property
     def name(self) -> str:

@@ -1,15 +1,18 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
 from __future__ import annotations
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
 
 import re
 from typing import List, Optional
 
 from cevlib.helpers.dictTool import DictEx, ListEx
 
-from cevlib.types.iType import IType, JObject
+from cevlib.types.iType import IType, JArray, JObject
 
 
 class SetResult(IType):
-    """Result of a single set"""
+    """result of a single set"""
     def __init__(self, data: JObject) -> None:
         dex = DictEx(data)
         self._homeScore: int = dex.ensure("homeScore", int)
@@ -32,25 +35,30 @@ class SetResult(IType):
 
     @property
     def homeScore(self) -> int:
+        """home team score"""
         return self._homeScore
 
     @property
     def awayScore(self) -> int:
+        """away team score"""
         return self._awayScore
 
     @property
     def setNumber(self) -> int:
+        """set number (1 - 5)"""
         return self._setNumber
 
     @property
     def isInPlay(self) -> bool:
+        """is in play?"""
         return self._isInPlay
 
     def __repr__(self) -> str:
-        return f"(cevlib.types.results.setResult) {self._homeScore} - {self._awayScore} ({'ongoing' if self._isInPlay else 'finished'})"
+        return f"(cevlib.types.results.setResult) {self._homeScore} - {self._awayScore} ({'ongoing' if self._isInPlay else 'finished'})" # pylint: disable=line-too-long
 
     @staticmethod
-    def ParseList(setResults: List[JObject]) -> List[SetResult]:
+    def parseList(setResults: JArray) -> List[SetResult]:
+        """parse result from set results"""
         results = [ ]
         for setResult in setResults:
             result = SetResult(setResult)
@@ -59,7 +67,8 @@ class SetResult(IType):
         return results
 
     @staticmethod
-    def ParseFromPlayByPlay(data: JObject) -> SetResult:
+    def parseFromPlayByPlay(data: JObject) -> SetResult:
+        """parse result from play by play"""
         dex = DictEx(data)
         score = ListEx(dex.ensure("Description", str).split("-"))
         return SetResult({
@@ -71,9 +80,10 @@ class SetResult(IType):
 
 
 class Result(IType):
+    """full result"""
     def __init__(self, data: JObject) -> None:
         dex = DictEx(data)
-        self._sets: List[SetResult] = SetResult.ParseList(data.get("setResults") or [ ])
+        self._sets: List[SetResult] = SetResult.parseList(data.get("setResults") or [ ])
         currentSet = SetResult(dex.ensure("currentSetScore", dict))
         if currentSet:
             self._sets.append(currentSet)
@@ -81,10 +91,10 @@ class Result(IType):
         self._homeScore: int = dex.ensure("homeSetsWon", int)
         self._awayScore: int = dex.ensure("awaySetsWon", int)
 
-    def __eq__(self, __o: object) -> bool:
-        if not isinstance(__o, Result):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Result):
             return False
-        return self.toJson() == __o.toJson()
+        return self.toJson() == other.toJson()
 
     def toJson(self) -> JObject:
         return {
@@ -97,7 +107,8 @@ class Result(IType):
         }
 
     @staticmethod
-    def ParseFromForm(data: JObject) -> Result:
+    def parseFromForm(data: JObject) -> Result:
+        """parses from form match"""
         dex = DictEx(data)
         sets = re.sub(r"[(</span>) ]", "", dex.ensure("SetsFormatted", str)).split(",")
         return Result({
@@ -112,37 +123,44 @@ class Result(IType):
         })
 
     @property
-    def goldenSet(self) -> Optional[SetResult]:
-        if not self.hasGoldenSet:
-            return None
-        return self.sets[-1]
+    def sets(self) -> List[SetResult]:
+        """all sets"""
+        return self._sets
 
     @property
     def regularSets(self) -> List[SetResult]:
+        """all regular sets (no golden set)"""
         if self.hasGoldenSet:
             return self.sets[:-1]
         return self.sets
 
     @property
+    def goldenSet(self) -> Optional[SetResult]:
+        """golden set (if one exists)"""
+        if not self.hasGoldenSet:
+            return None
+        return self.sets[-1]
+
+    @property
     def hasGoldenSet(self) -> bool:
+        """has golden set"""
         return self._hasGoldenSet
 
     @property
-    def sets(self) -> List[SetResult]:
-        return self._sets
-
-    @property
     def latestSet(self) -> Optional[SetResult]:
-        if not len(self.sets):
+        """latest set (that might still be active)"""
+        if len(self.sets) == 0:
             return None
         return self.sets[len(self.sets) - 1]
 
     @property
     def homeScore(self) -> int:
+        """home team score"""
         return self._homeScore
 
     @property
     def awayScore(self) -> int:
+        """away team score"""
         return self._awayScore
 
     @property
@@ -150,4 +168,4 @@ class Result(IType):
         return None not in (self._sets, self._homeScore, self._awayScore)
 
     def __repr__(self) -> str:
-        return f"(cevlib.types.results.Result) {self._homeScore}:{self._awayScore} (Golden Set: {self._hasGoldenSet}) {self._sets}"
+        return f"(cevlib.types.results.Result) {self._homeScore}:{self._awayScore} (Golden Set: {self._hasGoldenSet}) {self._sets}" # pylint: disable=line-too-long

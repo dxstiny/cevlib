@@ -18,7 +18,7 @@ async def main():
     print("info", cache.info)
     print("gallery", cache.gallery) # Disclaimer: Photos featured on the CEV Photo Galleries are downloadable copyright free for media purposes only and only if CEV is credited as the source material. They are protected by copyright for all other commercial purposes. Those wishing to use CEV Photo Gallery photos for other commercial purposes should contact press@cev.eu
     print("matchCentreLink", cache.matchCentreLink)
-    print("currentScore", cache.currentScore)
+    print("currentScore", cache.result)
     print("duration", cache.duration)
     print("startTime", cache.startTime)
     print("venue", cache.venue)

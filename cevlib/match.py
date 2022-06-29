@@ -1,10 +1,13 @@
+# -*- coding: utf-8 -*-
+"""cevlib"""
 from __future__ import annotations
+__copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
+
 
 import asyncio
 from datetime import datetime, timedelta
 import re
 import json
-from time import time
 from typing import Any, Coroutine, Dict, List, Optional, Callable
 import aiohttp
 
@@ -16,6 +19,7 @@ from cevlib.helpers.dictTool import DictEx
 from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 
 from cevlib.types.competition import Competition
+from cevlib.types.iMatch import IMatch
 from cevlib.types.iType import IType, JObject
 from cevlib.types.info import Info
 from cevlib.types.playByPlay import PlayByPlay
@@ -29,14 +33,14 @@ from cevlib.types.types import MatchState
 TScoreObserver = Callable[[Any, Any], Coroutine[Any, Any, Any]]
 
 
-class MatchCache(IType):
+class MatchCache(IMatch):
     def __init__(self,
                  playByPlay: Optional[PlayByPlay],
                  competition: Optional[Competition],
                  topPlayers: TopPlayers,
                  gallery: List[str],
                  matchCentreLink: str,
-                 currentScore: Result,
+                 result: Result,
                  duration: timedelta,
                  startTime: datetime,
                  venue: str,
@@ -52,7 +56,7 @@ class MatchCache(IType):
         self._topPlayers = topPlayers
         self._gallery = gallery
         self._matchCentreLink = matchCentreLink
-        self._currentScore = currentScore
+        self._result = result
         self._duration = duration
         self._startTime = startTime
         self._homeTeam = homeTeam
@@ -67,7 +71,7 @@ class MatchCache(IType):
     def toJson(self) -> JObject:
         return {
             "state": self.state.value,
-            "currentScore": self.currentScore.toJson(),
+            "result": self.result.toJson(),
             "homeTeam": self.homeTeam.toJson(),
             "awayTeam": self.awayTeam.toJson(),
             "competition": self.competition.toJson() if self.competition else None,
@@ -87,6 +91,10 @@ class MatchCache(IType):
     @property
     def valid(self) -> bool:
         return True
+
+    @property
+    def finished(self) -> bool:
+        return self.state == MatchState.Finished
 
     @property
     def playByPlay(self) -> Optional[PlayByPlay]:
@@ -109,8 +117,8 @@ class MatchCache(IType):
         return self._matchCentreLink
 
     @property
-    def currentScore(self) -> Result:
-        return self._currentScore
+    def result(self) -> Result:
+        return self._result
 
     @property
     def duration(self) -> timedelta:
@@ -333,7 +341,7 @@ class Match(IType):
             liveScore = DictEx(await self._tryGetFinishedGameData(False))
             if not liveScore:
                 liveScore = DictEx(await self._requestLiveScoresJsonByMatchSafe())
-            return Team.Build(liveScore.ensure("homeTeam" if home else "awayTeam",
+            return Team.build(liveScore.ensure("homeTeam" if home else "awayTeam",
                                                str),
                               liveScore.ensure("homeTeamIcon" if home else "awayTeamIcon",
                                                str),
@@ -362,7 +370,7 @@ class Match(IType):
         while True:
             try:
                 if len(self._scoreObservers) > 0:
-                    result = await self.currentScore()
+                    result = await self.result()
                     if lastScore != result:
                         lastScore = result
                         for observer in self._scoreObservers:
@@ -371,7 +379,7 @@ class Match(IType):
                 pass
             await asyncio.sleep(self._scoreObserverInterval)
 
-    async def currentScore(self) -> Result:
+    async def result(self) -> Result:
         if not self._initialised:
             raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchSafe(self._finished)
@@ -397,7 +405,7 @@ class Match(IType):
 
     async def state(self) -> MatchState:
         started, finished = await asyncio.gather(self._started(), self._finishedF())
-        return MatchState.Parse(started, finished)
+        return MatchState.parse(started, finished)
 
     async def venue(self) -> str:
         if not self._initialised:
@@ -550,7 +558,7 @@ class Match(IType):
         if not self._initialised:
             await self.init()
 
-        afterInit.append(self.currentScore())
+        afterInit.append(self.result())
         afterInit.append(self.duration())
         afterInit.append(self.startTime())
         afterInit.append(self.venue())
@@ -566,7 +574,7 @@ class Match(IType):
                           topPlayers= afterInitResults[2],
                           gallery= self.gallery,
                           matchCentreLink= self._matchCentreLink,
-                          currentScore= afterInitResults[5],
+                          result= afterInitResults[5],
                           duration= afterInitResults[6],
                           startTime= afterInitResults[7],
                           venue= afterInitResults[8],
