@@ -2,7 +2,7 @@ import asyncio
 from cevlib.competitions import Competitions, Competition
 
 async def main():
-    competitions = await Competitions.GetAll() # get all competitions (Competitions object)
+    competitions = await Competitions.getAll() # get all competitions (Competitions object)
     print( competitions )
 
     link = competitions.get(0) # get the first competition (CompetitionLink object)
@@ -13,7 +13,7 @@ async def main():
     print( competition )
 
     # or
-    competition = await Competition.FromUrl(link.href) # get the first competition (Competition object)
+    competition = await Competition.fromUrl(link.href) # get the first competition (Competition object)
     print( competition )
 
     assert competition

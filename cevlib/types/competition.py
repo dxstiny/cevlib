@@ -11,7 +11,7 @@ from cevlib.types.iType import IType, JObject
 from cevlib.types.types import CompetitionGender
 
 
-class Competition(IType): # TODO rename to MatchCompetition
+class MatchCompetition(IType):
     """a match's competition info"""
     def __init__(self, data: JObject) -> None:
         dex = DictEx(data)
@@ -38,9 +38,9 @@ class Competition(IType): # TODO rename to MatchCompetition
                    phase: Optional[str] = None,
                    season: Optional[str] = None,
                    matchNumber: Optional[str] = None,
-                   logo: Optional[str] = None) -> Competition:
+                   logo: Optional[str] = None) -> MatchCompetition:
         """builds a competition"""
-        return Competition({
+        return MatchCompetition({
             "Competition": f"{name} | {gender.value}",
             "GroupPool": groupPool,
             "Leg": leg,

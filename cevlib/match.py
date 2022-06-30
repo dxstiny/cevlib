@@ -18,7 +18,7 @@ from cevlib.helpers.dictTool import DictEx
 
 from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 
-from cevlib.types.competition import Competition
+from cevlib.types.competition import MatchCompetition
 from cevlib.types.iMatch import IMatch
 from cevlib.types.iType import IType, JObject
 from cevlib.types.info import Info
@@ -36,7 +36,7 @@ TScoreObserver = Callable[[Any, Any], Coroutine[Any, Any, Any]]
 class MatchCache(IMatch):
     def __init__(self,
                  playByPlay: Optional[PlayByPlay],
-                 competition: Optional[Competition],
+                 competition: Optional[MatchCompetition],
                  topPlayers: TopPlayers,
                  gallery: List[str],
                  matchCentreLink: str,
@@ -101,7 +101,7 @@ class MatchCache(IMatch):
         return self._playByPlay
 
     @property
-    def competition(self) -> Optional[Competition]:
+    def competition(self) -> Optional[MatchCompetition]:
         return self._competition
 
     @property
@@ -474,13 +474,13 @@ class Match(IType):
             self._highlightsLinkCache = jdata.tryGet("highlightsLink", str)
         return self._highlightsLinkCache
 
-    async def competition(self) -> Optional[Competition]:
+    async def competition(self) -> Optional[MatchCompetition]:
         if self._invalidMatchCentre:
             jdata = DictEx(await self._requestLiveScoresJsonByMatchSafe())
             competition = jdata.ensure("competition", DictEx)
             if not competition:
                 return None
-            return Competition({
+            return MatchCompetition({
                 "Competition": competition.ensure("name", str),
                 "Leg": jdata.ensure("legName", str),
                 "Phase": jdata.ensure("phaseName", str),
@@ -491,7 +491,7 @@ class Match(IType):
             async with client.get(self._getLink("getlivescorehero")) as resp:
                 jdata = await resp.json(content_type=None)
                 assert jdata is not None
-                return Competition(jdata)
+                return MatchCompetition(jdata)
 
     async def topPlayers(self) -> TopPlayers:
         topPlayers = TopPlayers()

@@ -14,7 +14,7 @@ from cevlib.calendar import CalendarMatch
 
 from cevlib.helpers.dictTool import DictEx
 
-from cevlib.types.competition import Competition as CompetitionModel
+from cevlib.types.competition import MatchCompetition
 from cevlib.types.iType import IType
 from cevlib.types.results import Result
 from cevlib.types.team import Team
@@ -22,6 +22,7 @@ from cevlib.types.types import CompetitionGender
 
 
 class Draw(IType):
+    """competition draw. consists of two calendarMatches"""
     def __init__(self, matches: List[CalendarMatch]) -> None:
         self._matches = matches
 
@@ -37,7 +38,7 @@ class Draw(IType):
         return True
 
     @property
-    def competition(self) -> CompetitionModel:
+    def competition(self) -> MatchCompetition:
         return self._matches[0].competition
 
     @property
@@ -76,6 +77,7 @@ class Draw(IType):
 
 
 class StandingsTeam(IType):
+    """standings team"""
     def __init__(self, team: Dict[str, Any]) -> None:
         self._team = team
 
@@ -95,6 +97,7 @@ class StandingsTeam(IType):
 
 
 class StandingsPool(IType):
+    """standings pool (i.e. group). consists of multiple standingsTeams"""
     def __init__(self, teams: List[StandingsTeam]) -> None:
         self._teams = teams
 
@@ -113,6 +116,7 @@ class StandingsPool(IType):
         return [ team.toJson() for team in self.teams ]
 
 class Standings(IType):
+    """standings (e.g. score tables). consists of multiple standingsPools"""
     def __init__(self, table: Optional[Tag]) -> None:
         self._pools: List[StandingsPool] = [ ]
         if not table:
@@ -168,6 +172,7 @@ class Standings(IType):
 
 
 class Pool(IType):
+    """round pool. consists of either standings or draws"""
     def __init__(self,
                  name: str,
                  draws: List[Draw],
@@ -179,7 +184,7 @@ class Pool(IType):
     def moveOrCreateDraw(self,
                          anyDrawTeam: Team,
                          newIndex: int,
-                         competition: Optional[CompetitionModel]) -> None:
+                         competition: Optional[MatchCompetition]) -> None:
         if anyDrawTeam.name == "Bye":
             return
         oldIndex = -1
@@ -194,8 +199,8 @@ class Pool(IType):
 
         assert competition
         self._draws.insert(newIndex,
-                           Draw([ CalendarMatch.ShortcutMatch(competition, anyDrawTeam),
-                                  CalendarMatch.ShortcutMatch(competition, anyDrawTeam) ]))
+                           Draw([ CalendarMatch.shortcutMatch(competition, anyDrawTeam),
+                                  CalendarMatch.shortcutMatch(competition, anyDrawTeam) ]))
 
     @property
     def valid(self) -> bool:
@@ -229,6 +234,7 @@ class Pool(IType):
 
 
 class Round(IType):
+    """competition round. consists of multiple pools."""
     def __init__(self, name: str, pools: List[Pool]) -> None:
         self._name = name
         self._pools = pools
@@ -250,7 +256,7 @@ class Round(IType):
         return self.pools[index] if index < len(self.pools) else None
 
     @staticmethod
-    def ParsePool(pool: Dict[str, Any],
+    def parsePool(pool: Dict[str, Any],
                   competition: CompetitionLink,
                   standings: Optional[StandingsPool]) -> Pool:
         pdex = DictEx(pool)
@@ -266,7 +272,7 @@ class Round(IType):
                 print(exc)
 
             newMatch = CalendarMatch(mdex.ensureString("MatchCentreUrl"),
-                CompetitionModel.buildPlain(competition.name,
+                MatchCompetition.buildPlain(competition.name,
                     competition.gender,
                     season = str(competition.age) if competition.age else None,
                     phase = pdex.ensure("Name", str),
@@ -295,7 +301,7 @@ class Round(IType):
             if newDraw:
                 draws.append([newMatch])
         return Pool(pdex.ensureString("Name"),
-                    [ Draw([ match for match in draw ])
+                    [ Draw(draw)
                       for draw in draws ],
                     standings)
 
@@ -310,6 +316,7 @@ class Round(IType):
 
 
 class Competition(IType):
+    """a single competition. consists of multiple rounds"""
     def __init__(self, rounds: List[Round]) -> None:
         self._rounds = rounds
         self._rearrangeDraws()
@@ -330,20 +337,21 @@ class Competition(IType):
                                               j * 2 + 1, pool.draws[j].competition)
 
     @staticmethod
-    def _ParseRound(name: str,
+    def _parseRound(name: str,
                     pools: List[Dict[str, Any]],
                     competition: CompetitionLink,
                     standings: Optional[Standings] = None) -> Round:
-        return Round(name, 
-                    [ Round.ParsePool(pool,
+        return Round(name,
+                    [ Round.parsePool(pool,
                                       competition,
                                       standings.get(i) if standings else None)
                       for i, pool in enumerate(pools) ])
 
     @staticmethod
-    async def FromUrl(url: str) -> Competition:
+    async def fromUrl(url: str) -> Competition:
+        """parse a competition from a url"""
         html = ""
-        competition = (await Competitions.GetAll()).getByLink(url)
+        competition = (await Competitions.getAll()).getByLink(url)
         assert competition
         async with aiohttp.ClientSession() as client:
             async with client.get(url) as resp:
@@ -368,7 +376,7 @@ class Competition(IType):
                 async with client.get(link) as resp:
                     jdata = await resp.json(content_type=None)
                     name = roundNameLookup[i] if i <= len(roundNameLookup) else "N/A"
-                    rounds.append(Competition._ParseRound(name,
+                    rounds.append(Competition._parseRound(name,
                                                           jdata.get("Pools"),
                                                           competition,
                                                           standings))
@@ -376,6 +384,7 @@ class Competition(IType):
 
     @property
     def rounds(self) -> List[Round]:
+        """returns the rounds of the competition"""
         return self._rounds
 
     def get(self, index: int) -> Optional[Round]:
@@ -394,6 +403,7 @@ class Competition(IType):
 
 
 class CompetitionLink(IType):
+    """minimal information about a competition"""
     def __init__(self, menuTitle: str, slabTitle: str, entry: str, href: str) -> None:
         self._href = href
         self._type = menuTitle
@@ -446,10 +456,12 @@ class CompetitionLink(IType):
         }
 
     async def toCompetition(self) -> Competition:
-        return await Competition.FromUrl(self.href)
+        """cast to full competition"""
+        return await Competition.fromUrl(self.href)
 
 
 class Competitions(IType):
+    """competitions wrapper (create with .getAll())"""
     _competitionsCache: List[CompetitionLink] = [ ]
 
     def __init__(self, html: str) -> None:
@@ -483,11 +495,11 @@ class Competitions(IType):
                         for item in rowItem.find_all("li"):
                             if not isinstance(item, Tag):
                                 continue
-                            a = item.find("a")
-                            if not a:
+                            atag = item.find("a")
+                            if not atag:
                                 continue
-                            itemTitle = a.attrs.get("title")
-                            href = a.attrs.get("href")
+                            itemTitle = atag.attrs.get("title")
+                            href = atag.attrs.get("href")
 
                             string = f"{menuTitle} - {title} - {itemTitle} ({href})"
                             canAppend = True
@@ -508,9 +520,10 @@ class Competitions(IType):
                                                                           href))
 
     @staticmethod
-    async def GetAll() -> Competitions:
+    async def getAll() -> Competitions:
+        """get all competitions"""
         async with aiohttp.ClientSession() as client:
-            async with client.get(f"https://www.cev.eu/") as resp:
+            async with client.get("https://www.cev.eu/") as resp:
                 return Competitions(await resp.text())
 
     @property
@@ -518,10 +531,12 @@ class Competitions(IType):
         return True
 
     def getByLink(self, link: str) -> Optional[CompetitionLink]:
+        """get competitionLink (basic info) by link"""
         return next((item for item in self._competitions if item.href == link), None)
 
     @property
     def links(self) -> List[CompetitionLink]:
+        """returns all competition links"""
         return self._competitions
 
     def get(self, index: int) -> Optional[CompetitionLink]:

@@ -2,18 +2,18 @@ import asyncio
 from cevlib.calendar import Calendar
 
 async def main():
-    matches = await Calendar.MatchesOfMonth(3, 2022) # get all matches of march, 2022
+    matches = await Calendar.matchesOfMonth(3, 2022) # get all matches of march, 2022
     print( matches )
 
-    matches = await Calendar.UpcomingMatches() # get approximately 10 upcoming (or running) games
+    matches = await Calendar.upcomingMatches() # get approximately 10 upcoming (or running) games
     # these matches are displayed on cev.eu under "GameHub/Match List"
     print( matches )
 
-    matches = await Calendar.RecentMatches() # get approximately 10 recently finished games
+    matches = await Calendar.recentMatches() # get approximately 10 recently finished games
     # these matches are displayed on cev.eu under "GameHub/Recent Results"
     print( matches )
 
-    matches = await Calendar.UpcomingAndRecentMatches() # get both Upcoming & Recent matches (faster than running them separately)
+    matches = await Calendar.upcomingAndRecentMatches() # get both Upcoming & Recent matches (faster than running them separately)
     # these matches are displayed on cev.eu under "GameHub"
     print( matches )
 

@@ -6,7 +6,7 @@ from abc import abstractmethod
 from datetime import datetime
 from typing import Optional
 
-from cevlib.types.competition import Competition
+from cevlib.types.competition import MatchCompetition
 from cevlib.types.iType import IType
 from cevlib.types.results import Result
 from cevlib.types.team import Team
@@ -26,7 +26,7 @@ class IMatch(IType):
 
     @property
     @abstractmethod
-    def competition(self) -> Optional[Competition]:
+    def competition(self) -> Optional[MatchCompetition]:
         """competition"""
 
     @property
