@@ -223,9 +223,9 @@ class Calendar(IType):
                 for competition in jdata.ensure("competitions", list):
                     dex = DictEx(competition)
                     for match in dex.ensure("matches", list):
-                        match["competition"] = { "Competition": dex.assertGet("competitionName",
+                        match["competition"] = { "Competition": dex.tryGet("competitionName",
                                                                               str),
-                                                 "id": dex.assertGet("competitionId", str) }
+                                                 "id": dex.tryGet("competitionId", str) }
                         matches.append(match)
 
         return matches
