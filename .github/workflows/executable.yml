@@ -22,7 +22,8 @@ jobs:
         pip3 install -r requirements.txt
     - name: Analysing...
       id: main
-      working-directory: ./
+      working-directory: ./src
       run: |
+        cp ../tests/test.py .
         python3 ./test.py
       continue-on-error: false

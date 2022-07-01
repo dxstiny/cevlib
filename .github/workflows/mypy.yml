@@ -23,5 +23,5 @@ jobs:
       id: main
       working-directory: ./
       run: |
-        mypy
+        mypy src/cevlib
       continue-on-error: false
