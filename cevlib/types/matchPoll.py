@@ -23,8 +23,8 @@ class TeamPoll(IType):
         return f"(cevlib.types.matchPoll.TeamPoll) {self._count} ({self._percent})"
 
     @property
-    def percent(self) -> float: # TODO 0 - 1 or 0 - 100?
-        """percentage that voted for this team"""
+    def percent(self) -> float:
+        """percentage that voted for this team (0 - 100)"""
         return self._percent
 
     @property

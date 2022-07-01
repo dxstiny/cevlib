@@ -16,10 +16,8 @@ class TeamStatistic(IType):
     def __init__(self, data: JObject, home: bool) -> None:
         dex = DictEx(data)
         self._type = TeamStatisticType.parse(dex.ensure("Name", str))
-        # TODO find out type of 'value' (str, int)
-        self._value = dex.ensure("HomeTeamValue" if home else "AwayTeamValue", str)
-         # TODO find out type of 'percent' int | float
-        self._percent = dex.ensure("HomeTeamPercent" if home else "AwayTeamPercent", str)
+        self._value = dex.ensure("HomeTeamValue" if home else "AwayTeamValue", int)
+        self._percent = dex.ensure("HomeTeamPercent" if home else "AwayTeamPercent", float)
 
     def toJson(self) -> JObject:
         return {
@@ -34,13 +32,13 @@ class TeamStatistic(IType):
         return self._type
 
     @property
-    def value(self) -> str:
+    def value(self) -> int:
         """absolute value"""
         return self._value
 
     @property
-    def percent(self) -> str:
-        """relative value"""
+    def percent(self) -> float:
+        """relative value (0 - 100)"""
         return self._percent
 
     @property
