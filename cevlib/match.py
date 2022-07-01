@@ -3,6 +3,9 @@
 from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
 
+# (IMatch can be property or async)
+# pylint: disable=invalid-overridden-method
+
 
 import asyncio
 from datetime import datetime, timedelta
@@ -14,13 +17,13 @@ import aiohttp
 from cevlib.exceptions import NotInitialisedException
 
 from cevlib.helpers.asyncThread import asyncRunInThreadWithReturn
-from cevlib.helpers.dictTool import DictEx
+from cevlib.helpers.dictTool import DictEx, ListEx
 
 from cevlib.converters.scoreHeroToJson import ScoreHeroToJson
 
 from cevlib.types.competition import MatchCompetition
-from cevlib.types.iMatch import IMatch
-from cevlib.types.iType import IType, JObject
+from cevlib.types.iMatch import IFullMatch
+from cevlib.types.iType import JObject
 from cevlib.types.info import Info
 from cevlib.types.playByPlay import PlayByPlay
 from cevlib.types.report import MatchReport
@@ -33,7 +36,8 @@ from cevlib.types.types import MatchState
 TScoreObserver = Callable[[Any, Any], Coroutine[Any, Any, Any]]
 
 
-class MatchCache(IMatch):
+class MatchCache(IFullMatch):
+    """snapshot of Match (all match data retrieved from Cache)"""
     def __init__(self,
                  playByPlay: Optional[PlayByPlay],
                  competition: Optional[MatchCompetition],
@@ -46,11 +50,11 @@ class MatchCache(IMatch):
                  venue: str,
                  homeTeam: Team,
                  awayTeam: Team,
-                 watchLink: str,
-                 highlightsLink: str,
+                 watchLink: Optional[str],
+                 highlightsLink: Optional[str],
                  state: MatchState,
                  report: Optional[MatchReport],
-                 info: Optional[Info]) -> None:
+                 info: Info) -> None:
         self._playByPlay = playByPlay
         self._competition = competition
         self._topPlayers = topPlayers
@@ -97,12 +101,12 @@ class MatchCache(IMatch):
         return self.state == MatchState.Finished
 
     @property
-    def playByPlay(self) -> Optional[PlayByPlay]:
-        return self._playByPlay
-
-    @property
     def competition(self) -> Optional[MatchCompetition]:
         return self._competition
+
+    @property
+    def playByPlay(self) -> Optional[PlayByPlay]:
+        return self._playByPlay
 
     @property
     def topPlayers(self) -> TopPlayers:
@@ -141,11 +145,11 @@ class MatchCache(IMatch):
         return self._awayTeam
 
     @property
-    def watchLink(self) -> str:
+    def watchLink(self) -> Optional[str]:
         return self._watchLink
 
     @property
-    def highlightsLink(self) -> str:
+    def highlightsLink(self) -> Optional[str]:
         return self._highlightsLink
 
     @property
@@ -157,18 +161,20 @@ class MatchCache(IMatch):
         return self._report
 
     @property
-    def info(self) -> Optional[Info]:
+    def info(self) -> Info:
         return self._info
 
     @staticmethod
-    async def FromMatch(match: Match) -> MatchCache:
+    async def fromMatch(match: Match) -> MatchCache:
+        """create a snapshot of this match"""
         return await match.cache()
 
     def __repr__(self) -> str:
         return f"(cevlib.match.MatchCache) {self.toJson()}"
 
 
-class Match(IType):
+class Match(IFullMatch):
+    """match class"""
     def __init__(self, html: str, url: str) -> None:
         self._invalidMatchCentre = "This page can be replaced with a custom 404. Check the documentation for" in html or \
                                    "Object reference not set to an instance of an object." in html # pylint: disable=line-too-long
@@ -181,13 +187,13 @@ class Match(IType):
         if len(embeddedVideos):
             self._highlightsLinkCache = "https://" + embeddedVideos[0].replace("/embed/", "/v/") \
                                                                       .split("?")[0]
-        self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
+        #self._nodeId = self._getParameter(self._getLink("livescorehero"), "nodeId")
         self._html = html
         self._matchId: Optional[int] = None
         self._liveScoresCache: Optional[JObject] = None
         self._formCache: Optional[JObject] = None
         self._finished = False
-        self._matchCentreLink = url
+        self._matchCentreLink: str = url
         self._initialised = False
         self._reportCache: Optional[MatchReport] = None
         self._infoCache: Optional[Info] = None
@@ -198,7 +204,7 @@ class Match(IType):
 
     @property
     def valid(self) -> bool:
-        return bool(self._umbracoLinks) and self._matchCentreLink is not None
+        return bool(self._umbracoLinks)
 
     async def _startInit(self) -> None:
         self._matchId = await self._getMatchId()
@@ -222,13 +228,13 @@ class Match(IType):
     # HELPERS
 
 
-    def _getParameter(self, link: str, parameter: str) -> Optional[str]:
-        try:
-            return "0"
-            # TODO working?? (not indexable)
-            #return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
-        except:
-            return None
+#    def _getParameter(self, link: str, parameter: str) -> Optional[str]:
+#        try:
+#            return "0"
+#            # TODO working?? (not indexable)
+#            #return re.search(f"(?<={parameter}=)([A-Za-z0-9]*)(?=&)?", link)[0]
+#        except:
+#            return None
 
     def _getLinks(self, contains: str) -> List[str]:
         eligibleLinks = [ ]
@@ -276,26 +282,23 @@ class Match(IType):
                                                       useCache: bool = True) -> Optional[JObject]:
         assert self._matchCentreLink
         jdata = DictEx(await self._requestLiveScoresJson(useCache))
-        for competition in jdata.ensure("competitions", list):
-            cdex = DictEx(competition)
-            for match in cdex.ensure("matches", list):
-                mdex = DictEx(match)
-                if mdex.ensure("matchCentreLink", str) == self._matchCentreLink:
-                    self._finished = mdex.ensure("matchState_String", str) == "FINISHED"
-                    mdex["competition"] = { "name": cdex.tryGet("competitionName", str),
-                                            "id": cdex.tryGet("competitionId", int) }
-                    return mdex
+        for competition in jdata.ensure("competitions", ListEx).iterate(DictEx):
+            for match in competition.ensure("matches", ListEx).iterate(DictEx):
+                if match.ensure("matchCentreLink", str) == self._matchCentreLink:
+                    self._finished = match.ensure("matchState_String", str) == "FINISHED"
+                    match["competition"] = { "name": competition.tryGet("competitionName", str),
+                                            "id": competition.tryGet("competitionId", int) }
+                    return match
         return await self._tryGetFinishedGameData()
 
     async def _requestLiveScoresJsonByMatchId(self, useCache: bool = True) -> Optional[JObject]:
         assert self._matchId
         jdata = DictEx(await self._requestLiveScoresJson(useCache))
-        for competition in jdata.ensure("competitions", list):
-            for match in DictEx(competition).ensure("matches", list):
-                mdex = DictEx(match)
-                if mdex.ensure("matchId", int) == self._matchId:
-                    self._finished = mdex.ensure("matchState_String", str) == "FINISHED"
-                    return mdex
+        for competition in jdata.ensure("competitions", ListEx).iterate(DictEx):
+            for match in competition.ensure("matches", ListEx).iterate(DictEx):
+                if match.ensure("matchId", int) == self._matchId:
+                    self._finished = match.ensure("matchState_String", str) == "FINISHED"
+                    return match
         return await self._tryGetFinishedGameData()
 
     async def _tryGetFinishedGameData(self, trulyFinished: bool = True) -> Optional[JObject]:
@@ -403,6 +406,9 @@ class Match(IType):
         await self._requestLiveScoresJsonByMatchSafe(False)
         return self._finished
 
+    async def finished(self) -> bool:
+        return await self._finishedF()
+
     async def state(self) -> MatchState:
         started, finished = await asyncio.gather(self._started(), self._finishedF())
         return MatchState.parse(started, finished)
@@ -422,15 +428,19 @@ class Match(IType):
         except Exception:
             return None
 
-    async def homeTeam(self) -> Optional[Team]:
+    async def homeTeam(self) -> Team:
         if not self._initialised:
             raise NotInitialisedException
-        return await self._getTeam(0, True)
+        team = await self._getTeam(0, True)
+        assert team
+        return team
 
-    async def awayTeam(self) -> Optional[Team]:
+    async def awayTeam(self) -> Team:
         if not self._initialised:
             raise NotInitialisedException
-        return await self._getTeam(1, False)
+        team = await self._getTeam(1, False)
+        assert team
+        return team
 
     @property
     def gallery(self) -> List[str]:

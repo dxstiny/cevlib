@@ -9,7 +9,7 @@ async def main():
 
     cache = await match.cache()
     # OR
-    cache = await MatchCache.FromMatch(match)
+    cache = await MatchCache.fromMatch(match)
 
     print("playByPlay", cache.playByPlay)
     print("competition", cache.competition)

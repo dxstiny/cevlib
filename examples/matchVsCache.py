@@ -4,7 +4,7 @@ from cevlib.match import Match
 
 from time import time
 
-async def main():
+async def main() -> None:
     # cache up to 300ms
 
     match = await Match.byUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")

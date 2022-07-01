@@ -1,7 +1,7 @@
 import asyncio
 from cevlib.competitions import Competitions, Competition
 
-async def main():
+async def main() -> None:
     competitions = await Competitions.getAll() # get all competitions (Competitions object)
     print( competitions )
 

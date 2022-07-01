@@ -39,23 +39,28 @@ class Draw(IType):
 
     @property
     def competition(self) -> MatchCompetition:
+        """competition"""
         return self._matches[0].competition
 
     @property
     def firstTeam(self) -> Team:
+        """first team"""
         return self._first
 
     @property
     def secondTeam(self) -> Team:
+        """second team"""
         return self._second
 
     @property
     def teams(self) -> Tuple[Team, Team]:
+        """both teams"""
         assert self.valid
         return self._matches[0].teams
 
     @property
     def matches(self) -> List[CalendarMatch]:
+        """both matches of the draw"""
         assert self.valid
         return self._matches
 
@@ -83,6 +88,7 @@ class StandingsTeam(IType):
 
     @property
     def team(self) -> Dict[str, Any]:
+        """the team"""
         return self._team
 
     @property
@@ -103,6 +109,7 @@ class StandingsPool(IType):
 
     @property
     def teams(self) -> List[StandingsTeam]:
+        """all teams"""
         return self._teams
 
     @property
@@ -152,6 +159,7 @@ class Standings(IType):
 
     @property
     def pools(self) -> List[StandingsPool]:
+        """standings pools"""
         return self._pools
 
     def get(self, index: int) -> Optional[StandingsPool]:
@@ -185,6 +193,7 @@ class Pool(IType):
                          anyDrawTeam: Team,
                          newIndex: int,
                          competition: Optional[MatchCompetition]) -> None:
+        """arranges the draw to match the right node. if the draw is not found, it is created"""
         if anyDrawTeam.name == "Bye":
             return
         oldIndex = -1
@@ -208,10 +217,12 @@ class Pool(IType):
 
     @property
     def standingsPool(self) -> Optional[StandingsPool]:
+        """pool (i.e. group) standings"""
         return self._standings
 
     @property
     def draws(self) -> List[Draw]:
+        """pool draws"""
         return self._draws
 
     def get(self, index: int) -> Optional[Draw]:
@@ -220,6 +231,7 @@ class Pool(IType):
 
     @property
     def name(self) -> str:
+        """pool name"""
         return self._name
 
     def __repr__(self) -> str:
@@ -245,10 +257,12 @@ class Round(IType):
 
     @property
     def name(self) -> str:
+        """round name"""
         return self._name
 
     @property
     def pools(self) -> List[Pool]:
+        """round pools"""
         return self._pools
 
     def get(self, index: int) -> Optional[Pool]:
@@ -259,6 +273,7 @@ class Round(IType):
     def parsePool(pool: Dict[str, Any],
                   competition: CompetitionLink,
                   standings: Optional[StandingsPool]) -> Pool:
+        """parse pool from json"""
         pdex = DictEx(pool)
         draws: List[List[CalendarMatch]] = [ ]
         for match in pdex.ensureList("Results"):
@@ -421,22 +436,27 @@ class CompetitionLink(IType):
 
     @property
     def name(self) -> str:
+        """competition name"""
         return self._name
 
     @property
     def type(self) -> str:
+        """competition type"""
         return self._type
 
     @property
     def href(self) -> str:
+        """competition href"""
         return self._href
 
     @property
     def gender(self) -> CompetitionGender:
+        """gender of the players"""
         return self._gender
 
     @property
     def age(self) -> Optional[int]:
+        """max player age"""
         return self._age
 
     @property

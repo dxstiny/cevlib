@@ -97,6 +97,10 @@ class ListEx(List[Any]):
         except: # pylint: disable=bare-except
             return default or type_()
 
+    def iterate(self, type_: Type[T], default: Optional[T] = None) -> List[T]:
+        """iterate over list"""
+        return [ self.ensure(i, type_, default) for i, _ in enumerate(self._data) ]
+
     def ensureString(self, index: int, default: str = "") -> str:
         """extracts a string"""
         return self.ensure(index, str, default)

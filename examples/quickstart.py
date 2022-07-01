@@ -2,7 +2,7 @@ import asyncio
 
 from cevlib.match import Match
 
-async def main():
+async def main() -> None:
     # get a match object by its match centre url
     match: Match = await Match.byUrl("https://championsleague.cev.eu/en/match-centres/cev-champions-league-volley-2022/men/clm-61-cucine-lube-civitanova-v-ok-merkur-maribor/")
 

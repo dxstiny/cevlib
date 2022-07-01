@@ -3,6 +3,9 @@
 from __future__ import annotations
 __copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
 
+# (IMatch can be property or async)
+# pylint: disable=invalid-overridden-method
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
