@@ -23,5 +23,5 @@ jobs:
       id: main
       working-directory: ./
       run: |
-        python3 -m pylint --rcfile=./.pylintrc cevlib
+        python3 -m pylint --rcfile=./.pylintrc src/cevlib
       continue-on-error: false
