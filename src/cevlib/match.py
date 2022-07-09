@@ -386,7 +386,6 @@ class Match(IFullMatch):
         if not self._initialised:
             raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchSafe(self._finished)
-        # TODO not in live scores anymore (finished some time ago) -> find other way
         assert match is not None
         return Result(match)
 

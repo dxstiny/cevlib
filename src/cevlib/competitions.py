@@ -26,7 +26,7 @@ class Draw(IType):
     def __init__(self, matches: List[CalendarMatch]) -> None:
         self._matches = matches
 
-        assert len(matches) == 2
+        assert len(matches) <= 2
         self._first, self._second = matches[0].teams
 
     def _sameTeams(self) -> bool:
