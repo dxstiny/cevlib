@@ -13,9 +13,9 @@ pip install cevlib
 ```
 
 ## Live Demo
-[CEV Next](https://cev-next.herokuapp.com/#/) makes use of exactly this library and displays the available information in a beautiful UI.
+[CEV Next](https://cev-nex.tk/#/) makes use of exactly this library and displays the available information in a beautiful UI.
 
-## [Try it out](https://cev-next.herokuapp.com/#/cevlib/wiki)
+## [Try it out](https://cev-nex.tk/#/cevlib/wiki)
 
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)
 
