@@ -473,7 +473,14 @@ class Match(IFullMatch):
         if not self._initialised:
             raise NotInitialisedException
         jdata = DictEx(await self._requestLiveScoresJsonByMatchSafe())
-        return jdata.tryGet("watchLink", str)
+        link = jdata.tryGet("watchLink", str)
+        if link:
+            return link
+
+        async with aiohttp.ClientSession() as client:
+            async with client.get(self._getLink("getlivescorehero")) as resp:
+                jdata = DictEx(await resp.json(content_type=None))
+                return jdata.tryGet("HighLightUrl", str)
 
     async def highlightsLink(self) -> Optional[str]:
         if not self._highlightsLinkCache:
@@ -481,6 +488,13 @@ class Match(IFullMatch):
                 raise NotInitialisedException
             jdata = DictEx(await self._requestLiveScoresJsonByMatchSafe())
             self._highlightsLinkCache = jdata.tryGet("highlightsLink", str)
+
+            if not self._highlightsLinkCache:
+                async with aiohttp.ClientSession() as client:
+                    async with client.get(self._getLink("getlivescorehero")) as resp:
+                        jdata = DictEx(await resp.json(content_type=None))
+                        self._highlightsLinkCache = jdata.tryGet("HighLightUrl", str)
+
         return self._highlightsLinkCache
 
     async def competition(self) -> Optional[MatchCompetition]:

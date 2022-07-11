@@ -20,4 +20,4 @@ pip install cevlib
 ## [Quick Start](https://github.com/dxstiny/cevlib/wiki)
 
 ## Contact
-In case of legal complaints or other comments, you can contact me (the owner of this repository) via email: dxstiny.gh@gmail.com
+In case of legal complaints or other comments, you can contact me (the owner of this repository) via email: info@cev-nex.tk
