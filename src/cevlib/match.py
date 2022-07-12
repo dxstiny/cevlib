@@ -391,6 +391,7 @@ class Match(IFullMatch):
 
         if res.empty:
             match = await self._tryGetFinishedGameData()
+            assert match is not None
             res = Result(match)
 
         return res
