@@ -164,6 +164,11 @@ class Result(IType):
         return self._awayScore
 
     @property
+    def empty(self) -> bool:
+        """is empty?"""
+        return len(self.sets) == 0 and not self._homeScore and not self._awayScore
+
+    @property
     def valid(self) -> bool:
         return None not in (self._sets, self._homeScore, self._awayScore)
 

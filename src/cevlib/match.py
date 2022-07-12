@@ -387,7 +387,13 @@ class Match(IFullMatch):
             raise NotInitialisedException
         match = await self._requestLiveScoresJsonByMatchSafe(self._finished)
         assert match is not None
-        return Result(match)
+        res = Result(match)
+
+        if res.empty:
+            match = await self._tryGetFinishedGameData()
+            res = Result(match)
+
+        return res
 
     async def startTime(self) -> datetime:
         if not self._initialised:
@@ -399,17 +405,19 @@ class Match(IFullMatch):
         startTime = await self.startTime()
         return datetime.utcnow() >= startTime
 
-    async def _finishedF(self) -> bool:
+    async def finished(self) -> bool:
         if not self._initialised:
-            await self.init()
+            raise NotInitialisedException
         await self._requestLiveScoresJsonByMatchSafe(False)
+
+        startTime = await self.startTime()
+        duration = datetime.utcnow() - startTime
+        if duration > timedelta(days = 1):
+            self._finished = True
         return self._finished
 
-    async def finished(self) -> bool:
-        return await self._finishedF()
-
     async def state(self) -> MatchState:
-        started, finished = await asyncio.gather(self._started(), self._finishedF())
+        started, finished = await asyncio.gather(self._started(), self.finished())
         return MatchState.parse(started, finished)
 
     async def venue(self) -> str:
@@ -453,11 +461,13 @@ class Match(IFullMatch):
     async def duration(self) -> timedelta:
         if not self._initialised:
             raise NotInitialisedException
-        if not await self._finishedF():
+        if not await self.finished():
             startTime = await self.startTime()
             if datetime.utcnow() < startTime:
                 return timedelta()
-            return datetime.utcnow() - startTime
+            duration = datetime.utcnow() - startTime
+            if duration < timedelta(days = 1):
+                return duration
         if self._invalidMatchCentre:
             return timedelta()
         async with aiohttp.ClientSession() as client:
