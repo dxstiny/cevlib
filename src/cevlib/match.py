@@ -270,9 +270,11 @@ class Match(IFullMatch):
             return self._liveScoresCache
         async with aiohttp.ClientSession() as client:
             async with client.get("https://www.cev.eu/LiveScores.json") as resp:
-                jdata = DictEx(await resp.json(content_type=None))
-                self._liveScoresCache = jdata
-                return jdata
+                if resp.status == 200:
+                    self._liveScoresCache = DictEx(await resp.json(content_type=None))
+                    return self._liveScoresCache
+                self._liveScoresCache = DictEx()
+                return self._liveScoresCache
 
     async def _requestLiveScoresJsonByMatchSafe(self, useCache: bool = True) ->  Optional[JObject]:
         return await (self._requestLiveScoresJsonByMatchId(useCache) if not self._invalidMatchCentre
