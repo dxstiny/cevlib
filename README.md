@@ -1,3 +1,6 @@
+# NOTE (13 August 2022)
+Limited functionality due to changes on the cev.eu website. Full functionality may be restored in a future update.
+
 # cevlib
 inofficial python library for cev.eu (NOT affiliated)
 
