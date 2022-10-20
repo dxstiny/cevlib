@@ -218,7 +218,7 @@ class Calendar(IType):
     async def _getLiveScoreMatches() -> List[Dict[str, Any]]:
         matches = [ ]
         async with aiohttp.ClientSession() as client:
-            async with client.get("https://www.cev.eu/LiveScores.json") as resp:
+            async with client.get("https://weblivefeed.cev.eu/LiveScores.json") as resp:
                 jdata = DictEx(await resp.json(content_type=None))
                 for competition in jdata.ensure("competitions", list):
                     dex = DictEx(competition)

@@ -269,7 +269,7 @@ class Match(IFullMatch):
         if useCache and self._liveScoresCache:
             return self._liveScoresCache
         async with aiohttp.ClientSession() as client:
-            async with client.get("https://www.cev.eu/LiveScores.json") as resp:
+            async with client.get("https://weblivefeed.cev.eu/LiveScores.json") as resp:
                 if resp.status == 200:
                     self._liveScoresCache = DictEx(await resp.json(content_type=None))
                     return self._liveScoresCache

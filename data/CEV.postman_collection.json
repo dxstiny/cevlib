@@ -673,7 +673,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://championsleague.cev.eu/LiveScores.json",
+							"raw": "https://weblivefeed.cev.eu/LiveScores.json",
 							"protocol": "https",
 							"host": [
 								"championsleague",
