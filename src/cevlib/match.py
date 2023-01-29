@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import re
 import json
 from typing import Any, Coroutine, Dict, List, Optional, Callable
-import aiohttp
+from pyodide.http import pyfetch
 
 from cevlib.exceptions import NotInitialisedException
 
@@ -251,30 +251,27 @@ class Match(IFullMatch):
 
     async def _getForm(self) -> JObject:
         if self._formCache is None:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(self._getLink("GetFormComponent")) as resp:
-                    self._formCache = json.loads(await resp.json(content_type=None))
+            resp = await pyfetch.get(self._getLink("GetFormComponent"))
+            self._formCache = json.loads(await resp.json())
         return self._formCache
 
     async def _getMatchId(self) -> Optional[int]:
         try:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(self._getLink("livescorehero")) as resp:
-                    jdata = await resp.json(content_type=None)
-                    return int(jdata.get("MatchId"))
+            resp = await pyfetch.get(self._getLink("livescorehero"))
+            jdata = await resp.json()
+            return int(jdata.get("MatchId"))
         except: # pylint: disable=bare-except
             return None
 
     async def _requestLiveScoresJson(self, useCache: bool = True) -> JObject:
         if useCache and self._liveScoresCache:
             return self._liveScoresCache
-        async with aiohttp.ClientSession() as client:
-            async with client.get("https://weblivefeed.cev.eu/LiveScores.json") as resp:
-                if resp.status == 200:
-                    self._liveScoresCache = DictEx(await resp.json(content_type=None))
-                    return self._liveScoresCache
-                self._liveScoresCache = DictEx()
-                return self._liveScoresCache
+        resp = await pyfetch.get("https://weblivefeed.cev.eu/LiveScores.json")
+        if resp.status == 200:
+            self._liveScoresCache = DictEx(await resp.json())
+            return self._liveScoresCache
+        self._liveScoresCache = DictEx()
+        return self._liveScoresCache
 
     async def _requestLiveScoresJsonByMatchSafe(self, useCache: bool = True) ->  Optional[JObject]:
         return await (self._requestLiveScoresJsonByMatchId(useCache) if not self._invalidMatchCentre
@@ -306,42 +303,34 @@ class Match(IFullMatch):
     async def _tryGetFinishedGameData(self, trulyFinished: bool = True) -> Optional[JObject]:
         if self._invalidMatchCentre:
             return None
-        async with aiohttp.ClientSession() as client:
-            self._finished = trulyFinished
-            livescorehero = { }
-            matchpolldata = [ ]
-            async with client.get(self._getLink("getlivescorehero")) as resp:
-                livescorehero = await resp.json(content_type=None)
-            async with client.get(self._getLink("GetMatchPoll")) as resp:
-                matchpolldata = await resp.json(content_type=None)
-            return ScoreHeroToJson.convert(livescorehero, matchpolldata)
+        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        livescorehero = await resp.json()
+        resp = await pyfetch.get(self._getLink("GetMatchPoll"))
+        matchpolldata = await resp.json()
+        self._finished = trulyFinished
+        return ScoreHeroToJson.convert(livescorehero, matchpolldata)
 
     async def _getTeam(self, index: int, home: bool) -> Optional[Team]:
         try:
-            async with aiohttp.ClientSession() as client:
-                playerStatsData = { }
-                teamData = { }
-                teamStatsData = { }
-                matchPoll = [ ]
-                async with client.get(self._getLink("GetStartingTeamComponent", index)) as resp:
-                    teamData = await resp.json(content_type=None)
-                async with client.get(self._getLink("GetPlayerStatsComponentMC")) as resp:
-                    playerStatsData = json.loads(await resp.json(content_type=None))
-                async with client.get(self._getLink("GetTeamStatsComponentMC")) as resp:
-                    teamStatsData = json.loads(await resp.json(content_type=None))
-                async with client.get(self._getLink("GetMatchPoll")) as resp:
-                    matchPoll = await resp.json(content_type=None)
-                liveScore = DictEx(await self._requestLiveScoresJsonByMatchSafe())
-                form = await self._getForm()
-                return Team(teamData,
-                            playerStatsData,
-                            TeamStatistics(teamStatsData, home),
-                            matchPoll,
-                            form["HomeTeam"] if home else form["AwayTeam"],
-                            liveScore.ensure("homeTeamIcon" if home
-                                             else "awayTeamIcon", str),
-                            liveScore.ensure("homeTeamNickname" if home
-                                             else "awayTeamNickname", str),)
+            resp = await pyfetch.get(self._getLink("GetStartingTeamComponent", index))
+            teamData = await resp.json()
+            resp = await pyfetch.get(self._getLink("GetPlayerStatsComponentMC"))
+            playerStatsData = await resp.json()
+            resp = await pyfetch.get(self._getLink("GetTeamStatsComponentMC"))
+            teamStatsData = await resp.json()
+            resp = await pyfetch.get(self._getLink("GetMatchPoll"))
+            matchPoll = await resp.json()
+            liveScore = DictEx(await self._requestLiveScoresJsonByMatchSafe())
+            form = await self._getForm()
+            return Team(teamData,
+                        playerStatsData,
+                        TeamStatistics(teamStatsData, home),
+                        matchPoll,
+                        form["HomeTeam"] if home else form["AwayTeam"],
+                        liveScore.ensure("homeTeamIcon" if home
+                                            else "awayTeamIcon", str),
+                        liveScore.ensure("homeTeamNickname" if home
+                                            else "awayTeamNickname", str),)
         except Exception:
             liveScore = DictEx(await self._tryGetFinishedGameData(False))
             if not liveScore:
@@ -431,10 +420,9 @@ class Match(IFullMatch):
 
     async def playByPlay(self) -> Optional[PlayByPlay]:
         try:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(self._getLink("GetPlayByPlayComponent")) as resp:
-                    jdata = await resp.json(content_type=None)
-                    return PlayByPlay(jdata)
+            resp = await pyfetch.get(self._getLink("GetPlayByPlayComponent"))
+            jdata = await resp.json()
+            return PlayByPlay(jdata)
         except Exception:
             return None
 
@@ -473,10 +461,9 @@ class Match(IFullMatch):
                 return duration
         if self._invalidMatchCentre:
             return timedelta()
-        async with aiohttp.ClientSession() as client:
-            async with client.get(self._getLink("getlivescorehero")) as resp:
-                jdata = await resp.json(content_type=None)
-                return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
+        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        jdata = await resp.json()
+        return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
 
     @property
     def matchCentreLink(self) -> str:
@@ -490,10 +477,9 @@ class Match(IFullMatch):
         if link:
             return link
 
-        async with aiohttp.ClientSession() as client:
-            async with client.get(self._getLink("getlivescorehero")) as resp:
-                jdata = DictEx(await resp.json(content_type=None))
-                return jdata.tryGet("HighLightUrl", str)
+        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        jdata = DictEx(await resp.json())
+        return jdata.tryGet("HighLightUrl", str)
 
     async def highlightsLink(self) -> Optional[str]:
         if not self._highlightsLinkCache:
@@ -503,10 +489,9 @@ class Match(IFullMatch):
             self._highlightsLinkCache = jdata.tryGet("highlightsLink", str)
 
             if not self._highlightsLinkCache:
-                async with aiohttp.ClientSession() as client:
-                    async with client.get(self._getLink("getlivescorehero")) as resp:
-                        jdata = DictEx(await resp.json(content_type=None))
-                        self._highlightsLinkCache = jdata.tryGet("HighLightUrl", str)
+                resp = await pyfetch.get(self._getLink("getlivescorehero"))
+                jdata = DictEx(await resp.json())
+                self._highlightsLinkCache = jdata.tryGet("HighLightUrl", str)
 
         return self._highlightsLinkCache
 
@@ -523,20 +508,18 @@ class Match(IFullMatch):
                 "GroupPool": jdata.ensure("groupName", str),
                 "MatchNumber": jdata.ensure("matchNumber", str)
             })
-        async with aiohttp.ClientSession() as client:
-            async with client.get(self._getLink("getlivescorehero")) as resp:
-                jdata = await resp.json(content_type=None)
-                assert jdata is not None
-                return MatchCompetition(jdata)
+        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        jdata = DictEx(await resp.json())
+        assert jdata is not None
+        return MatchCompetition(jdata)
 
     async def topPlayers(self) -> TopPlayers:
         topPlayers = TopPlayers()
         links = self._getLinks("GetTopStatisticsComponent")
         for link in links:
-            async with aiohttp.ClientSession() as client:
-                async with client.get(link) as resp:
-                    jdata = await resp.json(content_type=None)
-                    topPlayers.append(TopPlayer(jdata))
+            resp = await pyfetch.get(link)
+            jdata = await resp.json()
+            topPlayers.append(TopPlayer(jdata))
         return topPlayers
 
     async def info(self) -> Info:
@@ -552,9 +535,8 @@ class Match(IFullMatch):
     @staticmethod
     async def byUrl(url: str) -> Match:
         """creates a match by match url (link/href)"""
-        async with aiohttp.ClientSession() as client:
-            async with client.get(url) as resp:
-                return Match(await resp.text(), url)
+        resp = await pyfetch.get(url)
+        return Match(await resp.string(), url)
 
 
     # CONVERT

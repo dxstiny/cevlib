@@ -9,7 +9,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
-import aiohttp
+from pyodide.http import pyfetch
 
 from cevlib.match import Match
 from cevlib.helpers.dictTool import DictEx
@@ -158,12 +158,11 @@ class Calendar(IType):
         timestamp = datetime(year if year else today.year,
                              month if month else today.month, 1).strftime("%Y-%m-%dT%H:%M:%SZ")
         matches: List[Dict[str, Any]] = [ ]
-        async with aiohttp.ClientSession() as client:
-            async with client.get(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") as resp: # pylint: disable=line-too-long
-                jdata = await resp.json(content_type=None)
-                calendar = DictEx(jdata)
-                for date in calendar.ensureList("Dates"):
-                    matches.extend(date.get("Matches") or [ ])
+        resp = await pyfetch.get(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") # pylint: disable=line-too-long
+        jdata = await resp.json()
+        calendar = DictEx(jdata)
+        for date in calendar.ensureList("Dates"):
+            matches.extend(date.get("Matches") or [ ])
         return [ CalendarMatch.parse(match)
                  for match in matches ]
 
@@ -217,17 +216,15 @@ class Calendar(IType):
     @staticmethod
     async def _getLiveScoreMatches() -> List[Dict[str, Any]]:
         matches = [ ]
-        async with aiohttp.ClientSession() as client:
-            async with client.get("https://weblivefeed.cev.eu/LiveScores.json") as resp:
-                jdata = DictEx(await resp.json(content_type=None))
-                for competition in jdata.ensure("competitions", list):
-                    dex = DictEx(competition)
-                    for match in dex.ensure("matches", list):
-                        match["competition"] = { "Competition": dex.tryGet("competitionName",
-                                                                              str),
-                                                 "id": dex.tryGet("competitionId", str) }
-                        matches.append(match)
-
+        resp = await pyfetch.get("https://weblivefeed.cev.eu/LiveScores.json")
+        jdata = DictEx(await resp.json())
+        for competition in jdata.ensure("competitions", list):
+            dex = DictEx(competition)
+            for match in dex.ensure("matches", list):
+                match["competition"] = { "Competition": dex.tryGet("competitionName",
+                                                                        str),
+                                            "id": dex.tryGet("competitionId", str) }
+                matches.append(match)
         return matches
 
     def __repr__(self) -> str:

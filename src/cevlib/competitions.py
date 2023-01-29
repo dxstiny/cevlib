@@ -8,7 +8,7 @@ import re
 from bs4 import BeautifulSoup # type: ignore
 from bs4.element import Tag # type: ignore
 
-import aiohttp
+from pyodide.http import pyfetch
 
 from cevlib.calendar import CalendarMatch
 
@@ -368,9 +368,8 @@ class Competition(IType):
         html = ""
         competition = (await Competitions.getAll()).getByLink(url)
         assert competition
-        async with aiohttp.ClientSession() as client:
-            async with client.get(url) as resp:
-                html = await resp.text()
+        resp = await pyfetch.get(url)
+        html = await resp.string()
         rounds = [ ]
         soup = BeautifulSoup(html, "html.parser")
 
@@ -387,14 +386,13 @@ class Competition(IType):
             tableDiv = comp.find("div", class_="pool-standings-table")
             standings = Standings(tableDiv)
             link = "https:" + linkDiv["data-score-endpoint"]
-            async with aiohttp.ClientSession() as client:
-                async with client.get(link) as resp:
-                    jdata = await resp.json(content_type=None)
-                    name = roundNameLookup[i] if i <= len(roundNameLookup) else "N/A"
-                    rounds.append(Competition._parseRound(name,
-                                                          jdata.get("Pools"),
-                                                          competition,
-                                                          standings))
+            resp = await pyfetch.get(link)
+            jdata = await resp.json()
+            name = roundNameLookup[i] if i <= len(roundNameLookup) else "N/A"
+            rounds.append(Competition._parseRound(name,
+                                                    jdata.get("Pools"),
+                                                    competition,
+                                                    standings))
         return Competition(rounds)
 
     @property
@@ -542,9 +540,8 @@ class Competitions(IType):
     @staticmethod
     async def getAll() -> Competitions:
         """get all competitions"""
-        async with aiohttp.ClientSession() as client:
-            async with client.get("https://www.cev.eu/") as resp:
-                return Competitions(await resp.text())
+        resp = await pyfetch.get("https://www.cev.eu/")
+        return Competitions(await resp.string())
 
     @property
     def valid(self) -> bool:

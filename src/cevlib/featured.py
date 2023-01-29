@@ -7,7 +7,7 @@ __copyright__ = ("Copyright (c) 2022 https://github.com/dxstiny")
 from typing import List
 import re
 
-import aiohttp
+from pyodide.http import pyfetch
 
 from cevlib.types.iType import IType, JObject
 
@@ -20,9 +20,8 @@ class Featured(IType):
 
     async def init(self) -> None:
         """init"""
-        async with aiohttp.ClientSession() as client:
-            async with client.get("https://www.cev.eu/") as resp:
-                html = await resp.text()
+        resp = await pyfetch("https://www.cev.eu/")
+        html = await resp.string()
         self._gallery = [ f"https://www.cev.eu{match[0]}"
                           for match in re.finditer(r"(\/media\/[\w .,@;?^=%&:\/~+#-]*[\w@?^=%&\/~+#-]).(jpg|JPG)", html) ] # pylint: disable=line-too-long
         self._videos = [ f"https://{match[0].replace('/embed/', '/v/').split('?')[0]}"
