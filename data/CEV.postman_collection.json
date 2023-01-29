@@ -673,7 +673,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://weblivefeed.cev.eu/LiveScores.json",
+							"raw": "https://cev-next-heroku.dxstiny.workers.dev/",
 							"protocol": "https",
 							"host": [
 								"championsleague",

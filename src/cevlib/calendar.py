@@ -158,7 +158,7 @@ class Calendar(IType):
         timestamp = datetime(year if year else today.year,
                              month if month else today.month, 1).strftime("%Y-%m-%dT%H:%M:%SZ")
         matches: List[Dict[str, Any]] = [ ]
-        resp = await pyfetch.get(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") # pylint: disable=line-too-long
+        resp = await pyfetch(f"https://www.cev.eu/umbraco/api/CalendarApi/GetCalendar?nodeId=11346&culture=en-US&date={timestamp}") # pylint: disable=line-too-long
         jdata = await resp.json()
         calendar = DictEx(jdata)
         for date in calendar.ensureList("Dates"):
@@ -216,7 +216,7 @@ class Calendar(IType):
     @staticmethod
     async def _getLiveScoreMatches() -> List[Dict[str, Any]]:
         matches = [ ]
-        resp = await pyfetch.get("https://weblivefeed.cev.eu/LiveScores.json")
+        resp = await pyfetch("https://cev-next-heroku.dxstiny.workers.dev/")
         jdata = DictEx(await resp.json())
         for competition in jdata.ensure("competitions", list):
             dex = DictEx(competition)

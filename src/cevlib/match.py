@@ -251,13 +251,13 @@ class Match(IFullMatch):
 
     async def _getForm(self) -> JObject:
         if self._formCache is None:
-            resp = await pyfetch.get(self._getLink("GetFormComponent"))
+            resp = await pyfetch(self._getLink("GetFormComponent"))
             self._formCache = json.loads(await resp.json())
         return self._formCache
 
     async def _getMatchId(self) -> Optional[int]:
         try:
-            resp = await pyfetch.get(self._getLink("livescorehero"))
+            resp = await pyfetch(self._getLink("livescorehero"))
             jdata = await resp.json()
             return int(jdata.get("MatchId"))
         except: # pylint: disable=bare-except
@@ -266,7 +266,7 @@ class Match(IFullMatch):
     async def _requestLiveScoresJson(self, useCache: bool = True) -> JObject:
         if useCache and self._liveScoresCache:
             return self._liveScoresCache
-        resp = await pyfetch.get("https://weblivefeed.cev.eu/LiveScores.json")
+        resp = await pyfetch("https://cev-next-heroku.dxstiny.workers.dev/")
         if resp.status == 200:
             self._liveScoresCache = DictEx(await resp.json())
             return self._liveScoresCache
@@ -303,22 +303,22 @@ class Match(IFullMatch):
     async def _tryGetFinishedGameData(self, trulyFinished: bool = True) -> Optional[JObject]:
         if self._invalidMatchCentre:
             return None
-        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        resp = await pyfetch(self._getLink("getlivescorehero"))
         livescorehero = await resp.json()
-        resp = await pyfetch.get(self._getLink("GetMatchPoll"))
+        resp = await pyfetch(self._getLink("GetMatchPoll"))
         matchpolldata = await resp.json()
         self._finished = trulyFinished
         return ScoreHeroToJson.convert(livescorehero, matchpolldata)
 
     async def _getTeam(self, index: int, home: bool) -> Optional[Team]:
         try:
-            resp = await pyfetch.get(self._getLink("GetStartingTeamComponent", index))
+            resp = await pyfetch(self._getLink("GetStartingTeamComponent", index))
             teamData = await resp.json()
-            resp = await pyfetch.get(self._getLink("GetPlayerStatsComponentMC"))
+            resp = await pyfetch(self._getLink("GetPlayerStatsComponentMC"))
             playerStatsData = await resp.json()
-            resp = await pyfetch.get(self._getLink("GetTeamStatsComponentMC"))
+            resp = await pyfetch(self._getLink("GetTeamStatsComponentMC"))
             teamStatsData = await resp.json()
-            resp = await pyfetch.get(self._getLink("GetMatchPoll"))
+            resp = await pyfetch(self._getLink("GetMatchPoll"))
             matchPoll = await resp.json()
             liveScore = DictEx(await self._requestLiveScoresJsonByMatchSafe())
             form = await self._getForm()
@@ -420,7 +420,7 @@ class Match(IFullMatch):
 
     async def playByPlay(self) -> Optional[PlayByPlay]:
         try:
-            resp = await pyfetch.get(self._getLink("GetPlayByPlayComponent"))
+            resp = await pyfetch(self._getLink("GetPlayByPlayComponent"))
             jdata = await resp.json()
             return PlayByPlay(jdata)
         except Exception:
@@ -461,7 +461,7 @@ class Match(IFullMatch):
                 return duration
         if self._invalidMatchCentre:
             return timedelta()
-        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        resp = await pyfetch(self._getLink("getlivescorehero"))
         jdata = await resp.json()
         return timedelta(minutes = float(jdata.get("Duration").split(" ")[0]))
 
@@ -477,7 +477,7 @@ class Match(IFullMatch):
         if link:
             return link
 
-        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        resp = await pyfetch(self._getLink("getlivescorehero"))
         jdata = DictEx(await resp.json())
         return jdata.tryGet("HighLightUrl", str)
 
@@ -489,7 +489,7 @@ class Match(IFullMatch):
             self._highlightsLinkCache = jdata.tryGet("highlightsLink", str)
 
             if not self._highlightsLinkCache:
-                resp = await pyfetch.get(self._getLink("getlivescorehero"))
+                resp = await pyfetch(self._getLink("getlivescorehero"))
                 jdata = DictEx(await resp.json())
                 self._highlightsLinkCache = jdata.tryGet("HighLightUrl", str)
 
@@ -508,7 +508,7 @@ class Match(IFullMatch):
                 "GroupPool": jdata.ensure("groupName", str),
                 "MatchNumber": jdata.ensure("matchNumber", str)
             })
-        resp = await pyfetch.get(self._getLink("getlivescorehero"))
+        resp = await pyfetch(self._getLink("getlivescorehero"))
         jdata = DictEx(await resp.json())
         assert jdata is not None
         return MatchCompetition(jdata)
@@ -517,7 +517,7 @@ class Match(IFullMatch):
         topPlayers = TopPlayers()
         links = self._getLinks("GetTopStatisticsComponent")
         for link in links:
-            resp = await pyfetch.get(link)
+            resp = await pyfetch(link)
             jdata = await resp.json()
             topPlayers.append(TopPlayer(jdata))
         return topPlayers
@@ -535,7 +535,7 @@ class Match(IFullMatch):
     @staticmethod
     async def byUrl(url: str) -> Match:
         """creates a match by match url (link/href)"""
-        resp = await pyfetch.get(url)
+        resp = await pyfetch(url)
         return Match(await resp.string(), url)
 
 

@@ -13,6 +13,10 @@ T = TypeVar("T")
 async def asyncRunInThread(target: Callable[[Any], None],
                            *args: Optional[Iterable[Any]]) -> None:
     """runs the callable in a thread while providing an async interface for it"""
+    # threads are currently not supported in pyodide (January 2023)
+    target(*args) # type: ignore
+    return
+
     thread = Thread(target = target, args = args)
     thread.start()
     while thread.is_alive():
@@ -24,6 +28,9 @@ async def asyncRunInThreadWithReturn(target: Callable[[Any], T],
     runs the callable in a thread while providing an async interface for it
     (allows return value)
     """
+    # threads are currently not supported in pyodide (January 2023)
+    return target(*args) # type: ignore
+
     queue: Queue[Any] = Queue()
 
     def _implement() -> None:

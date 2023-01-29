@@ -368,7 +368,7 @@ class Competition(IType):
         html = ""
         competition = (await Competitions.getAll()).getByLink(url)
         assert competition
-        resp = await pyfetch.get(url)
+        resp = await pyfetch(url)
         html = await resp.string()
         rounds = [ ]
         soup = BeautifulSoup(html, "html.parser")
@@ -386,7 +386,7 @@ class Competition(IType):
             tableDiv = comp.find("div", class_="pool-standings-table")
             standings = Standings(tableDiv)
             link = "https:" + linkDiv["data-score-endpoint"]
-            resp = await pyfetch.get(link)
+            resp = await pyfetch(link)
             jdata = await resp.json()
             name = roundNameLookup[i] if i <= len(roundNameLookup) else "N/A"
             rounds.append(Competition._parseRound(name,
@@ -540,7 +540,7 @@ class Competitions(IType):
     @staticmethod
     async def getAll() -> Competitions:
         """get all competitions"""
-        resp = await pyfetch.get("https://www.cev.eu/")
+        resp = await pyfetch("https://www.cev.eu/")
         return Competitions(await resp.string())
 
     @property
